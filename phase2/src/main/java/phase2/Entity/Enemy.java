@@ -1,29 +1,22 @@
 package phase2.Entity;
 
 import phase2.UI.GamePanel;
-import phase2.UI.KeyHandler;
-import java.awt.*;
 
-public class Player extends Entity {
+public class Enemy extends Entity {
     GamePanel gp;
-    KeyHandler keyH;
-    private Image up, down, left, right;
 
-    public Player(GamePanel gp, KeyHandler keyH) {
+    public Enemy(GamePanel gp) {
         this.gp = gp;
-        this.keyH = keyH;
-        setDefaultValues();
-        getPlayerImage();
     }
 
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        x = 120;
+        y = 120;
         speed = 4;
         direction = "down";
     }
 
-    public void getPlayerImage() {
+    public void getImage() {
         try {
             // If you find a better way to do this, then you can mess around with it, but
             // this is the best I could research into this
@@ -48,32 +41,7 @@ public class Player extends Entity {
         }
     }
 
-    public void update() {
-        if (keyH.wPressed) {
-            direction = "up";
-            y -= speed;
-        } else if (keyH.sPressed) {
-            direction = "down";
-            y += speed;
-        } else if (keyH.aPressed) {
-            direction = "left";
-            x -= speed;
-        } else if (keyH.dPressed) {
-            direction = "right";
-            x += speed;
-        }
+    private void Astar(){
+        if
     }
-
-    public void draw(Graphics2D g2d) {
-
-        Image image = switch (direction) {
-            case "up" -> up;
-            case "down" -> down;
-            case "left" -> left;
-            case "right" -> right;
-            default -> null;
-        };
-        g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
-    }
-
 }

@@ -9,6 +9,7 @@
 package phase2.UI;
 
 import phase2.Entity.Player;
+import phase2.Entity.Enemy;
 import phase2.Tile.TileManager;
 import javax.swing.JPanel;
 import java.awt.*;
@@ -31,6 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
     Player player = new Player(this, keyHandler);
+    Enemy enemy = new Enemy(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -80,7 +82,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
-
+        enemy.update();
     }
 
     public void paintComponent(Graphics g) {
