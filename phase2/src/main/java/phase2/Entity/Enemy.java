@@ -1,6 +1,9 @@
 package phase2.Entity;
 
 import phase2.UI.GamePanel;
+import phase2.Floor.Grid;
+import java.util.ArrayList;
+import java.awt.*;
 
 public class Enemy extends Entity {
     GamePanel gp;
@@ -41,7 +44,27 @@ public class Enemy extends Entity {
         }
     }
 
-    private void Astar(){
-        if
+    private void Astar(Player player) {
+        int px,py;
+
+        float g=Math.abs(px-x)+Math.abs(py+y);
+        float h=Math.abs(player.getX()-px)+Math.abs(player.getY()-py);
+        float f=g+h;
+        ArrayList <Grid> toSearch=new ArrayList<Grid>(Arrays.asList(Grid));    
+        ArrayList<Grid> processed=new ArrayList<Grid>;
+        while(toSearch.Any()){
+            current=toSearch[0];
+            for each(Grid t:toSearch){
+                t.F<
+            }
+        }
+    }
+
+    public void update() {
+
+    }
+
+    public void draw(Graphics2D g2d) {
+
     }
 }

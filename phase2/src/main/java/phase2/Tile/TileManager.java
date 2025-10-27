@@ -11,43 +11,34 @@ import java.util.Objects;
 
 public class TileManager {
     GamePanel gp;
-    Tile[] tile;
-    int[][] mapTileNum;
+    Tile[] tileTypes; // Renamed for clarity - these are tile type definitions
+    public Tile[][] mapTiles; // 2D array of actual tile instances for the map
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[10];
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+        tileTypes = new Tile[10];
+        mapTiles = new Tile[gp.maxScreenCol][gp.maxScreenRow];
 
         getTileImage();
-        loadMap("maps/map1.txt"); // the location of the map file its stored as 16x12 text file
+        loadMap("maps/map1.txt");
     }
 
     public void getTileImage() {
         try {
-            /*
-             * TO-DO:
-             * Find a way to take out the tile images from the tileset they gave from the
-             * Top_Down_Adventure_Pack assets
-             *
-             * Create new styles of rooms, I hope this format is easy enough to follow to
-             * branch out and create more rooms
-             * Also we need to enable collision with walls, but I am not sure on how to do
-             * it
-             *
-             */
+            tileTypes[0] = new Tile();
+            tileTypes[0].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().getResourceAsStream("tile/grass.png")));
+            tileTypes[0].collision = false; // Grass is walkable
 
-            tile[0] = new Tile();
-            tile[0].image = ImageIO
-                    .read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("tile/grass.png")));
+            tileTypes[1] = new Tile();
+            tileTypes[1].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().getResourceAsStream("tile/wall.png")));
+            tileTypes[1].collision = true; // Wall blocks movement
 
-            tile[1] = new Tile();
-            tile[1].image = ImageIO
-                    .read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("tile/wall.png")));
-
-            tile[2] = new Tile();
-            tile[2].image = ImageIO
-                    .read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("tile/water.png")));
+            tileTypes[2] = new Tile();
+            tileTypes[2].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().getResourceAsStream("tile/water.png")));
+            tileTypes[2].collision = true; // Water blocks movement
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,13 +51,21 @@ public class TileManager {
 
             int col = 0;
             int row = 0;
+
             while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
                 String line = br.readLine();
 
                 while (col < gp.maxScreenCol) {
                     String[] numbers = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
-                    mapTileNum[col][row] = num;
+
+                    // Create a new Tile instance for each map position
+                    mapTiles[col][row] = new Tile();
+                    mapTiles[col][row].image = tileTypes[num].image;
+                    mapTiles[col][row].collision = tileTypes[num].collision;
+                    mapTiles[col][row].col = col;
+                    mapTiles[col][row].row = row;
+
                     col++;
                 }
 
@@ -74,10 +73,8 @@ public class TileManager {
                     col = 0;
                     row++;
                 }
-
             }
             br.close();
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -90,8 +87,8 @@ public class TileManager {
         int y = 0;
 
         while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
-            int tileNum = mapTileNum[col][row];
-            g2.drawImage(tile[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
+            Tile tile = mapTiles[col][row];
+            g2.drawImage(tile.image, x, y, gp.tileSize, gp.tileSize, null);
             col++;
             x += gp.tileSize;
 
@@ -100,6 +97,27 @@ public class TileManager {
                 x = 0;
                 row++;
                 y += gp.tileSize;
+            }
+        }
+    }
+
+    // Pathfinding helper methods
+    public Tile getTile(int col, int row) {
+        if (col >= 0 && col < gp.maxScreenCol && row >= 0 && row < gp.maxScreenRow) {
+            return mapTiles[col][row];
+        }
+        return null;
+    }
+
+    public boolean isWalkable(int col, int row) {
+        Tile tile = getTile(col, row);
+        return tile != null && !tile.collision;
+    }
+
+    public void resetPathfinding() {
+        for (int col = 0; col < gp.maxScreenCol; col++) {
+            for (int row = 0; row < gp.maxScreenRow; row++) {
+                mapTiles[col][row].reset();
             }
         }
     }

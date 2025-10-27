@@ -24,7 +24,11 @@ public abstract class Entity {
 
     public abstract void draw(Graphics2D g2d);
 
-    public Point getLocation() {
-        return new Point(x, y);
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }
