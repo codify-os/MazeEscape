@@ -38,6 +38,9 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+
+        tileManager = new TileManager(this);
+        tileManager.loadComponents(); // <- ADD HERE
     }
 
     public void startGameThread() {
@@ -78,8 +81,36 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
+    public void checkMapSwitch() {
+    int playerCol = player.x / tileSize;
+    int playerRow = player.y / tileSize;
+
+    // Right edge
+    if (playerCol >= maxScreenCol) {
+        player.x = 0; // move player to left side of new map
+    }
+
+    // Left edge
+    if (playerCol < 0) {
+        // Optional: previous map
+        player.x = (maxScreenCol - 1) * tileSize;
+    }
+
+    // Bottom edge
+    if (playerRow >= maxScreenRow) {
+        player.y = 0; // move player to top of new map
+    }
+
+    // Top edge
+    if (playerRow < 0) {
+        tileManager.nextMap();
+        player.y = (maxScreenRow - 1) * tileSize;
+    }
+}
+
     public void update() {
         player.update();
+        checkMapSwitch();
 
     }
 
