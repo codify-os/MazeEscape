@@ -18,14 +18,63 @@ public class Tile {
         reset();
     }
 
+    /**
+     * helper function to calculate F cost
+     */
     public void calculateFCost() {
         fCost = gCost + hCost;
     }
 
+    /**
+     * resets all a* related variables to 0
+     */
     public void reset() {
         gCost = 0;
         hCost = 0;
         fCost = 0;
         parent = null;
+    }
+
+    /**
+     * helper for calculating H cost
+     * 
+     * @param target tile of the destination/target
+     */
+    public void setHCost(Tile target) {
+        hCost = Math.abs(col - target.col) + Math.abs(row - target.row);
+    }
+
+    /**
+     * helper function that returns if the tile is walkable through a boolean
+     * 
+     * @return boolean representing the ability to move through the tile
+     */
+    public boolean isWalkable() {
+        return !collision;
+    }
+
+    /**
+     * used for checking if two tiles are equal
+     * 
+     * @return boolean true if equal or false if not
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Tile))
+            return false;
+        Tile other = (Tile) obj;
+        return this.col == other.col && this.row == other.row;
+    }
+
+    /**
+     * hash code for tile through the forumla col*1000+row
+     * 
+     * @return hash code for tile
+     */
+    @Override
+    public int hashCode() {
+        return col * 1000 + row;
     }
 }

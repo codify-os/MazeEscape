@@ -10,6 +10,7 @@ package phase2.UI;
 
 import phase2.Entity.Player;
 import phase2.Entity.Enemy;
+import phase2.Entity.Pathfinder;
 import phase2.Tile.TileManager;
 import javax.swing.JPanel;
 import java.awt.*;
@@ -27,12 +28,13 @@ public class GamePanel extends JPanel implements Runnable {
 
     // FPS
     final double FPS = 60.0;
-    TileManager tileManager = new TileManager(this);
+    public TileManager tileManager = new TileManager(this);
 
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
     Player player = new Player(this, keyHandler);
-    Enemy enemy = new Enemy(this);
+    Pathfinder pathfinder = new Pathfinder(tileManager);
+    Enemy enemy = new Enemy(this, pathfinder, player);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -90,6 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2d = (Graphics2D) g;
         tileManager.draw(g2d);
         player.draw(g2d);
+        enemy.draw(g2d);
         g2d.dispose();
     }
 }
