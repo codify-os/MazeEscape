@@ -1,4 +1,4 @@
-package UI;
+package phase2.UI;
 
 import javax.swing.JFrame;
 

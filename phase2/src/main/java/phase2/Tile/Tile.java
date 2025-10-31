@@ -1,4 +1,4 @@
-package Tile;
+package phase2.Tile;
 
 import java.awt.image.BufferedImage;
 

@@ -1,4 +1,4 @@
-package Entity;
+package phase2.Entity;
 
 import UI.GamePanel;
 import UI.KeyHandler;
