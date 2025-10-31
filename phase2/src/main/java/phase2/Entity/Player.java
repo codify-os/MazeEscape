@@ -1,7 +1,7 @@
 package phase2.Entity;
 
-import UI.GamePanel;
-import UI.KeyHandler;
+import phase2.UI.GamePanel;
+import phase2.UI.KeyHandler;
 import java.awt.*;
 
 

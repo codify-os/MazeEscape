@@ -1,6 +1,6 @@
 package phase2.Tile;
 
-import UI.GamePanel;
+import phase2.UI.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
