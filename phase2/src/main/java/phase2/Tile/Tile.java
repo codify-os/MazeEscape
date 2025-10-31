@@ -1,16 +1,9 @@
 package phase2.Tile;
 
-<<<<<<< HEAD
-import java.awt.*;
-=======
->>>>>>> Enemy
 import java.awt.image.BufferedImage;
 
 public class Tile {
     public BufferedImage image;
-<<<<<<< HEAD
-    public boolean collision = false;
-=======
     public boolean collision = false; // For walls/obstacles
 
     // A* pathfinding properties
@@ -84,5 +77,4 @@ public class Tile {
     public int hashCode() {
         return col * 1000 + row;
     }
->>>>>>> Enemy
 }
