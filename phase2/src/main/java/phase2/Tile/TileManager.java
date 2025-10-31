@@ -13,11 +13,12 @@ import java.util.Objects;
 
 public class TileManager {
     GamePanel gp;
-    Tile[] tile;
+    Tile[] tileType;
     int[][] mapTileNum;
+    Tile[][] mapTiles;
 
     // Multiple maps
-    String[] maps = {"maps/map1.txt", "maps/map2.txt"};
+    String[] maps = { "maps/map1.txt", "maps/map2.txt" };
     int currentMapIndex = 0;
 
     // Components per map
@@ -26,8 +27,9 @@ public class TileManager {
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[20];
+        tileType = new Tile[20];
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+        mapTiles = new Tile[gp.maxScreenCol][gp.maxScreenRow];
 
         // Initialize component lists
         for (int i = 0; i < maps.length; i++) {
@@ -40,43 +42,56 @@ public class TileManager {
 
     public void getTileImage() {
         try {
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(Objects.requireNonNull(
+            tileType[0] = new Tile();
+            tileType[0].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().getResourceAsStream("tile/grass.png")));
 
-            tile[1] = new Tile();
-            tile[1].image = ImageIO.read(Objects.requireNonNull(
+            tileType[1] = new Tile();
+            tileType[1].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().getResourceAsStream("tile/wall.png")));
+            tileType[1].collision = true;
 
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(Objects.requireNonNull(
+            tileType[2] = new Tile();
+            tileType[2].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().getResourceAsStream("tile/water.png")));
-            
-            tile[3] = new Tile();
-            tile[3].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(1).png")));
-            
-            tile[4] = new Tile();
-            tile[4].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(45).png")));
-            
-            tile[5] = new Tile();
-            tile[5].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/water_tile_anim.gif")));
+            tileType[2].collision = true;
 
-            tile[6] = new Tile();
-            tile[6].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
+            tileType[3] = new Tile();
+            tileType[3].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().getResourceAsStream(
+                            "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(1).png")));
 
-            tile[7] = new Tile();
-            tile[7].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(6).png")));
+            tileType[4] = new Tile();
+            tileType[4].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().getResourceAsStream(
+                            "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(45).png")));
 
-            tile[8] = new Tile();
-            tile[8].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_(1).png")));
+            tileType[5] = new Tile();
+            tileType[5].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/water_tile_anim.gif")));
+            tileType[5].collision = true;
 
-            tile[9] = new Tile();
-            tile[9].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(39).png")));
+            tileType[6] = new Tile();
+            tileType[6].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
+            tileType[6].collision = true;
 
-            tile[10] = new Tile();
-            tile[10].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(14).png")));
+            tileType[7] = new Tile();
+            tileType[7].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(6).png")));
+
+            tileType[8] = new Tile();
+            tileType[8].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_(1).png")));
+            tileType[8].collision = true;
+
+            tileType[9] = new Tile();
+            tileType[9].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(39).png")));
+
+            tileType[10] = new Tile();
+            tileType[10].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
+                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(14).png")));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,7 +109,14 @@ public class TileManager {
                 String line = br.readLine();
                 String[] numbers = line.split(" ");
                 for (col = 0; col < gp.maxScreenCol; col++) {
-                    mapTileNum[col][row] = Integer.parseInt(numbers[col]);
+                    int tileNum = Integer.parseInt(numbers[col]);
+                    mapTileNum[col][row] = tileNum;
+
+                    // Create pathfinding tile
+                    mapTiles[col][row] = new Tile();
+                    mapTiles[col][row].collision = tileType[tileNum].collision;
+                    mapTiles[col][row].col = col;
+                    mapTiles[col][row].row = row;
                 }
                 row++;
             }
@@ -121,7 +143,8 @@ public class TileManager {
         mapComponents[currentMapIndex].add(component);
     }
 
-    // =================== NEW: Add a component to a specific map ===================
+    // =================== NEW: Add a component to a specific map
+    // ===================
     public void addComponentToMap(int mapIndex, GameComponent component) {
         if (mapIndex >= 0 && mapIndex < maps.length) {
             mapComponents[mapIndex].add(component);
@@ -139,7 +162,7 @@ public class TileManager {
         for (int row = 0; row < gp.maxScreenRow; row++) {
             for (int col = 0; col < gp.maxScreenCol; col++) {
                 int tileNum = mapTileNum[col][row];
-                g2.drawImage(tile[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(tileType[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
                 x += gp.tileSize;
             }
             x = 0;
@@ -157,8 +180,8 @@ public class TileManager {
         try {
             // Example component for first map
             // BufferedImage chestImg = ImageIO.read(Objects.requireNonNull(
-            //         getClass().getClassLoader().getResourceAsStream(
-            //                 "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
+            // getClass().getClassLoader().getResourceAsStream(
+            // "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
             // GameComponent chest = new GameComponent(1, 3, 1, 1, chestImg, true);
             // addComponentToMap(0, chest); // Added specifically to map 0 (first map)
 
@@ -180,11 +203,11 @@ public class TileManager {
                             "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(11).png")));
             GameComponent stoneMapTile1 = new GameComponent(2, 9, 1, 1, stoneMapImg1, true);
             addComponentToMap(1, stoneMapTile1); // Added specifically to map 1 (second map)
-            
+
             BufferedImage stoneMapImg2 = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().getResourceAsStream(
                             "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(11).png")));
-            GameComponent stoneMapTile2 = new GameComponent(1, 8, 1, 1, stoneMapImg1, true);
+            GameComponent stoneMapTile2 = new GameComponent(1, 8, 1, 1, stoneMapImg2, true);
             addComponentToMap(1, stoneMapTile2); // Added specifically to map 1 (second map)
 
             BufferedImage stoneMapImg3 = ImageIO.read(Objects.requireNonNull(
@@ -360,84 +383,100 @@ public class TileManager {
                             "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(20).png")));
             GameComponent guideTile1 = new GameComponent(3, 3, 1, 1, guide, true);
             addComponentToMap(1, guideTile1); // Added specifically to map 1 (second map)
-            
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         Object[][] componentsData = {
-        // Trees
-        {8, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {8, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {6, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png"},
-        {6, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png"},
-        {14, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(32).png"},
-        {5, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(15).png"},
-        {14, 0, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {3, 5, 2, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {2, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {2, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {2, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {5, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {8, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {9, 2, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {9, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {11, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png"},
-        {10, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png"},
-        {12, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {11, 1, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {9, 1, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {14, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {9, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {15, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {15, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {15, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {9, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {9, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png"},
-        {9, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png"},
-        {9, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png"},
+                // Trees
+                { 8, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 8, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 6, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png" },
+                { 6, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png" },
+                { 14, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(32).png" },
+                { 5, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(15).png" },
+                { 14, 0, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 3, 5, 2, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 2, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 2, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 2, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 5, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 8, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 9, 2, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 9, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 11, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png" },
+                { 10, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png" },
+                { 12, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 11, 1, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 9, 1, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 14, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 9, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 15, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 15, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 15, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 9, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 9, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(3).png" },
+                { 9, 4, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(37).png" },
+                { 9, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(2).png" },
 
-        //flowers
-        {10, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(7).png"},
-        {13, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png"},
-        {12, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png"},
-        {5, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png"},
-        {14, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png"},
+                // flowers
+                { 10, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(7).png" },
+                { 13, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png" },
+                { 12, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png" },
+                { 5, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png" },
+                { 14, 8, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(8).png" },
 
+                { 15, 0, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(18).png" },
 
-        {15, 0, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(18).png"},
+                // traps
+                { 13, 3, 1, 1,
+                        "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/regia_waterplant_tile_anim.gif" },
+                { 14, 3, 1, 1,
+                        "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/regia_waterplant_tile_anim.gif" },
+                { 3, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(40).png" },
+                { 11, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(41).png" },
+                { 11, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(41).png" },
 
-        //traps
-        {13, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/regia_waterplant_tile_anim.gif"},
-        {14, 3, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/regia_waterplant_tile_anim.gif"},
-        {3, 7, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(40).png"},
-        {11, 6, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(41).png"},
-        {11, 5, 1, 1, "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(41).png"},
+        };
 
+        try {
+            for (Object[] data : componentsData) {
+                int x = (int) data[0];
+                int y = (int) data[1];
+                int width = (int) data[2];
+                int height = (int) data[3];
+                String path = (String) data[4];
 
-        
-    };
-
-    try {
-        for (Object[] data : componentsData) {
-            int x = (int) data[0];
-            int y = (int) data[1];
-            int width = (int) data[2];
-            int height = (int) data[3];
-            String path = (String) data[4];
-
-            BufferedImage img = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream(path)));
-            GameComponent comp = new GameComponent(x, y, width, height, img, true);
-            addComponentToMap(1, comp); // Use the correct map index if needed
-        }
-    } catch (Exception e) {
+                BufferedImage img = ImageIO.read(Objects.requireNonNull(
+                        getClass().getClassLoader().getResourceAsStream(path)));
+                GameComponent comp = new GameComponent(x, y, width, height, img, true);
+                addComponentToMap(1, comp); // Use the correct map index if needed
+            }
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+
     }
 
-        
+    // Pathfinding helper methods
+    public Tile getTile(int col, int row) {
+        if (col >= 0 && col < gp.maxScreenCol && row >= 0 && row < gp.maxScreenRow) {
+            return mapTiles[col][row];
+        }
+        return null;
+    }
+
+    public boolean isWalkable(int col, int row) {
+        Tile tile = getTile(col, row);
+        return tile != null && !tile.collision;
+    }
+
+    public void resetPathfinding() {
+        for (int col = 0; col < gp.maxScreenCol; col++) {
+            for (int row = 0; row < gp.maxScreenRow; row++) {
+                mapTiles[col][row].reset();
+            }
+        }
     }
 }
-
-
