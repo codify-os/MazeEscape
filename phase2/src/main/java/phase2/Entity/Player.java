@@ -11,7 +11,11 @@ public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
     private Image up, down, left, right;
+    private Image attackUp, attackDown, attackLeft, attackRight;
     private Enemy targetEnemy;
+    private boolean isAttacking = false;
+    private long attackAnimationStart = 0;
+    private static final long ATTACK_ANIMATION_DURATION = 300; // ms
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -60,11 +64,21 @@ public class Player extends Entity{
             right = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
             left = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
 
+            // Load attack animations
+            attackUp = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_up_anim.gif"));
+            attackDown = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_down_anim.gif"));
+            attackRight = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_right_anim.gif"));
+            attackLeft = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_left_anim.gif"));
+
             MediaTracker tracker = new MediaTracker(new java.awt.Canvas());
             tracker.addImage(up, 0);
             tracker.addImage(down, 1);
             tracker.addImage(right, 2);
             tracker.addImage(left, 3);
+            tracker.addImage(attackUp, 4);
+            tracker.addImage(attackDown, 5);
+            tracker.addImage(attackRight, 6);
+            tracker.addImage(attackLeft, 7);
             tracker.waitForAll();
         }catch(Exception e) {
             e.printStackTrace();
@@ -87,8 +101,18 @@ public class Player extends Entity{
 
         // Handle attack input
         if (keyH.spacePressed && targetEnemy != null && targetEnemy.isAlive()) {
-            if (isInRange(targetEnemy) && canAttack()) {
+            if (isInRange(targetEnemy) && canAttack() && !isAttacking) {
                 attack(targetEnemy);
+                isAttacking = true;
+                attackAnimationStart = System.currentTimeMillis();
+            }
+        }
+
+        // Update attack animation state
+        if (isAttacking) {
+            long elapsed = System.currentTimeMillis() - attackAnimationStart;
+            if (elapsed >= ATTACK_ANIMATION_DURATION) {
+                isAttacking = false;
             }
         }
 
@@ -96,14 +120,27 @@ public class Player extends Entity{
         updateCooldown();
     }
     public void draw(Graphics2D g2d){
-
-       Image image = switch (direction) {
-            case "up" -> up;
-            case "down" -> down;
-            case "left" -> left;
-            case "right" -> right;
-            default -> null;
-        };
+        Image image;
+        
+        // Use attack animation if attacking, otherwise use movement animation
+        if (isAttacking) {
+            image = switch (direction) {
+                case "up" -> attackUp;
+                case "down" -> attackDown;
+                case "left" -> attackLeft;
+                case "right" -> attackRight;
+                default -> attackDown;
+            };
+        } else {
+            image = switch (direction) {
+                case "up" -> up;
+                case "down" -> down;
+                case "left" -> left;
+                case "right" -> right;
+                default -> down;
+            };
+        }
+        
         g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
 
         // Draw health bar
