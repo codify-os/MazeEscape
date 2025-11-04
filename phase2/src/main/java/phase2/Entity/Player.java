@@ -124,6 +124,10 @@ public class Player extends Entity{
     }
     public void draw(Graphics2D g2d){
         Image image;
+        int drawWidth = gp.tileSize;
+        int drawHeight = gp.tileSize;
+        int drawX = x;
+        int drawY = y;
         
         // Use attack animation if attacking, otherwise use movement animation
         if (isAttacking) {
@@ -134,6 +138,43 @@ public class Player extends Entity{
                 case "right" -> attackRight;
                 default -> attackDown;
             };
+            
+            // Position sprite so sword swings in front of character based on direction
+            switch (direction) {
+                case "up":
+                    // Up/down: 3 tiles wide, 2 tiles tall
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = x - gp.tileSize;
+                    drawY = y - gp.tileSize;
+                    break;
+                case "down":
+                    // Up/down: 3 tiles wide, 2 tiles tall
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = x - gp.tileSize;
+                    drawY = y;
+                    break;
+                case "left":
+                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
+                    drawWidth = gp.tileSize * 2;
+                    drawHeight = gp.tileSize * 3;
+                    drawX = x - gp.tileSize;
+                    drawY = y - gp.tileSize;
+                    break;
+                case "right":
+                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
+                    drawWidth = gp.tileSize * 2;
+                    drawHeight = gp.tileSize * 3;
+                    drawX = x;
+                    drawY = y - gp.tileSize;
+                    break;
+                default:
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = x - gp.tileSize;
+                    drawY = y;
+            }
         } else {
             image = switch (direction) {
                 case "up" -> up;
@@ -145,7 +186,7 @@ public class Player extends Entity{
         }
         
         if (image != null) {
-            g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+            g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
         }
 
         // Draw health bar
