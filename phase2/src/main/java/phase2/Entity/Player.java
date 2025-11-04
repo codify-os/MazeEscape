@@ -99,12 +99,15 @@ public class Player extends Entity{
             x += speed;
         }
 
-        // Handle attack input
-        if (keyH.spacePressed && targetEnemy != null && targetEnemy.isAlive()) {
-            if (isInRange(targetEnemy) && canAttack() && !isAttacking) {
+        // Handle attack input - always play animation when SPACE is pressed
+        if (keyH.spacePressed && !isAttacking) {
+            // Play swing animation regardless of target
+            isAttacking = true;
+            attackAnimationStart = System.currentTimeMillis();
+            
+            // Only deal damage if target is valid and in range
+            if (targetEnemy != null && targetEnemy.isAlive() && isInRange(targetEnemy) && canAttack()) {
                 attack(targetEnemy);
-                isAttacking = true;
-                attackAnimationStart = System.currentTimeMillis();
             }
         }
 
@@ -141,7 +144,9 @@ public class Player extends Entity{
             };
         }
         
-        g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
+        if (image != null) {
+            g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        }
 
         // Draw health bar
         drawHealthBar(g2d);
