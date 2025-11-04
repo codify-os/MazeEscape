@@ -4,7 +4,8 @@ import phase2.UI.GamePanel;
 import phase2.UI.KeyHandler;
 import java.awt.*;
 
-public class Player extends Entity {
+
+public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
     private Image up, down, left, right;
@@ -24,18 +25,13 @@ public class Player extends Entity {
     }
 
     public void getPlayerImage() {
-        try {
-            // If you find a better way to do this, then you can mess around with it, but
-            // this is the best I could research into this
+        try{
+            //If you find a better way to do this, then you can mess around with it, but this is the best I could research into this
             Toolkit toolkit = Toolkit.getDefaultToolkit();
-            up = toolkit.getImage(getClass().getClassLoader()
-                    .getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_up_anim.gif"));
-            down = toolkit.getImage(getClass().getClassLoader()
-                    .getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_down_anim.gif"));
-            right = toolkit.getImage(getClass().getClassLoader()
-                    .getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
-            left = toolkit.getImage(getClass().getClassLoader()
-                    .getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
+            up = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_up_anim.gif"));
+            down = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_down_anim.gif"));
+            right = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
+            left = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
 
             MediaTracker tracker = new MediaTracker(new java.awt.Canvas());
             tracker.addImage(up, 0);
@@ -43,13 +39,12 @@ public class Player extends Entity {
             tracker.addImage(right, 2);
             tracker.addImage(left, 3);
             tracker.waitForAll();
-        } catch (Exception e) {
+        }catch(Exception e) {
             e.printStackTrace();
         }
     }
-
     public void update() {
-        if (keyH.wPressed) {
+        if(keyH.wPressed) {
             direction = "up";
             y -= speed;
         } else if (keyH.sPressed) {
@@ -58,15 +53,14 @@ public class Player extends Entity {
         } else if (keyH.aPressed) {
             direction = "left";
             x -= speed;
-        } else if (keyH.dPressed) {
+        } else if (keyH.dPressed){
             direction = "right";
             x += speed;
         }
     }
+    public void draw(Graphics2D g2d){
 
-    public void draw(Graphics2D g2d) {
-
-        Image image = switch (direction) {
+       Image image = switch (direction) {
             case "up" -> up;
             case "down" -> down;
             case "left" -> left;
@@ -75,5 +69,4 @@ public class Player extends Entity {
         };
         g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
     }
-
 }

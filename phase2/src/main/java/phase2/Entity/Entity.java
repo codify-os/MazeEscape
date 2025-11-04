@@ -1,7 +1,6 @@
 package phase2.Entity;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public abstract class Entity {
     /*

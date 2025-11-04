@@ -7,23 +7,22 @@ public class KeyHandler implements KeyListener {
     public boolean wPressed, sPressed, aPressed, dPressed;
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_W) {
+        if (code == KeyEvent.VK_W){
             wPressed = true;
         }
-        if (code == KeyEvent.VK_A) {
+        if (code == KeyEvent.VK_A){
             aPressed = true;
         }
-        if (code == KeyEvent.VK_S) {
+        if (code == KeyEvent.VK_S){
             sPressed = true;
         }
-        if (code == KeyEvent.VK_D) {
+        if (code == KeyEvent.VK_D){
             dPressed = true;
         }
     }
@@ -31,16 +30,16 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
-        if (code == KeyEvent.VK_W) {
+        if (code == KeyEvent.VK_W){
             wPressed = false;
         }
-        if (code == KeyEvent.VK_A) {
+        if (code == KeyEvent.VK_A){
             aPressed = false;
         }
-        if (code == KeyEvent.VK_S) {
+        if (code == KeyEvent.VK_S){
             sPressed = false;
         }
-        if (code == KeyEvent.VK_D) {
+        if (code == KeyEvent.VK_D){
             dPressed = false;
         }
     }
