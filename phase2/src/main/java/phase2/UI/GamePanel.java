@@ -11,6 +11,8 @@ import phase2.Entity.Player;
 import phase2.Entity.Enemy;
 import phase2.Entity.Pathfinder;
 import phase2.Tile.TileManager;
+import phase2.game.combat.CombatLogger;
+import phase2.game.combat.CombatManager;
 import javax.swing.JPanel;
 import java.awt.*;
 
@@ -44,6 +46,18 @@ public class GamePanel extends JPanel implements Runnable {
 
         tileManager = new TileManager(this);
         tileManager.loadComponents(); // <- ADD HERE
+
+        // Initialize combat system
+        CombatLogger combatLogger = new CombatLogger();
+        CombatManager.addListener(combatLogger);
+
+        // Set up combat targets
+        player.setTargetEnemy(enemy);
+
+        System.out.println("=== GAME CONTROLS ===");
+        System.out.println("WASD - Move player");
+        System.out.println("SPACE - Attack enemy (when in range)");
+        System.out.println("=====================");
     }
     public void startGameThread() {
         gameThread = new Thread(this);
