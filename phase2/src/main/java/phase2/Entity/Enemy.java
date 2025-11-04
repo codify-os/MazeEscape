@@ -2,6 +2,8 @@ package phase2.Entity;
 
 import phase2.UI.GamePanel;
 import phase2.Tile.Tile;
+import phase2.game.combat.*;
+import phase2.game.stats.*;
 import java.util.List;
 import java.awt.*;
 
@@ -21,6 +23,7 @@ public class Enemy extends Entity {
         this.player = player;
         setDefaultValues();
         getImage();
+        initializeCombat();
         // Calculate initial path
         updatePath();
     }
@@ -30,6 +33,30 @@ public class Enemy extends Entity {
         y = 400;
         speed = 2; // Slower than player
         direction = "down";
+    }
+
+    private void initializeCombat() {
+        // Initialize health (50 HP)
+        this.health = new HealthComponent(50);
+        
+        // Initialize stats (10 attack, 2 defense)
+        this.stats = new Stats(10, 2);
+        
+        // Initialize attack (Slime Attack with 1 tile range, 5% crit, 1.5x crit damage, 1000ms cooldown)
+        this.attackData = new AttackData(
+            "Slime Attack",
+            stats.getAttackPower(),
+            gp.tileSize,  // 1 tile range
+            AttackData.DamageType.PHYSICAL,
+            0.05,  // 5% crit chance
+            1.5,   // 1.5x crit multiplier
+            1000   // 1000ms cooldown
+        );
+    }
+
+    @Override
+    public void onDeath() {
+        System.out.println("Enemy slime defeated!");
     }
 
     public void getImage() {
@@ -55,6 +82,11 @@ public class Enemy extends Entity {
     }
 
     public void update() {
+        // Don't update if dead
+        if (!isAlive()) {
+            return;
+        }
+
         // Follow the current path first
         followPath();
 
@@ -64,6 +96,14 @@ public class Enemy extends Entity {
             updatePath();
             pathUpdateCounter = 0;
         }
+
+        // Attack player if in range
+        if (player != null && player.isAlive() && isInRange(player) && canAttack()) {
+            attack(player);
+        }
+
+        // Update combat cooldowns
+        updateCooldown();
     }
 
     private void updatePath() {
@@ -143,6 +183,10 @@ public class Enemy extends Entity {
     }
 
     public void draw(Graphics2D g2d) {
+        if (!isAlive()) {
+            return; // Don't draw if dead
+        }
+
         Image image = switch (direction) {
             case "up" -> up;
             case "down" -> down;
@@ -151,5 +195,31 @@ public class Enemy extends Entity {
             default -> down;
         };
         g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
+
+        // Draw health bar
+        drawHealthBar(g2d);
+    }
+
+    private void drawHealthBar(Graphics2D g2d) {
+        if (health == null) return;
+
+        int barWidth = gp.tileSize;
+        int barHeight = 5;
+        int barX = x;
+        int barY = y - 10;
+
+        // Background (black)
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(barX, barY, barWidth, barHeight);
+
+        // Health (red for enemy)
+        double healthPercent = health.getHealthPercentage();
+        int healthWidth = (int) (barWidth * healthPercent);
+        g2d.setColor(Color.RED);
+        g2d.fillRect(barX, barY, healthWidth, barHeight);
+
+        // Border (white)
+        g2d.setColor(Color.WHITE);
+        g2d.drawRect(barX, barY, barWidth, barHeight);
     }
 }
