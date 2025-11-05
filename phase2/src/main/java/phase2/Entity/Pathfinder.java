@@ -2,6 +2,8 @@ package phase2.Entity;
 
 import phase2.Tile.Tile;
 import phase2.Tile.TileManager;
+import phase2.UI.GamePanel;
+
 import java.util.*;
 
 public class Pathfinder {
