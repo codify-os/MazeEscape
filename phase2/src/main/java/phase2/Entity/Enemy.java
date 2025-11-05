@@ -13,21 +13,23 @@ public class Enemy extends Entity {
     private List<Tile> currentPath;
     private int pathIndex = 0;
     private int pathUpdateCounter = 0;
-    private static final int PATH_UPDATE_INTERVAL = 30; // Update path every 30 frames (~0.5 seconds at 60 FPS)
+    private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 30 frames (~0.5 seconds at 60 FPS)
 
-    public Enemy(GamePanel gp, Pathfinder pathfinder, Player player) {
+    public Enemy (GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
         this.gp = gp;
         this.pathfinder = pathfinder;
         this.player = player;
-        setDefaultValues();
+        this.worldX = x;
+        this.worldY = y;
+        direction = "down";
+        speed = 2;
+        collisionArea = new Rectangle(8 ,16, gp.tileSize - 16, gp.tileSize - 16);
+
         getImage();
-        // Calculate initial path
         updatePath();
     }
 
     public void setDefaultValues() {
-        x = 400;
-        y = 400;
         speed = 2; // Slower than player
         direction = "down";
     }
@@ -55,8 +57,15 @@ public class Enemy extends Entity {
     }
 
     public void update() {
-        // Follow the current path first
-        followPath();
+        if (!isOnScreen()) {
+            return;
+        }
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        if(!collisionOn) {
+            //follow current path
+            followPath();
+        }
 
         // Update path periodically
         pathUpdateCounter++;
@@ -64,14 +73,23 @@ public class Enemy extends Entity {
             updatePath();
             pathUpdateCounter = 0;
         }
+
+        Rectangle enemyHitBox = new Rectangle(worldX + collisionArea.x, worldY + collisionArea.y,
+                collisionArea.width, collisionArea.height);
+        Rectangle playerHitBox = new Rectangle(player.worldX + player.collisionArea.x,
+                player.worldY + player.collisionArea.y, player.collisionArea.width, player.collisionArea.height);
+
+        if (enemyHitBox.intersects(playerHitBox)) {
+            System.out.println("Player is in combat");
+        }
     }
 
     private void updatePath() {
         // Convert pixel positions to tile coordinates (use center of entity)
-        int enemyCol = (x + gp.tileSize / 2) / gp.tileSize;
-        int enemyRow = (y + gp.tileSize / 2) / gp.tileSize;
-        int playerCol = (player.getX() + gp.tileSize / 2) / gp.tileSize;
-        int playerRow = (player.getY() + gp.tileSize / 2) / gp.tileSize;
+        int enemyCol = (worldX + gp.tileSize / 2) / gp.tileSize;
+        int enemyRow = (worldY + gp.tileSize / 2) / gp.tileSize;
+        int playerCol = (player.getWorldX() + gp.tileSize / 2) / gp.tileSize;
+        int playerRow = (player.getWorldY() + gp.tileSize / 2) / gp.tileSize;
 
         Tile startTile = gp.tileManager.getTile(enemyCol, enemyRow);
         Tile goalTile = gp.tileManager.getTile(playerCol, playerRow);
@@ -90,8 +108,8 @@ public class Enemy extends Entity {
         // Skip the first tile if we're already on it
         if (pathIndex == 0 && currentPath.size() > 1) {
             Tile firstTile = currentPath.get(0);
-            int currentCol = (x + gp.tileSize / 2) / gp.tileSize;
-            int currentRow = (y + gp.tileSize / 2) / gp.tileSize;
+            int currentCol = (worldX + gp.tileSize / 2) / gp.tileSize;
+            int currentRow = (worldY + gp.tileSize / 2) / gp.tileSize;
 
             if (firstTile.col == currentCol && firstTile.row == currentRow) {
                 pathIndex = 1;
@@ -104,45 +122,52 @@ public class Enemy extends Entity {
 
         // Get target tile
         Tile targetTile = currentPath.get(pathIndex);
-        int targetX = targetTile.col * gp.tileSize;
-        int targetY = targetTile.row * gp.tileSize;
+        int targetX = targetTile.col * gp.tileSize + gp.tileSize/2;
+        int targetY = targetTile.row * gp.tileSize + gp.tileSize/2;
 
         // Calculate direction to target
-        int dx = targetX - x;
-        int dy = targetY - y;
+        int dx = targetX - (worldX + gp.tileSize/2);
+        int dy = targetY - (worldY + gp.tileSize/2);
 
         // Calculate distance
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         // If very close to target, snap to it and move to next waypoint
         if (distance < speed) {
-            x = targetX;
-            y = targetY;
+            worldX = targetX;
+            worldY = targetY;
             pathIndex++;
         } else {
             // Move towards target using normalized direction
             // Prioritize one axis at a time to avoid diagonal movement
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0) {
-                    x += speed;
-                    direction = "right";
+            if (!collisionOn) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (dx > 0) {
+                        worldX += speed;
+                        direction = "right";
+                    } else {
+                        worldX -= speed;
+                        direction = "left";
+                    }
                 } else {
-                    x -= speed;
-                    direction = "left";
-                }
-            } else {
-                if (dy > 0) {
-                    y += speed;
-                    direction = "down";
-                } else {
-                    y -= speed;
-                    direction = "up";
+                    if (dy > 0) {
+                        worldY += speed;
+                        direction = "down";
+                    } else {
+                        worldY -= speed;
+                        direction = "up";
+                    }
                 }
             }
         }
     }
 
     public void draw(Graphics2D g2d) {
+        int screenX = worldX - player.worldX + player.screenX;
+        int screenY = worldY - player.worldY + player.screenY;
+        if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth || screenY + gp.tileSize < 0 || screenY > gp.screenHeight) {
+            return;
+        }
         Image image = switch (direction) {
             case "up" -> up;
             case "down" -> down;
@@ -150,6 +175,16 @@ public class Enemy extends Entity {
             case "right" -> right;
             default -> down;
         };
-        g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+    }
+
+    private boolean isOnScreen() {
+        int screenLeft = player.worldX - (gp.screenWidth/2);
+        int screenRight = player.worldX + (gp.screenWidth/2);
+        int screenTop = player.worldY - (gp.screenHeight/2);
+        int screenBottom = player.worldY + (gp.screenHeight/2);
+
+        return worldX + gp.tileSize > screenLeft && worldX < screenRight
+                && worldY + gp.tileSize > screenTop && worldY < screenBottom;
     }
 }

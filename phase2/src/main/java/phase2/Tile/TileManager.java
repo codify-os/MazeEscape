@@ -13,12 +13,12 @@ import java.util.Objects;
 
 public class TileManager {
     GamePanel gp;
-    Tile[] tileType;
-    int[][] mapTileNum;
+    public Tile[] tileType;
+    public int[][] mapTileNum;
     Tile[][] mapTiles;
 
     // Multiple maps
-    String[] maps = { "maps/map1.txt", "maps/map2.txt" };
+    String[] maps = {"maps/map2.txt" };
     int currentMapIndex = 0;
 
     // Components per map
@@ -27,9 +27,9 @@ public class TileManager {
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tileType = new Tile[20];
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
-        mapTiles = new Tile[gp.maxScreenCol][gp.maxScreenRow];
+        tileType = new Tile[40];
+        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
+        mapTiles = new Tile[gp.maxWorldCol][gp.maxWorldRow];
 
         // Initialize component lists
         for (int i = 0; i < maps.length; i++) {
@@ -44,54 +44,183 @@ public class TileManager {
         try {
             tileType[0] = new Tile();
             tileType[0].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream("tile/grass.png")));
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/floor_plain.png")));
 
             tileType[1] = new Tile();
             tileType[1].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream("tile/wall.png")));
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/wall_center.png")));
             tileType[1].collision = true;
 
             tileType[2] = new Tile();
             tileType[2].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream("tile/water.png")));
-            tileType[2].collision = true;
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/column_wall.png")));
 
             tileType[3] = new Tile();
             tileType[3].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream(
-                            "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(1).png")));
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(1).png")));
 
             tileType[4] = new Tile();
             tileType[4].image = ImageIO.read(Objects.requireNonNull(
-                    getClass().getClassLoader().getResourceAsStream(
-                            "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(45).png")));
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(45).png")));
 
             tileType[5] = new Tile();
-            tileType[5].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/water_tile_anim.gif")));
+            tileType[5].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/water_tile_anim.gif")));
             tileType[5].collision = true;
 
             tileType[6] = new Tile();
-            tileType[6].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
+            tileType[6].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_8.png")));
             tileType[6].collision = true;
 
             tileType[7] = new Tile();
-            tileType[7].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(6).png")));
+            tileType[7].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(6).png")));
 
             tileType[8] = new Tile();
-            tileType[8].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_(1).png")));
+            tileType[8].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Tiles_(animated)/Overworld/edge_water_tile_anim_strip_(1).png")));
             tileType[8].collision = true;
 
             tileType[9] = new Tile();
-            tileType[9].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(39).png")));
+            tileType[9].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(39).png")));
 
             tileType[10] = new Tile();
-            tileType[10].image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(
-                    "Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(14).png")));
+            tileType[10].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("Top_Down_Adventure_Pack_v.1.0/Overworld_individual_tiles/ezgif.com-crop(14).png")));
+
+            tileType[11] = new Tile();
+            tileType[11].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_e.png")));
+            tileType[11].collision = true;
+
+            tileType[12] = new Tile();
+            tileType[12].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_ne.png")));
+            tileType[12].collision = true;
+
+            tileType[13] = new Tile();
+            tileType[13].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_nw.png")));
+            tileType[13].collision = true;
+
+            tileType[14] = new Tile();
+            tileType[14].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_se.png")));
+            tileType[14].collision = true;
+
+            tileType[15] = new Tile();
+            tileType[15].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_sw.png")));
+            tileType[15].collision = true;
+
+            tileType[16] = new Tile();
+            tileType[16].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_w.png")));
+            tileType[16].collision = true;
+
+            tileType[17] = new Tile();
+            tileType[17].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_e.png")));
+            tileType[17].collision = true;
+
+            tileType[18] = new Tile();
+            tileType[18].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_e2.png")));
+            tileType[18].collision = true;
+
+            tileType[19] = new Tile();
+            tileType[19].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_n.png")));
+            tileType[19].collision = true;
+
+            tileType[20] = new Tile();
+            tileType[20].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_ne.png")));
+            tileType[20].collision = true;
+
+            tileType[21] = new Tile();
+            tileType[21].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_nw.png")));
+            tileType[21].collision = true;
+
+            tileType[22] = new Tile();
+            tileType[22].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_se.png")));
+            tileType[22].collision = true;
+
+            tileType[23] = new Tile();
+            tileType[23].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_sw.png")));
+            tileType[23].collision = true;
+
+            tileType[24] = new Tile();
+            tileType[24].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_w.png")));
+            tileType[24].collision = true;
+
+            tileType[25] = new Tile();
+            tileType[25].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_w.png")));
+            tileType[25].collision = true;
+
+            tileType[26] = new Tile();
+            tileType[26].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("tile/blackTile.png")));
+            tileType[26].collision = true;
+
+            tileType[27] = new Tile();
+            tileType[27].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_outer_n_reversed.png")));
+            tileType[27].collision = true;
+
+            tileType[28] = new Tile();
+            tileType[28].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/chest_golden_closed.png")));
+            tileType[28].collision = true;
+
+            tileType[29] = new Tile();
+            tileType[29].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_sw_reversed.png")));
+            tileType[29].collision = true;
+
+            tileType[30] = new Tile();
+            tileType[30].image =  ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_se_reversed.png")));
+            tileType[30].collision = true;
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,10 +234,10 @@ public class TileManager {
 
             int col, row = 0;
 
-            while (row < gp.maxScreenRow) {
+            while (row < gp.maxWorldRow) {
                 String line = br.readLine();
                 String[] numbers = line.split(" ");
-                for (col = 0; col < gp.maxScreenCol; col++) {
+                for (col = 0; col < gp.maxWorldCol; col++) {
                     int tileNum = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = tileNum;
 
@@ -156,17 +285,20 @@ public class TileManager {
 
     // Draw tiles and components
     public void draw(Graphics2D g2) {
-        int x = 0;
-        int y = 0;
 
-        for (int row = 0; row < gp.maxScreenRow; row++) {
-            for (int col = 0; col < gp.maxScreenCol; col++) {
+        for (int row = 0; row < gp.maxWorldRow; row++) {
+            for (int col = 0; col < gp.maxWorldCol; col++) {
                 int tileNum = mapTileNum[col][row];
-                g2.drawImage(tileType[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
-                x += gp.tileSize;
+                int worldX = col * gp.tileSize;
+                int worldY = row * gp.tileSize;
+                int screenX = worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = worldY - gp.player.worldY + gp.player.screenY;
+
+                if (isWorldXLarger(worldX) && isWorldXLess(worldX)
+                        && isWorldYLarger(worldY) && isWorldYLess(worldY)) {
+                    g2.drawImage(tileType[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                }
             }
-            x = 0;
-            y += gp.tileSize;
         }
 
         // Draw components
@@ -175,7 +307,22 @@ public class TileManager {
         }
     }
 
+    private boolean isWorldXLarger(int worldX) {
+        return worldX + gp.tileSize > gp.player.worldX - gp.player.screenX;
+    }
+    private boolean isWorldXLess(int worldX) {
+        return worldX - gp.tileSize < gp.player.worldX + gp.player.screenX;
+    }
+    private boolean isWorldYLarger(int worldY) {
+        return worldY + gp.tileSize > gp.player.worldY - gp.player.screenY;
+    }
+    private boolean isWorldYLess(int worldY) {
+        return worldY - gp.tileSize < gp.player.worldY + gp.player.screenY;
+    }
+
+
     // =================== UPDATED: Load components ===================
+
     public void loadComponents() {
         try {
             // Example component for first map
@@ -461,7 +608,7 @@ public class TileManager {
 
     // Pathfinding helper methods
     public Tile getTile(int col, int row) {
-        if (col >= 0 && col < gp.maxScreenCol && row >= 0 && row < gp.maxScreenRow) {
+        if (col >= 0 && col < gp.maxWorldCol && row >= 0 && row < gp.maxWorldRow) {
             return mapTiles[col][row];
         }
         return null;
@@ -473,8 +620,8 @@ public class TileManager {
     }
 
     public void resetPathfinding() {
-        for (int col = 0; col < gp.maxScreenCol; col++) {
-            for (int row = 0; row < gp.maxScreenRow; row++) {
+        for (int col = 0; col < gp.maxWorldCol; col++) {
+            for (int row = 0; row < gp.maxWorldRow; row++) {
                 mapTiles[col][row].reset();
             }
         }

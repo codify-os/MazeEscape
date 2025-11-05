@@ -9,17 +9,24 @@ public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
     private Image up, down, left, right;
+    public final int screenX;
+    public final int screenY;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
+
+        screenX = gp.screenWidth/2 - (gp.tileSize/2);
+        screenY = gp.screenHeight/2- (gp.tileSize/2);
+
+        collisionArea = new Rectangle(8, 16 ,gp.tileSize - 16, gp.tileSize - 16);
         setDefaultValues();
         getPlayerImage();
     }
 
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        worldX = gp.tileSize;
+        worldY = gp.tileSize*2;
         speed = 4;
         direction = "down";
     }
@@ -44,19 +51,32 @@ public class Player extends Entity{
         }
     }
     public void update() {
+
         if(keyH.wPressed) {
             direction = "up";
-            y -= speed;
+
         } else if (keyH.sPressed) {
             direction = "down";
-            y += speed;
+
         } else if (keyH.aPressed) {
             direction = "left";
-            x -= speed;
+
         } else if (keyH.dPressed){
             direction = "right";
-            x += speed;
         }
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        if (keyH.wPressed || keyH.sPressed || keyH.aPressed || keyH.dPressed) {
+            if (!collisionOn) {
+                switch (direction) {
+                    case "up" -> worldY -= speed;
+                    case "down" -> worldY += speed;
+                    case "left" -> worldX -= speed;
+                    case "right" -> worldX += speed;
+                }
+            }
+        }
+
     }
     public void draw(Graphics2D g2d){
 
@@ -67,6 +87,6 @@ public class Player extends Entity{
             case "right" -> right;
             default -> null;
         };
-        g2d.drawImage(image, x, y, gp.tileSize, gp.tileSize, gp);
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
 }
