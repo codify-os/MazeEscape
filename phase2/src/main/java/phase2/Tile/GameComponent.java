@@ -1,8 +1,5 @@
 package phase2.Tile;
 
-import phase2.UI.GamePanel;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;  // <--- ADD THIS
 import java.io.BufferedReader;
