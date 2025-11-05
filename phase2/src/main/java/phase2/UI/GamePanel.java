@@ -52,6 +52,9 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
 
         tileManager = new TileManager(this);
+        checkCollision = new CheckCollision(this);
+        player = new Player(this, keyHandler);
+        pathfinder = new Pathfinder(tileManager);
         //tileManager.loadComponents(); // <- ADD HERE
         spawnEnemies();
     }
