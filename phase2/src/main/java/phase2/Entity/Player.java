@@ -121,37 +121,79 @@ public class Player extends Entity{
 
     }
     public void draw(Graphics2D g2d){
+        Image image;
+        int drawWidth = gp.tileSize;
+        int drawHeight = gp.tileSize;
+        int drawX = screenX;
+        int drawY = screenY;
 
-       Image image;
+        // Use attack animation if attacking, otherwise use movement animation
         if(isAttacking) {
+            image = switch (direction) {
+                case "up" -> atkUp;
+                case "down" -> atkDown;
+                case "left" -> atkLeft;
+                case "right" -> atkRight;
+                default -> down;
+            };
+
+            // Position sprite so sword swings in front of character based on direction
             switch (direction) {
-                case "up" -> image = atkUp;
-                case "down" -> image =atkDown;
-                case "left" -> image =atkLeft;
-                case "right" -> image =atkRight;
-                default -> image = down;
+                case "up":
+                    // Up/down: 3 tiles wide, 2 tiles tall
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = screenX - gp.tileSize;
+                    drawY = screenY - gp.tileSize;
+                    break;
+                case "down":
+                    // Up/down: 3 tiles wide, 2 tiles tall
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = screenX - gp.tileSize;
+                    drawY = screenY;
+                    break;
+                case "left":
+                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
+                    drawWidth = gp.tileSize * 2;
+                    drawHeight = gp.tileSize * 3;
+                    drawX = screenX - gp.tileSize;
+                    drawY = screenY - gp.tileSize;
+                    break;
+                case "right":
+                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
+                    drawWidth = gp.tileSize * 2;
+                    drawHeight = gp.tileSize * 3;
+                    drawX = screenX;
+                    drawY = screenY - gp.tileSize;
+                    break;
+                default:
+                    drawWidth = gp.tileSize * 3;
+                    drawHeight = gp.tileSize * 2;
+                    drawX = screenX - gp.tileSize;
+                    drawY = screenY;
             }
         } else {
-            switch (direction) {
-                case "up" -> image =up;
-                case "down" -> image = down;
-                case "left" -> image =left;
-                case "right" -> image =right;
-                default -> image = down;
-            }
+            image = switch (direction) {
+                case "up" -> up;
+                case "down" -> down;
+                case "left" -> left;
+                case "right" -> right;
+                default -> down;
+            };
         }
 
-
-
-
-       if (damageFlashTimer > 0) {
+        if (damageFlashTimer > 0) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
             g2d.setColor(Color.red);
             g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-            damageFlashTimer --;
-       }
-       g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+            damageFlashTimer--;
+        }
+
+        if (image != null) {
+            g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
+        }
 
         int barWidth = gp.tileSize;
         int barHeight = 4;
