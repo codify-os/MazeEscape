@@ -53,10 +53,11 @@ public class GamePanel extends JPanel implements Runnable {
     //Status flags
     public enum GameState {
         PLAY,
-        PAUSE,
+        GAME_WON,
         GAME_OVER
     }
     public GameState gameState = GameState.PLAY;
+    public int finalScore = 0;
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.black);
@@ -139,6 +140,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        if(gameState == GameState.GAME_WON){
+            if  (keyHandler.enterPressed){
+                System.exit(0);
+            }
+            return;
+        }
+
         player.update();
         player.updateCooldown();
         for (Enemy e: enemies) {
@@ -155,11 +163,16 @@ public class GamePanel extends JPanel implements Runnable {
             restartGame();
         }
 
+
+
+        tileManager.updateTraps();
+
     }
 
     private void restartGame() {
         player.setDefaultValues();
         player.health.fullHeal();
+        player.clearInventory();
 
         enemies.clear();
         spawnEnemies();
@@ -178,6 +191,9 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (gameState == GameState.GAME_OVER) {
             gameOverScreen(g2d);
+        }
+        if(gameState == GameState.GAME_WON) {
+            drawVictoryScreen(g2d);
         }
         drawInventory(g2d);
         g2d.dispose();
@@ -202,7 +218,18 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void spawnEnemies() {
         int [][] spawnPoints = {
-                {3, 12}
+                {3, 12},
+                {14, 3},
+                {45, 37},
+                {42, 34},
+                {45, 46},
+                {3, 12},
+                {14, 3},
+                {45, 18},
+                {42, 3},
+                {34, 46},
+
+
         };
 
         enemies.clear();
@@ -242,5 +269,26 @@ public class GamePanel extends JPanel implements Runnable {
             g2d.setFont(new Font("Comic Sans", Font.PLAIN, 10));
             g2d.drawString("x" + keyCount, 25 + tileSize + 10, 60);
         }
+    }
+    public void drawVictoryScreen(Graphics2D g2d) {
+        g2d.setColor(new Color(0, 0, 0, 100));
+        g2d.fillRect(0, 0, screenWidth, screenHeight);
+
+        g2d.setFont(new Font("Comic Sans", Font.BOLD, 48));
+        g2d.setColor(Color.green);
+        String message = "You Win!";
+        int messageWidth = g2d.getFontMetrics().stringWidth(message);
+        g2d.drawString(message, (screenWidth - messageWidth)/2, screenHeight/2 - 100);
+
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 32));
+        String score = "Final Score" + finalScore;
+        int scoreWidth = g2d.getFontMetrics().stringWidth(score);
+        g2d.drawString(score, (screenWidth - scoreWidth)/2, screenHeight/2 - 30);
+
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN,24 ));
+        g2d.setColor(Color.white);
+        String endingMessage = "Press ENTER to exit";
+        int endingWidth = g2d.getFontMetrics().stringWidth(endingMessage);
+        g2d.drawString(endingMessage, (screenWidth - endingWidth)/2, screenHeight/2 + 40);
     }
 }
