@@ -7,6 +7,8 @@ import phase2.game.stats.Stats;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Player extends Entity{
@@ -20,6 +22,8 @@ public class Player extends Entity{
     private boolean isAttacking = false;
     private int atkCounter = 0;
     private final int ATK_DURATION = 20;
+
+    private Map<String, Integer> inventory = new HashMap<>();
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -98,6 +102,17 @@ public class Player extends Entity{
                     case "right" -> worldX += speed;
                 }
             }
+            if (gp.droppedKey != null && !gp.droppedKey.collected) {
+                Rectangle playerHitBox = new Rectangle(worldX + collisionArea.x,
+                        worldY + collisionArea.y, collisionArea.width, collisionArea.height);
+                Rectangle keyHitBox = new Rectangle(gp.droppedKey.worldX,
+                        gp.droppedKey.worldY, gp.tileSize, gp.tileSize);
+
+                if (playerHitBox.intersects(keyHitBox)) {
+                    gp.droppedKey.collected = true;
+                    addItem("key");
+                }
+            }
         }
 
         if (keyH.spacePressed && !isAttacking) {
@@ -141,9 +156,6 @@ public class Player extends Entity{
             }
         }
 
-
-
-
        if (damageFlashTimer > 0) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
             g2d.setColor(Color.red);
@@ -162,5 +174,23 @@ public class Player extends Entity{
     @Override
     public void onDeath() {
         System.out.println("Game Over!");
+    }
+
+    public void addItem(String itemName) {
+        inventory.put(itemName, inventory.getOrDefault(itemName, 0) + 1);
+    }
+
+    public boolean hasItem(String itemName) {
+        return inventory.getOrDefault(itemName, 0) > 0;
+    }
+
+    public void removeItem(String itemName) {
+        if (hasItem(itemName)) {
+            inventory.put(itemName, inventory.get(itemName) - 1);
+        }
+    }
+
+    public Map<String, Integer> getInventory() {
+        return inventory;
     }
 }
