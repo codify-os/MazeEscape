@@ -17,6 +17,7 @@ public class Enemy extends Entity {
     private int pathIndex = 0;
     private int pathUpdateCounter = 0;
     private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 30 frames (~0.5 seconds at 60 FPS)
+    public boolean hasKey = false;
 
     public Enemy (GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
         this.gp = gp;
@@ -211,6 +212,10 @@ public class Enemy extends Entity {
     @Override
     public void onDeath() {
         System.out.println("Enemy died!");
+        if (hasKey) {
+            gp.droppedKey = new KeyItem(worldX, worldY);
+            System.out.println("This enemy had the key");
+        }
         gp.enemies.remove(this);
     }
 }
