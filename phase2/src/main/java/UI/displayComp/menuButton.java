@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 
 public class menuButton{
     // the names of the seperate buttons on the menu 
-    public enum menutButton_actions { START, RESUME, SETTINGS, EXIT, none } 
+    public enum menuButton_actions { START, RESUME, SETTINGS, EXIT, none } 
     // clickable regions on the menu 
     private Rectangle menuPanel, STARTB, RESUMEB, SETTINGSB, EXITB; 
     private boolean view = false; 
@@ -53,7 +53,7 @@ public class menuButton{
         bar_Graphics.drawRoundRect(x, y, menuWidth, menuHeight, 16, 16);
 
         // creating the titles and centering it on the menu 
-        bar_Graphics.setColor(new Color(0xFFFDD0)); 
+        bar_Graphics.setColor(new Color(0xFFFDD0)); // creamy white 
         Font old = bar_Graphics.getFont(); 
         bar_Graphics.setFont(old.deriveFont(Font.BOLD,18f)); 
         String menu = "MENU";
@@ -74,29 +74,40 @@ public class menuButton{
         EXITB = new Rectangle(buttnX, buttnY, buttnWidth, buttnHeight); 
 
         // drawing the actual buttons created 
+        drawsButtonAt(bar_Graphics, STARTB, "START");
+        drawsButtonAt(bar_Graphics, RESUMEB, "RESUME");
+        drawsButtonAt(bar_Graphics, SETTINGSB, "SETTINGS");
+        drawsButtonAt(bar_Graphics, EXITB, "EXIT");
+    }
 
-
-
+    // Helper function to draw a button with the given parameters + colors 
+    public void drawsButtonAt(Graphics2D bar_Graphics, Rectangle button, String title){
+        bar_Graphics.setColor(new Color(0xC65D57)); 
+        bar_Graphics.fillRoundRect(button.x, button.y, button.width, button.height, 8,8); 
+        bar_Graphics.setColor(new Color(0xD8A7A7)); // dusty rose 
+        bar_Graphics.fillRoundRect(button.x, button.y, button.width, button.height, 8,8); 
+        bar_Graphics.setColor(new Color(0xFFFDD0)); // creamy white
+        FontMetrics fontsize = bar_Graphics.getFontMetrics(); 
+        // x and y locations of the texts 
+        int textX = button.x + (button.width - fontsize.stringWidth(title))/2; 
+        int textY = button.x + (button.height + fontsize.getAscent() - fontsize.getDescent())/2; 
+        bar_Graphics.drawString(title,textX, textY);
 
     }
 
-    public void drawsButton
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Function to have the button clicking affect similar to topPanel.java
+    public menuButton_actions click(MouseEvent e){
+        // checking if anything is there to press 
+        if (!view) return menuButton_actions.none; 
+        // clicking of each of the buttons 
+        Point clickPoint = e.getPoint(); // creating a pointer for the buttons 
+        if (STARTB.contains(clickPoint)) return menuButton_actions.START; 
+        if (STARTB.contains(clickPoint)) return menuButton_actions.RESUME; 
+        if (STARTB.contains(clickPoint)) return menuButton_actions.SETTINGS;
+        if (STARTB.contains(clickPoint)) return menuButton_actions.EXIT; 
+        // option to close the menu when clicked outside of the menu 
+        if (!menuPanel.contains(clickPoint)) view = false; 
+        return menuButton_actions.none;
+    }
 
 }
