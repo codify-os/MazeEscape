@@ -4,6 +4,9 @@ import phase2.UI.GamePanel;
 import phase2.Tile.Tile;
 import java.util.List;
 import java.awt.*;
+import phase2.game.combat.CombatManager;
+import phase2.game.stats.HealthComponent;
+import phase2.game.stats.Stats;
 
 public class Enemy extends Entity {
     GamePanel gp;
@@ -24,6 +27,9 @@ public class Enemy extends Entity {
         direction = "down";
         speed = 2;
         collisionArea = new Rectangle(8 ,16, gp.tileSize - 16, gp.tileSize - 16);
+        stats = new Stats(10, 2);
+        health = new HealthComponent(50, health.getDefense(), this);
+        currentAttack = stats.createBasicAttack();
 
         getImage();
         updatePath();
@@ -79,8 +85,9 @@ public class Enemy extends Entity {
         Rectangle playerHitBox = new Rectangle(player.worldX + player.collisionArea.x,
                 player.worldY + player.collisionArea.y, player.collisionArea.width, player.collisionArea.height);
 
-        if (enemyHitBox.intersects(playerHitBox)) {
-            System.out.println("Player is in combat");
+        if (enemyHitBox.intersects(playerHitBox) && canAttack()) {
+            System.out.println("Enemy attacks player for" + currentAttack.getPower());
+            attack(player);
         }
     }
 
@@ -175,7 +182,20 @@ public class Enemy extends Entity {
             case "right" -> right;
             default -> down;
         };
+        if (damageFlashTimer > 0) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2d.setColor(Color.red);
+            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            damageFlashTimer --;
+        }
         g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+
+        int barWidth = gp.tileSize;
+        int barHeight = 4;
+        int barX = screenX;
+        int barY = screenY - barHeight -4;
+        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
     }
 
     private boolean isOnScreen() {
@@ -186,5 +206,11 @@ public class Enemy extends Entity {
 
         return worldX + gp.tileSize > screenLeft && worldX < screenRight
                 && worldY + gp.tileSize > screenTop && worldY < screenBottom;
+    }
+
+    @Override
+    public void onDeath() {
+        System.out.println("Enemy died!");
+        gp.enemies.remove(this);
     }
 }

@@ -2,6 +2,7 @@ package phase2.game.stats;
 
 import phase2.game.combat.CombatManager;
 import phase2.game.combat.DamageSource;
+import phase2.game.combat.Damageable;
 
 /**
  * Component for managing health and damage for entities
@@ -11,27 +12,32 @@ public class HealthComponent {
     private int currentHealth;
     private int defense;
     private boolean isDead;
+    private Damageable ent;
 
     /**
      * Create a health component with specified max HP and defense
      * @param maxHealth Maximum health points
      * @param defense Defense value (reduces incoming damage)
      */
-    public HealthComponent(int maxHealth, int defense) {
+    public HealthComponent(int maxHealth, int defense, Damageable ent) {
         this.maxHealth = Math.max(1, maxHealth);
         this.currentHealth = this.maxHealth;
         this.defense = Math.max(0, defense);
         this.isDead = false;
+        this.ent = ent;
     }
 
     /**
      * Create a health component with just max HP (0 defense)
      * @param maxHealth Maximum health points
      */
-    public HealthComponent(int maxHealth) {
-        this(maxHealth, 0);
+    public HealthComponent(int maxHealth, int defence) {
+        this(maxHealth, defence, null );
     }
 
+    public void setEnt (Damageable ent) {
+        this.ent = ent;
+    }
     /**
      * Apply damage to this entity
      * @param amount The amount of damage to take
@@ -45,11 +51,11 @@ public class HealthComponent {
         currentHealth = Math.max(0, currentHealth - amount);
         
         // Notify listeners
-        CombatManager.notifyDamage(null, amount, source); // Note: target needs to be passed from entity
+        CombatManager.notifyDamage(ent, amount, source); // Note: target needs to be passed from entity
 
         if (currentHealth == 0 && !isDead) {
             isDead = true;
-            CombatManager.notifyDeath(null, source); // Note: target needs to be passed from entity
+            CombatManager.notifyDeath(ent, source); // Note: target needs to be passed from entity
         }
     }
 
@@ -67,7 +73,7 @@ public class HealthComponent {
         int actualHealed = currentHealth - oldHealth;
 
         if (actualHealed > 0) {
-            CombatManager.notifyHeal(null, actualHealed); // Note: target needs to be passed from entity
+            CombatManager.notifyHeal(ent, actualHealed); // Note: target needs to be passed from entity
         }
     }
 
