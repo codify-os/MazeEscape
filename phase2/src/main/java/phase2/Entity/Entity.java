@@ -29,7 +29,7 @@ public abstract class Entity implements Damageable, Attacker {
     public boolean collisionOn = false;
 
     //Entity Health and stats
-    protected HealthComponent health;
+    public HealthComponent health;
     protected Stats stats;
 
     //Attack data
