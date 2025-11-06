@@ -5,6 +5,10 @@ import java.awt.image.BufferedImage;
 public class Tile {
     public BufferedImage image;
     public boolean collision = false; // For walls/obstacles
+    public boolean isTrap = false;
+    public int trapDamage = 10;
+    public int trapCooldown = 60;
+    public int trapTimer = 0;
 
     // A* pathfinding properties
     public int gCost; // Distance from start node

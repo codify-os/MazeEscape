@@ -1,7 +1,9 @@
 package phase2.Entity;
 
+import phase2.Tile.Tile;
 import phase2.UI.GamePanel;
 import phase2.UI.KeyHandler;
+import phase2.game.combat.DamageSource;
 import phase2.game.stats.HealthComponent;
 import phase2.game.stats.Stats;
 
@@ -9,6 +11,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 
 public class Player extends Entity{
@@ -24,6 +27,8 @@ public class Player extends Entity{
     private final int ATK_DURATION = 20;
 
     private Map<String, Integer> inventory = new HashMap<>();
+
+    private final Random random = new Random();
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -42,8 +47,8 @@ public class Player extends Entity{
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize;
-        worldY = gp.tileSize*2;
+        worldX = gp.tileSize*45;
+        worldY = gp.tileSize*46;
         speed = 4;
         direction = "down";
     }
@@ -91,6 +96,12 @@ public class Player extends Entity{
         } else if (keyH.dPressed){
             direction = "right";
         }
+        int playerCol = (worldX + collisionArea.x) /gp.tileSize;
+        int playerRow = (worldY + collisionArea.y)/gp.tileSize;
+        Tile curTile = gp.tileManager.getTile(playerCol, playerRow);
+        if (curTile != null && curTile.isTrap) {
+            trapDamageHandler(curTile);
+        }
         collisionOn = false;
         gp.checkCollision.checkTile(this);
         if (keyH.wPressed || keyH.sPressed || keyH.aPressed || keyH.dPressed) {
@@ -133,8 +144,27 @@ public class Player extends Entity{
                 atkCounter = 0;
             }
         }
+        System.out.println("Player tile: col=" + playerCol + " row=" + playerRow);
+        if (playerCol == 48 && playerRow == 47) {
+            if (hasItem("key")) {
+                gp.finalScore = (int) (health.getHealthPercentage() * 1000);
+                gp.gameState = GamePanel.GameState.GAME_WON;
+            }
+        }
 
     }
+
+    private void trapDamageHandler(Tile curTile) {
+        if (curTile.trapTimer > 0) {
+            curTile.trapTimer--;
+            return;
+        }
+        health.takeDamage(curTile.trapDamage, new DamageSource("Trap"));
+        System.out.println("Trap triggered! Current HP: " + health.getHealthPercentage());
+        curTile.trapTimer = curTile.trapCooldown;
+        damageFlashTimer = 15;
+    }
+
     public void draw(Graphics2D g2d){
         Image image;
         int drawWidth = gp.tileSize;
@@ -237,5 +267,19 @@ public class Player extends Entity{
 
     public Map<String, Integer> getInventory() {
         return inventory;
+    }
+    public void clearInventory() {
+        inventory.clear();
+    }
+
+    public void grantRandomBuff() {
+        double roll = random.nextDouble();
+        if (roll < 1) {
+            double oldCrit = stats.getCritChance();
+            double newCrit = Math.min(1.0, oldCrit + 0.5);
+            stats.setCritChance(newCrit);
+
+            System.out.println("Crit Buff gained");
+        }
     }
 }

@@ -212,10 +212,13 @@ public class Enemy extends Entity {
     @Override
     public void onDeath() {
         System.out.println("Enemy died!");
-        if (hasKey) {
+        gp.enemies.remove(this);
+        if (gp.droppedKey == null && hasKey) {
             gp.droppedKey = new KeyItem(worldX, worldY);
             System.out.println("This enemy had the key");
         }
-        gp.enemies.remove(this);
+
+        gp.player.grantRandomBuff();
+
     }
 }

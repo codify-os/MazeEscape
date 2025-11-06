@@ -221,6 +221,19 @@ public class TileManager {
                             getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/Wall_inner_se_reversed.png")));
             tileType[30].collision = true;
 
+            tileType[31] = new Tile();
+            tileType[31].image = ImageIO.read(Objects.requireNonNull(
+                    getClass().getClassLoader().
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/torch_8.png")));;
+            tileType[31].isTrap = true;
+            tileType[31].collision = false;
+            tileType[31].trapDamage = 15;
+            tileType[31].trapCooldown = 60;
+
+
+
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,10 +255,25 @@ public class TileManager {
                     mapTileNum[col][row] = tileNum;
 
                     // Create pathfinding tile
-                    mapTiles[col][row] = new Tile();
-                    mapTiles[col][row].collision = tileType[tileNum].collision;
-                    mapTiles[col][row].col = col;
-                    mapTiles[col][row].row = row;
+                    Tile baseTile = tileType[tileNum];
+                    Tile newTile = new Tile();
+                    newTile.image  = baseTile.image;
+                    newTile.collision = baseTile.collision;
+
+                    newTile.isTrap = baseTile.isTrap;
+                    newTile.trapDamage = baseTile.trapDamage;
+                    newTile.trapCooldown = baseTile.trapCooldown;
+                    newTile.trapTimer = baseTile.trapTimer;
+
+                    newTile.col = col;
+                    newTile.row = row;
+
+                    mapTiles[col][row] = newTile;
+
+//                    mapTiles[col][row] = new Tile();
+//                    mapTiles[col][row].collision = tileType[tileNum].collision;
+//                    mapTiles[col][row].col = col;
+//                    mapTiles[col][row].row = row;
                 }
                 row++;
             }
@@ -623,6 +651,17 @@ public class TileManager {
         for (int col = 0; col < gp.maxWorldCol; col++) {
             for (int row = 0; row < gp.maxWorldRow; row++) {
                 mapTiles[col][row].reset();
+            }
+        }
+    }
+
+    public void updateTraps() {
+        for(int col = 0; col<gp.maxWorldCol; col++) {
+            for (int row = 0; row < gp.maxWorldRow; row++) {
+                Tile tile = mapTiles[col][row];
+                if (tile.isTrap && tile.trapTimer > 0) {
+                    tile.trapTimer--;
+                }
             }
         }
     }
