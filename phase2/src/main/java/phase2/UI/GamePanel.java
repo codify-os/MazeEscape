@@ -7,6 +7,7 @@
 * */
 
 package phase2.UI;
+import phase2.Entity.KeyItem;
 import phase2.Entity.Player;
 import phase2.Entity.Enemy;
 import phase2.Entity.Pathfinder;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.ToLongBiFunction;
 
 public class GamePanel extends JPanel implements Runnable {
     //SCREEN SETTINGS
@@ -44,6 +46,9 @@ public class GamePanel extends JPanel implements Runnable {
     Pathfinder pathfinder = new Pathfinder(tileManager);
 
     public List<Enemy> enemies = new ArrayList<>();
+    public KeyItem droppedKey = null;
+
+    private Image keyIcon;
 
     //Status flags
     public enum GameState {
@@ -66,6 +71,9 @@ public class GamePanel extends JPanel implements Runnable {
         //tileManager.loadComponents(); // <- ADD HERE
         spawnEnemies();
         CombatManager.addListener(new CombatLogger(true));
+
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        keyIcon = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
     }
     public void startGameThread() {
         gameThread = new Thread(this);
@@ -171,6 +179,7 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState == GameState.GAME_OVER) {
             gameOverScreen(g2d);
         }
+        drawInventory(g2d);
         g2d.dispose();
     }
 
@@ -193,15 +202,45 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void spawnEnemies() {
         int [][] spawnPoints = {
-                {3, 12},
-                {14, 2}
+                {3, 12}
         };
 
-        for (int[] p: spawnPoints) {
-            int worldX = p[0] * tileSize;
-            int worldY = p[1] * tileSize;
+        enemies.clear();
+        int keyHolderIndex = (int) (Math.random()*spawnPoints.length);
 
-            enemies.add(new Enemy(this, pathfinder, player, worldX, worldY));
+        for (int i = 0; i < spawnPoints.length; i++ ) {
+            int worldX = spawnPoints[i][0] * tileSize;
+            int worldY = spawnPoints[i][1] * tileSize;
+
+            Enemy enemy = new Enemy(this, pathfinder, player, worldX, worldY);
+
+            if(i == keyHolderIndex) {
+                enemy.hasKey = true;
+            }
+            enemies.add(enemy);
+        }
+    }
+
+    public void dropKey(int worldX, int worldY) {
+        droppedKey = new KeyItem(worldX, worldY);
+    }
+
+    public void drawInventory(Graphics2D g2d) {
+        g2d.setColor(new Color(0, 0, 0, 120));
+        g2d.fillRoundRect(10, 10, 200, 60, 15, 15);
+
+        g2d.setFont(new Font("Comic Sans", Font.BOLD, 10));
+        g2d.setColor(Color.white);
+        g2d.drawString("Inventroy", 20, 30);
+
+        if (keyIcon != null) {
+            g2d.drawImage(keyIcon, 25, 40, tileSize/2, tileSize/2, this);
+        }
+
+        Integer keyCount = player.getInventory().get("key");
+        if(keyCount != null && keyCount > 0) {
+            g2d.setFont(new Font("Comic Sans", Font.PLAIN, 10));
+            g2d.drawString("x" + keyCount, 25 + tileSize + 10, 60);
         }
     }
 }
