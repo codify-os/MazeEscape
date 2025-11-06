@@ -2,7 +2,12 @@ package phase2.Entity;
 
 import phase2.UI.GamePanel;
 import phase2.UI.KeyHandler;
+import phase2.game.combat.CombatManager;
+import phase2.game.stats.HealthComponent;
+import phase2.game.stats.Stats;
+
 import java.awt.*;
+import java.util.ArrayList;
 
 
 public class Player extends Entity{
@@ -22,6 +27,10 @@ public class Player extends Entity{
         collisionArea = new Rectangle(8, 16 ,gp.tileSize - 16, gp.tileSize - 16);
         setDefaultValues();
         getPlayerImage();
+
+        stats = new Stats(20, 5);
+        health = new HealthComponent(100, stats.getDefense(), this);
+        currentAttack = stats.createBasicAttack();
     }
 
     public void setDefaultValues() {
@@ -76,6 +85,14 @@ public class Player extends Entity{
                 }
             }
         }
+        if (keyH.spacePressed) {
+            for(Enemy e: new ArrayList<>(gp.enemies)) {
+                if (isInRange(e)) {
+                    System.out.println("The player is attacking the enemy");
+                    attack(e);
+                }
+            }
+        }
 
     }
     public void draw(Graphics2D g2d){
@@ -86,7 +103,23 @@ public class Player extends Entity{
             case "left" -> left;
             case "right" -> right;
             default -> null;
-        };
-        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+       };
+       if (damageFlashTimer > 0) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2d.setColor(Color.red);
+            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            damageFlashTimer --;
+       }
+       g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+        int barWidth = gp.tileSize;
+        int barHeight = 4;
+        int barX = screenX;
+        int barY = screenY - barHeight -4;
+        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
+    }
+    @Override
+    public void onDeath() {
+        System.out.println("Game Over!");
     }
 }

@@ -11,6 +11,7 @@ import phase2.Entity.Player;
 import phase2.Entity.Enemy;
 import phase2.Entity.Pathfinder;
 import phase2.Tile.TileManager;
+import phase2.game.combat.*;
 import javax.swing.JPanel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class GamePanel extends JPanel implements Runnable {
         pathfinder = new Pathfinder(tileManager);
         //tileManager.loadComponents(); // <- ADD HERE
         spawnEnemies();
+        CombatManager.addListener(new CombatLogger(true));
     }
     public void startGameThread() {
         gameThread = new Thread(this);
@@ -123,8 +125,10 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
+        player.updateCooldown();
         for (Enemy e: enemies) {
             e.update();
+            e.updateCooldown();
         }
         checkMapSwitch();
 

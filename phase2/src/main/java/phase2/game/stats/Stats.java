@@ -119,7 +119,7 @@ public class Stats {
      * @return AttackData with stats applied
      */
     public AttackData createAttack(String attackName, int range, AttackData.DamageType damageType) {
-        return new AttackData(attackName, attackPower, range, damageType, critChance, critMultiplier, 0);
+        return new AttackData(attackName, attackPower, range, damageType, critChance, critMultiplier, 20);
     }
 
     /**
