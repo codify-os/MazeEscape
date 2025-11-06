@@ -11,6 +11,7 @@ import phase2.Entity.Player;
 import phase2.Entity.Enemy;
 import phase2.Entity.Pathfinder;
 import phase2.Tile.TileManager;
+import phase2.game.combat.*;
 import javax.swing.JPanel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -44,6 +45,13 @@ public class GamePanel extends JPanel implements Runnable {
 
     public List<Enemy> enemies = new ArrayList<>();
 
+    //Status flags
+    public enum GameState {
+        PLAY,
+        PAUSE,
+        GAME_OVER
+    }
+    public GameState gameState = GameState.PLAY;
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.black);
@@ -57,6 +65,7 @@ public class GamePanel extends JPanel implements Runnable {
         pathfinder = new Pathfinder(tileManager);
         //tileManager.loadComponents(); // <- ADD HERE
         spawnEnemies();
+        CombatManager.addListener(new CombatLogger(true));
     }
     public void startGameThread() {
         gameThread = new Thread(this);
@@ -123,12 +132,33 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
+        player.updateCooldown();
         for (Enemy e: enemies) {
             e.update();
+            e.updateCooldown();
         }
         checkMapSwitch();
 
+        if (!player.isAlive()) {
+            gameState = GameState.GAME_OVER;
+        }
+
+        if (gameState == GameState.GAME_OVER && keyHandler.rPressed) {
+            restartGame();
+        }
+
     }
+
+    private void restartGame() {
+        player.setDefaultValues();
+        player.health.fullHeal();
+
+        enemies.clear();
+        spawnEnemies();
+
+        gameState = GameState.PLAY;
+    }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
@@ -137,7 +167,28 @@ public class GamePanel extends JPanel implements Runnable {
         for (Enemy e: enemies) {
             e.draw(g2d);
         }
+
+        if (gameState == GameState.GAME_OVER) {
+            gameOverScreen(g2d);
+        }
         g2d.dispose();
+    }
+
+    private void gameOverScreen(Graphics2D g2d) {
+        g2d.setColor(new Color(0,0,0,100));
+        g2d.fillRect(0,0,screenWidth, screenHeight);
+
+        g2d.setFont(new Font("Comic Sans", Font.BOLD, 72));
+        g2d.setColor(Color.red);
+        String message = "YOU DIED!";
+        int messageWidth = g2d.getFontMetrics().stringWidth(message);
+        g2d.drawString(message, (screenWidth - messageWidth)/2, screenHeight/2);
+
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 32));
+        g2d.setColor(Color.white);
+        String subMessage = "Press R to restart";
+        int subWidth = g2d.getFontMetrics().stringWidth(subMessage);
+        g2d.drawString(subMessage, (screenWidth - subWidth)/2, (screenHeight/2) + 60);
     }
 
     public void spawnEnemies() {
