@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+
 
 public class GamePanel extends JPanel implements Runnable {
     //SCREEN SETTINGS
@@ -103,12 +105,16 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
-
+        if (!topPanel.isPaused()){
+            player.update();
+        }
     }
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        AffineTransform originalTransform = g2d.getTransform();
+        double zoom = topPanel.getZoom(); 
+        g2d.scale(zoom, zoom); 
         // Draws the actual game layout 
         tileManager.draw(g2d);
         player.draw(g2d);
