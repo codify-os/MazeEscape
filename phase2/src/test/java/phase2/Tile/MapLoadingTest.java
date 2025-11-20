@@ -65,6 +65,22 @@ public class MapLoadingTest {
     }
 
     @Test
+    public void testCollisionCopiedCorrectlyFromTileType() {
+        for (int col = 0; col < gp.maxWorldCol; col++) {
+            for (int row = 0; row < gp.maxWorldRow; row++) {
+
+                int id = tm.mapTileNum[col][row];
+                boolean expected = tm.tileType[id].collision;
+                boolean actual   = tm.mapTiles[col][row].collision;
+
+                assertEquals(expected, actual,
+                    "Collision mismatch at [" + col + "," + row + "]");
+            }
+        }
+    }
+
+
+    @Test
     public void testMapLoadsCorrectSize() {
         assertEquals(gp.maxWorldCol, tm.mapTileNum.length);
         assertEquals(gp.maxWorldRow, tm.mapTileNum[0].length);
@@ -143,5 +159,50 @@ public class MapLoadingTest {
 
         assertTrue(tm.currentMapIndex >= oldIndex);
     }
+
+    private boolean invokeBool(TileManager tm, String methodName, int arg) {
+    try {
+        var m = TileManager.class.getDeclaredMethod(methodName, int.class);
+        m.setAccessible(true);
+        return (boolean) m.invoke(tm, arg);
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
+}
+
+
+    @Test
+    public void testTileVisibilityWithinRange() {
+    // Use whatever player position the constructor initializes
+    int px = gp.player.worldX;
+    int py = gp.player.worldY;
+
+    int tileX = px; // exactly aligned
+    int tileY = py;
+
+    assertTrue(invokeBool(tm, "isWorldXLarger", tileX));
+    assertTrue(invokeBool(tm, "isWorldXLess", tileX));
+    assertTrue(invokeBool(tm, "isWorldYLarger", tileY));
+    assertTrue(invokeBool(tm, "isWorldYLess", tileY));
+}
+    @Test
+    public void testTileVisibilityOutsideRange() {
+    gp.player.worldX = 100;
+    gp.player.worldY = 100;
+
+    int tileX = 1000;
+    int tileY = 1000;
+
+    boolean visible =  
+       invokeBool(tm, "isWorldXLarger", tileX) &&
+       invokeBool(tm, "isWorldXLess",   tileX) &&
+       invokeBool(tm, "isWorldYLarger", tileY) &&
+       invokeBool(tm, "isWorldYLess",   tileY);
+
+    assertFalse(visible);
+}
+
+
+
 
 }
