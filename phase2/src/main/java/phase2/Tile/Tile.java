@@ -9,6 +9,7 @@ public class Tile {
     public int trapDamage = 10;
     public int trapCooldown = 60;
     public int trapTimer = 0;
+    public boolean spawnable = true;
 
     // A* pathfinding properties
     public int gCost; // Distance from start node

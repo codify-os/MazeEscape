@@ -57,6 +57,7 @@ public class HealthComponent {
             isDead = true;
             CombatManager.notifyDeath(ent, source); // Note: target needs to be passed from entity
         }
+
     }
 
     /**

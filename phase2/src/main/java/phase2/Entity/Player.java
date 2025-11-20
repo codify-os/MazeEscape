@@ -26,7 +26,7 @@ public class Player extends Entity{
     private int atkCounter = 0;
     private final int ATK_DURATION = 20;
 
-    private Map<String, Integer> inventory = new HashMap<>();
+    private final Map<String, Integer> inventory = new HashMap<>();
 
     private final Random random = new Random();
 
@@ -47,8 +47,8 @@ public class Player extends Entity{
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize;
-        worldY = gp.tileSize*2;
+        worldX = gp.tileSize; //spawn x
+        worldY = gp.tileSize*4; //spawn y
         speed = 4;
         direction = "down";
     }
@@ -144,7 +144,6 @@ public class Player extends Entity{
                 atkCounter = 0;
             }
         }
-        System.out.println("Player tile: col=" + playerCol + " row=" + playerRow);
         if (playerCol == 48 && playerRow == 47) {
             if (hasItem("key")) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
@@ -228,7 +227,7 @@ public class Player extends Entity{
             };
         }
 
-       if (damageFlashTimer > 0) {
+        if (damageFlashTimer > 0) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
             g2d.setColor(Color.red);
             g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
@@ -236,15 +235,34 @@ public class Player extends Entity{
             damageFlashTimer--;
         }
 
-        if (image != null) {
+       if (image != null) {
             g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
-        }
+       }
 
-        int barWidth = gp.tileSize;
-        int barHeight = 4;
-        int barX = screenX;
-        int barY = screenY - barHeight -4;
-        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
+       int barWidth = gp.tileSize;
+       int barHeight = 4;
+       int barX = screenX;
+       int barY = screenY - barHeight -4;
+       drawHealthBar(g2d, barX, barY, barWidth, barHeight);
+
+       if(damageTextTimer > 0) {
+           String message = "-" + previousDamageAmount;
+           int hpStatX = screenX + gp.tileSize/2;
+           int hpStatY = screenY - 10 - (30 - damageTextTimer);
+
+           g2d.setColor(Color.black);
+           g2d.drawString(message, hpStatX + 2, hpStatY + 2);
+
+           if (lastCrit) {
+               g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
+               g2d.setColor(Color.ORANGE);
+           } else  {
+               g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
+               g2d.setColor(Color.red);
+           }
+           g2d.drawString(message, hpStatX, hpStatY);
+           damageTextTimer--;
+       }
     }
     @Override
     public void onDeath() {
@@ -274,7 +292,7 @@ public class Player extends Entity{
 
     public void grantRandomBuff() {
         double roll = random.nextDouble();
-        if (roll < 1) {
+        if (roll > 0) {
             double oldCrit = stats.getCritChance();
             double newCrit = Math.min(1.0, oldCrit + 0.5);
             stats.setCritChance(newCrit);

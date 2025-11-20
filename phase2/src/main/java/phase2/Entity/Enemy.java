@@ -194,9 +194,23 @@ public class Enemy extends Entity {
 
         int barWidth = gp.tileSize;
         int barHeight = 4;
-        int barX = screenX;
         int barY = screenY - barHeight -4;
-        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
+        drawHealthBar(g2d, screenX, barY, barWidth, barHeight);
+
+        if(damageTextTimer > 0) {
+            if (lastCrit) {
+                g2d.setColor(Color.ORANGE);
+                g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
+            } else  {
+                g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
+                g2d.setColor(Color.red);
+            }
+            int hpStatX = screenX + gp.tileSize/2;
+            int hpStatY = screenY - 10 - (30 - damageTextTimer);
+
+            g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
+            damageTextTimer--;
+        }
     }
 
     private boolean isOnScreen() {
@@ -219,6 +233,7 @@ public class Enemy extends Entity {
         }
 
         gp.player.grantRandomBuff();
+        gp.player.heal(5);
 
     }
 }
