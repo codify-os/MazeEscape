@@ -87,7 +87,7 @@ import java.util.Map;
        String soundButton = mute? "MUTE" : "SOUND" ; 
        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
 
-       String pauseButton = pause? "MUTE" : "SOUND" ; 
+       String pauseButton = pause? "PLAY" : "PAUSE" ; 
        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, pauseButton); 
 
        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Back,  "BACK"); 

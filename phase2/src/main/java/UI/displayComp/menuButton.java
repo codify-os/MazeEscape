@@ -84,14 +84,16 @@ public class menuButton{
     public void drawsButtonAt(Graphics2D bar_Graphics, Rectangle button, String title){
         bar_Graphics.setColor(new Color(0xC65D57)); 
         bar_Graphics.fillRoundRect(button.x, button.y, button.width, button.height, 8,8); 
+        
         bar_Graphics.setColor(new Color(0xD8A7A7)); // dusty rose 
         bar_Graphics.fillRoundRect(button.x, button.y, button.width, button.height, 8,8); 
+       
         bar_Graphics.setColor(new Color(0xFFFDD0)); // creamy white
         FontMetrics fontsize = bar_Graphics.getFontMetrics(); 
         // x and y locations of the texts 
         int textX = button.x + (button.width - fontsize.stringWidth(title))/2; 
         int textY = button.x + (button.height + fontsize.getAscent() - fontsize.getDescent())/2; 
-        bar_Graphics.drawString(title,textX, textY);
+        bar_Graphics.drawString(title, textX, textY);
 
     }
 
@@ -102,9 +104,9 @@ public class menuButton{
         // clicking of each of the buttons 
         Point clickPoint = e.getPoint(); // creating a pointer for the buttons 
         if (STARTB.contains(clickPoint)) return menuButton_actions.START; 
-        if (STARTB.contains(clickPoint)) return menuButton_actions.RESUME; 
-        if (STARTB.contains(clickPoint)) return menuButton_actions.SETTINGS;
-        if (STARTB.contains(clickPoint)) return menuButton_actions.EXIT; 
+        if (SETTINGSB.contains(clickPoint)) return menuButton_actions.RESUME; 
+        if (SETTINGSB.contains(clickPoint)) return menuButton_actions.SETTINGS;
+        if (EXITB.contains(clickPoint)) return menuButton_actions.EXIT; 
         // option to close the menu when clicked outside of the menu 
         if (!menuPanel.contains(clickPoint)) view = false; 
         return menuButton_actions.none;
