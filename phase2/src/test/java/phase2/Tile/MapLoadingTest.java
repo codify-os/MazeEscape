@@ -118,7 +118,7 @@ public class MapLoadingTest {
       
     }
 
-     @Test
+    @Test
     public void testAddComponentStoresInsideCorrectMap() {
     int index = tm.currentMapIndex;
     int before = tm.mapComponents[index].size();
@@ -200,9 +200,32 @@ public class MapLoadingTest {
        invokeBool(tm, "isWorldYLess",   tileY);
 
     assertFalse(visible);
-}
+    }
 
+    @Test
+    public void testWalkableTileReturnsTrue() {
+        Tile tile = tm.mapTiles[5][5];
+        tile.collision = false;
 
+        assertTrue(tm.isWalkable(5, 5),
+                "Tile with collision=false should be walkable");
+    }
 
+    @Test
+    public void testCollisionTileReturnsFalse() {
+        Tile tile = tm.mapTiles[6][6];
+        tile.collision = true;
+
+        assertFalse(tm.isWalkable(6, 6),
+                "Tile with collision=true should NOT be walkable");
+    }
+
+    @Test
+    public void testOutOfBoundsReturnsFalse() {
+        assertFalse(tm.isWalkable(999, 999),
+                "Out-of-bounds should return false");
+    }
+
+    
 
 }

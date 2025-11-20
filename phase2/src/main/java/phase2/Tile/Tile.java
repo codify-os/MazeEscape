@@ -22,6 +22,7 @@ public class Tile {
     public Tile() {
         reset();
     }
+    
 
     /**
      * helper function to calculate F cost
