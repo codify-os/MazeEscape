@@ -151,7 +151,7 @@ public class GamePanel extends JPanel implements Runnable {
                 System.exit(0); 
             }
             case none ->{
-
+                dialogueBox.skipClick(e, screenWidth, screenHeight);
             }
         }
 
