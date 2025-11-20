@@ -112,12 +112,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        AffineTransform originalTransform = g2d.getTransform();
+        AffineTransform originalScreen = g2d.getTransform();
         double zoom = topPanel.getZoom(); 
         g2d.scale(zoom, zoom); 
         // Draws the actual game layout 
         tileManager.draw(g2d);
         player.draw(g2d);
+        g2d.setTransform(originalScreen);
         // Draws the top panel with haptics buttons 
         topPanel.draw(g2d, screenWidth); 
         dialogueBox.draw(g2d, screenWidth, screenHeight); 
