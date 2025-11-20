@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.ToLongBiFunction;
 
 public class GamePanel extends JPanel implements Runnable {
     //SCREEN SETTINGS
@@ -48,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
     public List<Enemy> enemies = new ArrayList<>();
     public KeyItem droppedKey = null;
 
-    private Image keyIcon;
+    private final Image keyIcon;
 
     //Status flags
     public enum GameState {
@@ -162,10 +161,8 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState == GameState.GAME_OVER && keyHandler.rPressed) {
             restartGame();
         }
-
-
-
         tileManager.updateTraps();
+
 
     }
 
@@ -217,27 +214,20 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void spawnEnemies() {
-        int [][] spawnPoints = {
-                {3, 12},
-                {14, 3},
-                {45, 37},
-                {42, 34},
-                {45, 46},
-                {3, 12},
-                {14, 3},
-                {45, 18},
-                {42, 3},
-                {34, 46},
 
-
-        };
+        int enemyCount = 10;
 
         enemies.clear();
-        int keyHolderIndex = (int) (Math.random()*spawnPoints.length);
+        int keyHolderIndex = (int) (Math.random()*enemyCount);
 
-        for (int i = 0; i < spawnPoints.length; i++ ) {
-            int worldX = spawnPoints[i][0] * tileSize;
-            int worldY = spawnPoints[i][1] * tileSize;
+        for (int i = 0; i < enemyCount; i++ ) {
+            int[] spwanPoints = tileManager.getValidTile();
+
+            int col = spwanPoints[0];
+            int row = spwanPoints[1];
+
+            int worldX = col * tileSize;
+            int worldY = row * tileSize;
 
             Enemy enemy = new Enemy(this, pathfinder, player, worldX, worldY);
 

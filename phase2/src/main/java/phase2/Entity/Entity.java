@@ -1,6 +1,7 @@
 package phase2.Entity;
 import java.awt.*;
 
+import jdk.jfr.DataAmount;
 import phase2.UI.GamePanel;
 import phase2.game.combat.*;
 import phase2.game.stats.*;
@@ -36,7 +37,11 @@ public abstract class Entity implements Damageable, Attacker {
     protected AttackData currentAttack;
     protected int coolDown; //attacks are only at set times not every frame
 
+    //Display Text data
     protected int damageFlashTimer = 0;
+    protected int damageTextTimer = 0;
+    protected int previousDamageAmount = 0;
+    protected boolean lastCrit = false;
 
     public Entity() {
         stats = new Stats();
@@ -60,6 +65,9 @@ public abstract class Entity implements Damageable, Attacker {
     public void takeDamage(int amount, DamageSource source) {
         health.takeDamage(amount, source);
         damageFlashTimer = 10;
+
+        previousDamageAmount = amount;
+        damageTextTimer = 30;
         if(!health.isAlive()) {
             onDeath();
         }
@@ -110,7 +118,16 @@ public abstract class Entity implements Damageable, Attacker {
             return null;
         }
         coolDown = currentAttack.getCooldown();
-        return CombatManager.resolveAttack(this, target, currentAttack);
+        AttackResult atkResult = CombatManager.resolveAttack(this, target, currentAttack);
+
+        if(atkResult.getDamageDealt() > 0) {
+            if (target instanceof Entity targetEnt) {
+                targetEnt.lastCrit = atkResult.wasCritical();
+                targetEnt.previousDamageAmount = atkResult.getDamageDealt();
+                targetEnt.damageTextTimer = 30;
+            }
+        }
+        return atkResult;
     }
     @Override
     public boolean canAttack() {
