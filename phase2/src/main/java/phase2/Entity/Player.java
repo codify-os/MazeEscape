@@ -4,7 +4,6 @@ import phase2.Tile.Tile;
 import phase2.UI.GamePanel;
 import phase2.UI.KeyHandler;
 import phase2.game.combat.DamageSource;
-import phase2.game.stats.HealthComponent;
 import phase2.game.stats.Stats;
 
 import java.awt.*;
@@ -15,41 +14,53 @@ import java.util.Random;
 
 
 public class Player extends Entity{
-    GamePanel gp;
-    KeyHandler keyH;
-    private Image up, down, left, right;
+    // Constants
+    private static final int PLAYER_MAX_HEALTH = 100;
+    private static final int PLAYER_ATTACK = 20;
+    private static final int PLAYER_DEFENSE = 5;
+    private static final int PLAYER_SPEED = 4;
+    private static final int ATK_DURATION = 20;
+    private static final int TRAP_DAMAGE_FLASH = 15;
+    
+    private final KeyHandler keyH;
     public final int screenX;
     public final int screenY;
 
     private Image atkUp, atkDown, atkLeft, atkRight;
     private boolean isAttacking = false;
     private int atkCounter = 0;
-    private final int ATK_DURATION = 20;
 
     private final Map<String, Integer> inventory = new HashMap<>();
-
     private final Random random = new Random();
 
+    /**
+     * Create a player instance
+     * @param gp GamePanel instance
+     * @param keyH KeyHandler for input
+     * @throws IllegalArgumentException if gp or keyH is null
+     */
     public Player(GamePanel gp, KeyHandler keyH) {
+        super(PLAYER_MAX_HEALTH, new Stats(PLAYER_ATTACK, PLAYER_DEFENSE));
+        
+        if (gp == null || keyH == null) {
+            throw new IllegalArgumentException("GamePanel and KeyHandler cannot be null");
+        }
+        
         this.gp = gp;
         this.keyH = keyH;
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
-        screenY = gp.screenHeight/2- (gp.tileSize/2);
+        screenY = gp.screenHeight/2 - (gp.tileSize/2);
 
-        collisionArea = new Rectangle(8, 16 ,gp.tileSize - 16, gp.tileSize - 16);
+        collisionArea = new Rectangle(8, 16, gp.tileSize - 16, gp.tileSize - 16);
         setDefaultValues();
         getPlayerImage();
-
-        stats = new Stats(20, 5);
-        health = new HealthComponent(100, stats.getDefense(), this);
-        currentAttack = stats.createBasicAttack();
     }
 
     public void setDefaultValues() {
         worldX = gp.tileSize; //spawn x
-        worldY = gp.tileSize*4; //spawn y
-        speed = 4;
+        worldY = gp.tileSize * 4; //spawn y
+        speed = PLAYER_SPEED;
         direction = "down";
     }
 
@@ -82,6 +93,8 @@ public class Player extends Entity{
             e.printStackTrace();
         }
     }
+    
+    @Override
     public void update() {
 
         if(keyH.wPressed) {
@@ -161,9 +174,10 @@ public class Player extends Entity{
         health.takeDamage(curTile.trapDamage, new DamageSource("Trap"));
         System.out.println("Trap triggered! Current HP: " + health.getHealthPercentage());
         curTile.trapTimer = curTile.trapCooldown;
-        damageFlashTimer = 15;
+        damageFlashTimer = TRAP_DAMAGE_FLASH;
     }
 
+    @Override
     public void draw(Graphics2D g2d){
         Image image;
         int drawWidth = gp.tileSize;

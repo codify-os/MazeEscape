@@ -16,11 +16,15 @@ public class HealthComponent {
 
     /**
      * Create a health component with specified max HP and defense
-     * @param maxHealth Maximum health points
-     * @param defense Defense value (reduces incoming damage)
+     * @param maxHealth Maximum health points (will be clamped to minimum 1)
+     * @param defense Defense value (reduces incoming damage, will be clamped to minimum 0)
+     * @param ent The entity this health component belongs to (can be null for testing)
      */
     public HealthComponent(int maxHealth, int defense, Damageable ent) {
-        this.maxHealth = Math.max(1, maxHealth);
+        if (maxHealth <= 0) {
+            throw new IllegalArgumentException("Max health must be positive, got: " + maxHealth);
+        }
+        this.maxHealth = maxHealth;
         this.currentHealth = this.maxHealth;
         this.defense = Math.max(0, defense);
         this.isDead = false;
