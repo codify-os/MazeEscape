@@ -268,7 +268,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void spawnEnemies() {
 
-        int enemyCount = 10;
+        int enemyCount = 1;
 
         enemies.clear();
         int keyHolderIndex = (int) (Math.random()*enemyCount);
@@ -301,16 +301,16 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2d.setFont(new Font("Comic Sans", Font.BOLD, 10));
         g2d.setColor(Color.white);
-        g2d.drawString("Inventory", 20, 30);
+        g2d.drawString("Inventory", 20, 80);
 
         if (keyIcon != null) {
-            g2d.drawImage(keyIcon, 25, 80, tileSize/2, tileSize/2, this);
+            g2d.drawImage(keyIcon, 25, 100, tileSize/2, tileSize/2, this);
         }
 
         Integer keyCount = player.getInventory().get("key");
         if(keyCount != null && keyCount > 0) {
             g2d.setFont(new Font("Comic Sans", Font.PLAIN, 10));
-            g2d.drawString("x" + keyCount, 25 + tileSize + 10, 60);
+            g2d.drawString("x" + keyCount, 25 + tileSize + 5, 120);
         }
     }
     public void drawVictoryScreen(Graphics2D g2d) {

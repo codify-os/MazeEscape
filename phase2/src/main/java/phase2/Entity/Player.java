@@ -131,17 +131,7 @@ public class Player extends Entity{
                     case "right" -> worldX += speed;
                 }
             }
-            if (gp.droppedKey != null && !gp.droppedKey.collected) {
-                Rectangle playerHitBox = new Rectangle(worldX + collisionArea.x,
-                        worldY + collisionArea.y, collisionArea.width, collisionArea.height);
-                Rectangle keyHitBox = new Rectangle(gp.droppedKey.worldX,
-                        gp.droppedKey.worldY, gp.tileSize, gp.tileSize);
-
-                if (playerHitBox.intersects(keyHitBox)) {
-                    gp.droppedKey.collected = true;
-                    addItem("key");
-                }
-            }
+            collectKey();
         }
 
         if (keyH.spacePressed && !isAttacking) {
@@ -177,6 +167,20 @@ public class Player extends Entity{
         }
 
 
+    }
+
+    private void collectKey() {
+        if (gp.droppedKey != null && !gp.droppedKey.collected) {
+            Rectangle playerHitBox = new Rectangle(worldX + collisionArea.x,
+                    worldY + collisionArea.y, collisionArea.width, collisionArea.height);
+            Rectangle keyHitBox = new Rectangle(gp.droppedKey.worldX,
+                    gp.droppedKey.worldY, gp.tileSize, gp.tileSize);
+
+            if (playerHitBox.intersects(keyHitBox)) {
+                gp.droppedKey.collected = true;
+                addItem("key");
+            }
+        }
     }
 
     private void trapDamageHandler(Tile curTile) {
@@ -254,15 +258,9 @@ public class Player extends Entity{
             };
         }
 
-        if (damageFlashTimer > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-            g2d.setColor(Color.red);
-            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-            damageFlashTimer--;
-        }
+        takeDamageFlash(g2d);
 
-       if (image != null) {
+        if (image != null) {
             g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
        }
 
@@ -273,24 +271,39 @@ public class Player extends Entity{
        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
 
        if(damageTextTimer > 0) {
-           String message = "-" + previousDamageAmount;
-           int hpStatX = screenX + gp.tileSize/2;
-           int hpStatY = screenY - 10 - (30 - damageTextTimer);
-
-           g2d.setColor(Color.black);
-           g2d.drawString(message, hpStatX + 2, hpStatY + 2);
-
-           if (lastCrit) {
-               g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
-               g2d.setColor(Color.ORANGE);
-           } else  {
-               g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
-               g2d.setColor(Color.red);
-           }
-           g2d.drawString(message, hpStatX, hpStatY);
+           showDamage(g2d);
            damageTextTimer--;
        }
     }
+
+    private void showDamage(Graphics2D g2d) {
+        String message = "-" + previousDamageAmount;
+        int hpStatX = screenX + gp.tileSize/2;
+        int hpStatY = screenY - 10 - (30 - damageTextTimer);
+
+        g2d.setColor(Color.black);
+        g2d.drawString(message, hpStatX + 2, hpStatY + 2);
+
+        if (lastCrit) {
+            g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
+            g2d.setColor(Color.ORANGE);
+        } else  {
+            g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
+            g2d.setColor(Color.red);
+        }
+        g2d.drawString(message, hpStatX, hpStatY);
+    }
+
+    private void takeDamageFlash(Graphics2D g2d) {
+        if (damageFlashTimer > 0) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2d.setColor(Color.red);
+            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            damageFlashTimer--;
+        }
+    }
+
     @Override
     public void onDeath() {
         System.out.println("Game Over!");

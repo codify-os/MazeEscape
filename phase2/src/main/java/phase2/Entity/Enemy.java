@@ -194,13 +194,7 @@ public class Enemy extends Entity {
             case "right" -> right;
             default -> down;
         };
-        if (damageFlashTimer > 0) {
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-            g2d.setColor(Color.red);
-            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-            damageFlashTimer --;
-        }
+        takeDamageFlash(g2d, screenX, screenY);
         g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
 
         int barWidth = gp.tileSize;
@@ -209,20 +203,36 @@ public class Enemy extends Entity {
         drawHealthBar(g2d, screenX, barY, barWidth, barHeight);
 
         if(damageTextTimer > 0) {
-            if (lastCrit) {
-                g2d.setColor(Color.ORANGE);
-                g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
-            } else  {
-                g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
-                g2d.setColor(Color.red);
-            }
-            int hpStatX = screenX + gp.tileSize/2;
-            int hpStatY = screenY - 10 - (30 - damageTextTimer);
-
-            g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
+            showDamageNumbers(g2d, screenX, screenY);
             damageTextTimer--;
         }
     }
+
+    protected void showDamageNumbers(Graphics2D g2d, int screenX, int screenY) {
+        if (lastCrit) {
+            g2d.setColor(Color.ORANGE);
+            g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
+        } else  {
+            g2d.setFont(new Font("Comic Sans", Font.BOLD, 16));
+            g2d.setColor(Color.red);
+        }
+        int hpStatX = screenX + gp.tileSize/2;
+        int hpStatY = screenY - 10 - (30 - damageTextTimer);
+
+        g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
+    }
+
+    protected void takeDamageFlash(Graphics2D g2d, int screenX, int screenY) {
+        if (damageFlashTimer > 0) {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2d.setColor(Color.red);
+            g2d.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            damageFlashTimer --;
+        }
+    }
+
+
 
     private boolean isOnScreen() {
         int screenLeft = player.worldX - (gp.screenWidth/2);
@@ -242,7 +252,6 @@ public class Enemy extends Entity {
             gp.droppedKey = new KeyItem(worldX, worldY);
             System.out.println("This enemy had the key");
         }
-
         gp.player.grantRandomBuff();
         gp.player.heal(5);
 
