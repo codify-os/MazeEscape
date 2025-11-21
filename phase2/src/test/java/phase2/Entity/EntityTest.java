@@ -2,10 +2,7 @@ package phase2.Entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import phase2.UI.GamePanel;
 import phase2.game.combat.*;
-import phase2.game.stats.HealthComponent;
-import phase2.game.stats.Stats;
 
 import java.awt.*;
 
@@ -269,8 +266,8 @@ public class EntityTest {
         // Assuming basic attack has range >= 1
         boolean inRange = entity.isInRange(mockTarget);
         
-        assertTrue(inRange || entity.currentAttack.getMinRange() > 1, 
-            "Target should be in range or attack has min range > 1");
+        assertTrue(inRange || entity.currentAttack.getRange() < 1, 
+            "Target should be in range or attack has range < 1");
     }
 
     @Test
