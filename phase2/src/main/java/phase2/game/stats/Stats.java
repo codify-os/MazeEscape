@@ -13,12 +13,12 @@ public class Stats {
     private double critMultiplier;
 
     /**
-     * Full constructor for stats
-     * @param attackPower Base attack power
-     * @param defense Defense value
-     * @param speed Movement/action speed
-     * @param critChance Critical hit chance (0.0 to 1.0)
-     * @param critMultiplier Critical hit damage multiplier
+     * Full constructor for stats with validation
+     * @param attackPower Base attack power (will be clamped to 0 minimum)
+     * @param defense Defense value (will be clamped to 0 minimum)
+     * @param speed Movement/action speed (will be clamped to 1 minimum)
+     * @param critChance Critical hit chance (will be clamped to 0.0-1.0)
+     * @param critMultiplier Critical hit damage multiplier (will be clamped to 1.0 minimum)
      */
     public Stats(int attackPower, int defense, int speed, double critChance, double critMultiplier) {
         this.attackPower = Math.max(0, attackPower);
