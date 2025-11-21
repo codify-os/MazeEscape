@@ -13,13 +13,27 @@ public class AttackData {
     private final String attackName;
 
     /**
-     * Full constructor for attack data
+     * Full constructor for attack data with validation
+     * @param attackName Name of the attack
+     * @param power Base damage power (will be clamped to 0 minimum)
+     * @param range Maximum range in tiles (will be clamped to 0 minimum)
+     * @param damageType Type of damage (PHYSICAL, MAGICAL, etc.)
+     * @param critChance Critical hit chance 0.0-1.0 (will be clamped)
+     * @param critMultiplier Critical damage multiplier (will be clamped to 1.0 minimum)
+     * @param cooldown Cooldown duration in frames (will be clamped to 0 minimum)
+     * @throws IllegalArgumentException if attackName is null/empty or damageType is null
      */
     public AttackData(String attackName, int power, int range, DamageType damageType, 
                      double critChance, double critMultiplier, int cooldown) {
+        if (attackName == null || attackName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Attack name cannot be null or empty");
+        }
+        if (damageType == null) {
+            throw new IllegalArgumentException("Damage type cannot be null");
+        }
         this.attackName = attackName;
-        this.power = power;
-        this.range = range;
+        this.power = Math.max(0, power);
+        this.range = Math.max(0, range);
         this.damageType = damageType;
         this.critChance = Math.max(0.0, Math.min(1.0, critChance)); // Clamp 0-1
         this.critMultiplier = Math.max(1.0, critMultiplier); // Min 1.0x
