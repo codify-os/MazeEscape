@@ -87,7 +87,7 @@ public class GamePanel extends JPanel implements Runnable {
                             dialogueBox.show_Dialogue();
                         }
                         case Button_Back -> {
-                            // for if button menue is added 
+                            // for if button menu is added
                         }
                         default -> { }
                     }
@@ -107,7 +107,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         dialogueBox.loadLine(
             "Welcome to the dungeon!",
-            "Find keys ro esacpe the dungeon but beware of the enemies",
+            "Find keys to escape the dungeon but beware of the enemies",
             "Fight the enemies to get a keys", 
             "GOOD LUCK PLAYER !!"
         );
@@ -189,7 +189,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (keyHandler.spacePressed) {
             dialogueBox.jumptoNext();
-            keyHandler.spacePressed = false;
+            keyHandler.spacePressed = true;
         }
 
         if (topPanel.isPaused()) {
@@ -273,10 +273,10 @@ public class GamePanel extends JPanel implements Runnable {
         int keyHolderIndex = (int) (Math.random()*enemyCount);
 
         for (int i = 0; i < enemyCount; i++ ) {
-            int[] spwanPoints = tileManager.getValidTile();
+            int[] spawnPoints = tileManager.getValidTile();
 
-            int col = spwanPoints[0];
-            int row = spwanPoints[1];
+            int col = spawnPoints[0];
+            int row = spawnPoints[1];
 
             int worldX = col * tileSize;
             int worldY = row * tileSize;
@@ -300,7 +300,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2d.setFont(new Font("Comic Sans", Font.BOLD, 10));
         g2d.setColor(Color.white);
-        g2d.drawString("Inventroy", 20, 30);
+        g2d.drawString("Inventory", 20, 30);
 
         if (keyIcon != null) {
             g2d.drawImage(keyIcon, 25, 40, tileSize/2, tileSize/2, this);
