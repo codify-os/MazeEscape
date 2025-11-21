@@ -82,6 +82,7 @@ public abstract class Entity implements Damageable, Attacker {
         g2d.fillRect(screenX, screeny, barFill, height);
     }
 
+
     //Damageable interface
 
     @Override
