@@ -17,6 +17,9 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 
 public class GamePanel extends JPanel implements Runnable {
     //SCREEN SETTINGS
@@ -47,6 +50,8 @@ public class GamePanel extends JPanel implements Runnable {
     public List<Enemy> enemies = new ArrayList<>();
     public KeyItem droppedKey = null;
 
+    private final dialogueBox dialogueBox = new dialogueBox();
+
     private final Image keyIcon;
 
     //Status flags
@@ -63,6 +68,14 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent click) {
+                if (gameState == GameState.PLAY) {
+                    dialogueBox.skipClick(click, screenWidth, screenHeight);
+                }
+            }
+        });
 
         tileManager = new TileManager(this);
         checkCollision = new CheckCollision(this);
@@ -71,6 +84,14 @@ public class GamePanel extends JPanel implements Runnable {
         //tileManager.loadComponents(); // <- ADD HERE
         spawnEnemies();
         CombatManager.addListener(new CombatLogger(true));
+
+        dialogueBox.loadLine(
+            "Welcome to the dungeon!",
+            "Find keys ro esacpe the dungeon but beware of the enemies",
+            "Fight the enemies to get a keys", 
+            "GOOD LUCK PLAYER !!"
+        );
+        dialogueBox.show_Dialogue();    
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         keyIcon = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
@@ -146,6 +167,11 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        if (keyHandler.spacePressed) {
+            dialogueBox.jumptoNext();
+            keyHandler.spacePressed = false;
+        }
+
         player.update();
         player.updateCooldown();
         for (Enemy e: enemies) {
@@ -193,6 +219,7 @@ public class GamePanel extends JPanel implements Runnable {
             drawVictoryScreen(g2d);
         }
         drawInventory(g2d);
+        dialogueBox.draw(g2d, screenWidth, screenHeight);
         g2d.dispose();
     }
 
