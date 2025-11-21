@@ -51,6 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     public KeyItem droppedKey = null;
 
     private final dialogueBox dialogueBox = new dialogueBox();
+    private final topPanel topPanel = new topPanel();
 
     private final Image keyIcon;
 
@@ -68,10 +69,29 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent click) {
                 if (gameState == GameState.PLAY) {
+                    topPanel.ActionBar pressButton = topPanel.clickButton(click);
+                    switch(pressButton){
+                        case Button_EXIT -> {
+                            System.exit(0);
+                        }
+                        case Button_Help -> {
+                            dialogueBox.loadLine(
+                    "Need Help?",
+                            "Use WASD to move and SPACE to attack"
+                        );
+                            dialogueBox.show_Dialogue();
+                        }
+                        case Button_Back -> {
+                            // for if button menue is added 
+                        }
+                        default -> { }
+                    }
+
                     dialogueBox.skipClick(click, screenWidth, screenHeight);
                 }
             }
@@ -172,6 +192,10 @@ public class GamePanel extends JPanel implements Runnable {
             keyHandler.spacePressed = false;
         }
 
+        if (topPanel.isPaused()) {
+            return;
+        }
+
         player.update();
         player.updateCooldown();
         for (Enemy e: enemies) {
@@ -218,6 +242,7 @@ public class GamePanel extends JPanel implements Runnable {
         if(gameState == GameState.GAME_WON) {
             drawVictoryScreen(g2d);
         }
+        topPanel.draw(g2d, screenWidth);
         drawInventory(g2d);
         dialogueBox.draw(g2d, screenWidth, screenHeight);
         g2d.dispose();
