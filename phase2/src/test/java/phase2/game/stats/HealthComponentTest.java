@@ -1,10 +1,11 @@
-package phase2.game.stats;
+package test.java.phase2.game.stats;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import phase2.game.combat.DamageSource;
 import phase2.game.combat.Damageable;
+import phase2.game.stats.HealthComponent;
 
 /**
  * Unit tests for HealthComponent class

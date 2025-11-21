@@ -1,7 +1,8 @@
-package phase2.Entity;
+package test.java.phase2.Entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import phase2.Entity.Entity;
 import phase2.game.combat.*;
 
 import java.awt.*;

@@ -1,4 +1,4 @@
-package phase2.Tile;
+package test.java.phase2.Tile;
 
 import phase2.Tile.TileManager;
 import phase2.Tile.GameComponent;
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import org.junit.jupiter.api.BeforeAll;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MapLoadingTest {
+public class TileManagerTest {
    public GamePanel gp;
    public TileManager tm;
 

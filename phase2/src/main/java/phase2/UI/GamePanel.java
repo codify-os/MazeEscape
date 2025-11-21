@@ -296,14 +296,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void drawInventory(Graphics2D g2d) {
         g2d.setColor(new Color(0, 0, 0, 120));
-        g2d.fillRoundRect(10, 10, 200, 60, 15, 15);
+        g2d.fillRoundRect(10, 80, 200, 60, 15, 15);
 
         g2d.setFont(new Font("Comic Sans", Font.BOLD, 10));
         g2d.setColor(Color.white);
         g2d.drawString("Inventory", 20, 30);
 
         if (keyIcon != null) {
-            g2d.drawImage(keyIcon, 25, 40, tileSize/2, tileSize/2, this);
+            g2d.drawImage(keyIcon, 25, 80, tileSize/2, tileSize/2, this);
         }
 
         Integer keyCount = player.getInventory().get("key");
