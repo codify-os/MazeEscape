@@ -9,36 +9,52 @@ import phase2.game.stats.HealthComponent;
 import phase2.game.stats.Stats;
 
 public class Enemy extends Entity {
-    GamePanel gp;
-    Pathfinder pathfinder;
-    Player player;
+    // Constants
+    private static final int ENEMY_SPEED = 2;
+    private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 10 frames
+    private static final int ENEMY_MAX_HEALTH = 50;
+    private static final int ENEMY_ATTACK = 10;
+    private static final int ENEMY_DEFENSE = 2;
+    
+    // Dependencies - gp inherited from Entity
+    private final Pathfinder pathfinder;
+    private final Player player;
 
+    // Pathfinding state
     private List<Tile> currentPath;
     private int pathIndex = 0;
     private int pathUpdateCounter = 0;
-    private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 30 frames (~0.5 seconds at 60 FPS)
+    
+    // Game state
     public boolean hasKey = false;
 
-    public Enemy (GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
+    /**
+     * Create an enemy at the specified position
+     * @param gp GamePanel instance
+     * @param pathfinder Pathfinding component
+     * @param player Player to follow
+     * @param x Initial world X position
+     * @param y Initial world Y position
+     * @throws IllegalArgumentException if any dependency is null
+     */
+    public Enemy(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
+        super(ENEMY_MAX_HEALTH, new Stats(ENEMY_ATTACK, ENEMY_DEFENSE));
+        
+        if (gp == null || pathfinder == null || player == null) {
+            throw new IllegalArgumentException("Enemy dependencies cannot be null");
+        }
+        
         this.gp = gp;
         this.pathfinder = pathfinder;
         this.player = player;
         this.worldX = x;
         this.worldY = y;
-        direction = "down";
-        speed = 2;
-        collisionArea = new Rectangle(8 ,16, gp.tileSize - 16, gp.tileSize - 16);
-        stats = new Stats(10, 2);
-        health = new HealthComponent(50, health.getDefense(), this);
-        currentAttack = stats.createBasicAttack();
+        this.direction = "down";
+        this.speed = ENEMY_SPEED;
+        this.collisionArea = new Rectangle(8, 16, gp.tileSize - 16, gp.tileSize - 16);
 
         getImage();
         updatePath();
-    }
-
-    public void setDefaultValues() {
-        speed = 2; // Slower than player
-        direction = "down";
     }
 
     public void getImage() {
@@ -63,6 +79,7 @@ public class Enemy extends Entity {
         }
     }
 
+    @Override
     public void update() {
         if (!isOnScreen()) {
             return;
@@ -170,6 +187,7 @@ public class Enemy extends Entity {
         }
     }
 
+    @Override
     public void draw(Graphics2D g2d) {
         int screenX = worldX - player.worldX + player.screenX;
         int screenY = worldY - player.worldY + player.screenY;
