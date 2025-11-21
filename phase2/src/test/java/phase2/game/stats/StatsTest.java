@@ -1,8 +1,9 @@
-package phase2.game.stats;
+package test.java.phase2.game.stats;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import phase2.game.combat.AttackData;
+import phase2.game.stats.Stats;
 
 /**
  * Unit tests for Stats class

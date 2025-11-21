@@ -1,7 +1,10 @@
-package phase2.Tile;
+package test.java.phase2.Tile;
 
 import org.junit.jupiter.api.Test;
 import phase2.Entity.Pathfinder;
+import phase2.Tile.Tile;
+import phase2.Tile.TileManager;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;

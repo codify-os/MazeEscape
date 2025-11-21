@@ -1,8 +1,10 @@
-package phase2.game.combat;
+package test.java.phase2.game.combat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import phase2.game.combat.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

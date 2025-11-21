@@ -29,6 +29,9 @@ public class Player extends Entity{
     private Image atkUp, atkDown, atkLeft, atkRight;
     private boolean isAttacking = false;
     private int atkCounter = 0;
+    private boolean critBuffActive = false;
+    private int critBuffTimer = 0;
+    private double prevCritChance;
 
     private final Map<String, Integer> inventory = new HashMap<>();
     private final Random random = new Random();
@@ -51,6 +54,8 @@ public class Player extends Entity{
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
         screenY = gp.screenHeight/2 - (gp.tileSize/2);
+
+        this.prevCritChance = stats.getCritChance();
 
         collisionArea = new Rectangle(8, 16, gp.tileSize - 16, gp.tileSize - 16);
         setDefaultValues();
@@ -157,12 +162,20 @@ public class Player extends Entity{
                 atkCounter = 0;
             }
         }
+        if (critBuffActive) {
+            critBuffTimer--;
+            if (critBuffTimer <= 0) {
+                critBuffActive = false;
+                stats.setCritChance(prevCritChance);
+            }
+        }
         if (playerCol == 48 && playerRow == 47) {
             if (hasItem("key")) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
                 gp.gameState = GamePanel.GameState.GAME_WON;
             }
         }
+
 
     }
 
@@ -306,12 +319,26 @@ public class Player extends Entity{
 
     public void grantRandomBuff() {
         double roll = random.nextDouble();
-        if (roll > 0) {
-            double oldCrit = stats.getCritChance();
-            double newCrit = Math.min(1.0, oldCrit + 0.5);
-            stats.setCritChance(newCrit);
+        if (roll < 0.1) {
+            prevCritChance = stats.getCritChance();
+            stats.setCritChance(1.0);
+            critBuffActive = true;
+            critBuffTimer = 180;
 
             System.out.println("Crit Buff gained");
         }
+    }
+
+    public void forceCritBuff() {
+        critBuffActive = true;
+        critBuffTimer = 180;
+        stats.setCritChance(1.0);
+    }
+
+    public boolean isCritBuffActive() {
+        return critBuffActive;
+    }
+    public int getCritBuffTimer() {
+        return critBuffTimer;
     }
 }
