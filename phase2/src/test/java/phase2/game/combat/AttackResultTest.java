@@ -1,6 +1,8 @@
-package phase2.game.combat;
+package test.java.phase2.game.combat;
 
 import org.junit.jupiter.api.Test;
+import phase2.game.combat.AttackResult;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

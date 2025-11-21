@@ -11,7 +11,7 @@ import java.util.Objects;
 public class GameComponent {
    int x, y;       // tile coordinates
    int width, height;
-   BufferedImage image; // <-- use BufferedImage
+   public BufferedImage image; // <-- use BufferedImage
     boolean solid;
 
     public GameComponent(int x, int y, int width, int height, BufferedImage image, boolean solid) {

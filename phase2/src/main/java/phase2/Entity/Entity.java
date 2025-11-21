@@ -35,17 +35,17 @@ public abstract class Entity implements Damageable, Attacker {
 
     //Entity Health and stats
     public HealthComponent health;
-    protected Stats stats;
+    public Stats stats;
 
     //Attack data
-    protected AttackData currentAttack;
-    protected int coolDown; //attacks are only at set times not every frame
+    public AttackData currentAttack;
+    public int coolDown; //attacks are only at set times not every frame
 
     //Display Text data
-    protected int damageFlashTimer = 0;
-    protected int damageTextTimer = 0;
-    protected int previousDamageAmount = 0;
-    protected boolean lastCrit = false;
+    public int damageFlashTimer = 0;
+    public int damageTextTimer = 0;
+    public int previousDamageAmount = 0;
+    public boolean lastCrit = false;
 
     /**
      * Default constructor with standard stats
@@ -72,7 +72,7 @@ public abstract class Entity implements Damageable, Attacker {
         this.currentAttack = stats.createBasicAttack();
     }
 
-    protected void drawHealthBar(Graphics2D g2d, int screenX, int screeny, int width, int height) {
+    public void drawHealthBar(Graphics2D g2d, int screenX, int screeny, int width, int height) {
         double hpPercent = health.getHealthPercentage();
         g2d.setColor(Color.black);
         g2d.drawRect(screenX-1, screeny-1, width + 2, height + 2);

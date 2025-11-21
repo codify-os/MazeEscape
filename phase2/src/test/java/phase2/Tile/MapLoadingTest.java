@@ -1,4 +1,4 @@
-package phase2.Tile;
+package test.java.phase2.Tile;
 
 import phase2.Tile.TileManager;
 import phase2.Tile.GameComponent;

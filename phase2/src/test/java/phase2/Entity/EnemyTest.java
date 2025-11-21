@@ -1,7 +1,11 @@
-package phase2.Entity;
+package test.java.phase2.Entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import phase2.Entity.Enemy;
+import phase2.Entity.KeyItem;
+import phase2.Entity.Pathfinder;
+import phase2.Entity.Player;
 import phase2.UI.GamePanel;
 import phase2.game.combat.DamageSource;
 
