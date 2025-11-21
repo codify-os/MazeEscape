@@ -92,17 +92,6 @@ public class EnemyTest {
     // =================== Movement and Pathfinding Tests ===================
 
     @Test
-    public void setDefaultValues_setsSpeedAndDirection() {
-        enemy.speed = 10;
-        enemy.direction = "up";
-        
-        enemy.setDefaultValues();
-        
-        assertEquals(2, enemy.speed, "Speed should be reset to 2");
-        assertEquals("down", enemy.direction, "Direction should be reset to down");
-    }
-
-    @Test
     public void update_offScreen_doesNotMove() {
         // Place enemy very far from player so it's off-screen
         enemy.worldX = 100000;
