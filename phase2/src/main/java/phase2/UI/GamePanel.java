@@ -15,6 +15,7 @@ import phase2.Tile.TileManager;
 import phase2.game.combat.*;
 import javax.swing.JPanel;
 import java.awt.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.MouseAdapter;
@@ -114,7 +115,7 @@ public class GamePanel extends JPanel implements Runnable {
         dialogueBox.show_Dialogue();    
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        keyIcon = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
+        keyIcon = toolkit.getImage(getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
     }
     public void startGameThread() {
         gameThread = new Thread(this);
@@ -332,5 +333,9 @@ public class GamePanel extends JPanel implements Runnable {
         String endingMessage = "Press ENTER to exit";
         int endingWidth = g2d.getFontMetrics().stringWidth(endingMessage);
         g2d.drawString(endingMessage, (screenWidth - endingWidth)/2, screenHeight/2 + 40);
+    }
+
+    public URL getResourceAsImage(String path) {
+        return getClass().getClassLoader().getResource(path);
     }
 }

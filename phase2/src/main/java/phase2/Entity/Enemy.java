@@ -4,8 +4,6 @@ import phase2.UI.GamePanel;
 import phase2.Tile.Tile;
 import java.util.List;
 import java.awt.*;
-import phase2.game.combat.CombatManager;
-import phase2.game.stats.HealthComponent;
 import phase2.game.stats.Stats;
 
 public class Enemy extends Entity {
@@ -61,8 +59,7 @@ public class Enemy extends Entity {
         try {
             // Using enemy sprites - the pink slime has one animated gif for all directions
             Toolkit toolkit = Toolkit.getDefaultToolkit();
-            Image slimeImage = toolkit.getImage(getClass().getClassLoader()
-                    .getResource(
+            Image slimeImage = toolkit.getImage(gp.getResourceAsImage(
                             "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkslime_Sprites/pinkslime_run_anim_anim_all_dir.gif"));
 
             // Use the same image for all directions since it's an omnidirectional sprite
@@ -139,10 +136,6 @@ public class Enemy extends Entity {
             if (firstTile.col == currentCol && firstTile.row == currentRow) {
                 pathIndex = 1;
             }
-        }
-
-        if (pathIndex >= currentPath.size()) {
-            return;
         }
 
         // Get target tile

@@ -73,15 +73,15 @@ public class Player extends Entity{
         try{
             //If you find a better way to do this, then you can mess around with it, but this is the best I could research into this
             Toolkit toolkit = Toolkit.getDefaultToolkit();
-            up = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_up_anim.gif"));
-            down = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_down_anim.gif"));
-            right = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
-            left = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
+            up = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_up_anim.gif"));
+            down = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_down_anim.gif"));
+            right = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
+            left = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
 
-            atkUp = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_up_anim.gif"));
-            atkDown = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_down_anim.gif"));
-            atkLeft = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_left_anim.gif"));
-            atkRight = toolkit.getImage(getClass().getClassLoader().getResource("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_right_anim.gif"));
+            atkUp = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_up_anim.gif"));
+            atkDown = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_down_anim.gif"));
+            atkLeft = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_left_anim.gif"));
+            atkRight = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_right_anim.gif"));
 
             MediaTracker tracker = new MediaTracker(new java.awt.Canvas());
             tracker.addImage(up, 0);
