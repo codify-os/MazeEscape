@@ -4,7 +4,6 @@ import phase2.UI.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,6 +43,13 @@ public class TileManager {
 
     public void getTileImage() {
         try {
+
+//            for (int i = 0; i < tiletypes.length; i ++) {
+//
+//                Image tileImage = laodTileImage(tyletypes[i]);
+//                tile.setImage(tileImage);
+//            }
+//
             tileType[0] = new Tile();
             tileType[0].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().
@@ -250,7 +256,7 @@ public class TileManager {
             tileType[31] = new Tile();
             tileType[31].image = ImageIO.read(Objects.requireNonNull(
                     getClass().getClassLoader().
-                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/torch_8.png")));;
+                            getResourceAsStream("0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/torch_8.png")));
             tileType[31].isTrap = true;
             tileType[31].collision = false;
             tileType[31].spawnable = false;
