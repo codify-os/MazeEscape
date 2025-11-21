@@ -1,4 +1,4 @@
-package test.java.phase2.Tile;
+package phase2.Tile;
 
 import org.junit.jupiter.api.Test;
 import phase2.Entity.Pathfinder;
