@@ -268,9 +268,12 @@ public class TileManager {
 
             int col, row = 0;
 
-            while (row < gp.maxWorldRow) {
-                String line = br.readLine();
-                String[] numbers = line.split(" ");
+                        while (row < gp.maxWorldRow) {
+                                String line = br.readLine();
+                                if (line == null) {
+                                        throw new RuntimeException("Map file too short: '" + mapFilePath + "' ended at row " + row + " but expected " + gp.maxWorldRow + " lines");
+                                }
+                                String[] numbers = line.split(" ");
                 for (col = 0; col < gp.maxWorldCol; col++) {
                     int tileNum = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = tileNum;
