@@ -41,19 +41,17 @@ public class HealthComponentTest {
     }
 
     @Test
-    public void constructor_zeroMaxHealth_clampsToOne() {
-        HealthComponent hc = new HealthComponent(0, 10, entity);
-        
-        assertEquals(1, hc.getMaxHealth());
-        assertEquals(1, hc.getCurrentHealth());
+    public void constructor_zeroMaxHealth_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new HealthComponent(0, 10, entity);
+        });
     }
 
     @Test
-    public void constructor_negativeMaxHealth_clampsToOne() {
-        HealthComponent hc = new HealthComponent(-50, 10, entity);
-        
-        assertEquals(1, hc.getMaxHealth());
-        assertEquals(1, hc.getCurrentHealth());
+    public void constructor_negativeMaxHealth_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new HealthComponent(-50, 10, entity);
+        });
     }
 
     @Test
