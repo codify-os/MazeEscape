@@ -181,4 +181,149 @@ public class PathfinderTest {
             assertTrue(b.isWalkable(), "All path tiles must be walkable");
         }
     }
+
+    @Test
+    public void findPath_noPathAvailable_returnsEmptyList() {
+        URL mapUrl = getClass().getClassLoader().getResource("maps/map2.txt");
+        assertNotNull(mapUrl, "Test resource missing from classpath: maps/map2.txt");
+
+        phase2.UI.GamePanel gp = new phase2.UI.GamePanel();
+        TileManager tm = gp.tileManager;
+
+        // Create isolated tiles - start at (0,0) and goal at (2,2) with obstacles blocking
+        for (int r = 0; r <= 2; r++) {
+            for (int c = 0; c <= 2; c++) {
+                Tile t = new Tile();
+                t.col = c;
+                t.row = r;
+                t.collision = (c == 1 || r == 1); // Block middle row and column
+                tm.mapTiles[c][r] = t;
+            }
+        }
+
+        Tile start = tm.getTile(0, 0);
+        Tile goal = tm.getTile(2, 2);
+
+        Pathfinder pf = new Pathfinder(tm);
+        List<Tile> path = pf.findPath(start, goal);
+
+        assertNotNull(path, "Path should not be null");
+        assertTrue(path.isEmpty(), "Path should be empty when no path exists");
+    }
+
+    @Test
+    public void findPath_nullStart_returnsEmptyList() {
+        URL mapUrl = getClass().getClassLoader().getResource("maps/map2.txt");
+        assertNotNull(mapUrl, "Test resource missing from classpath: maps/map2.txt");
+
+        phase2.UI.GamePanel gp = new phase2.UI.GamePanel();
+        TileManager tm = gp.tileManager;
+
+        Tile goal = new Tile();
+        goal.col = 1;
+        goal.row = 1;
+        goal.collision = false;
+        tm.mapTiles[1][1] = goal;
+
+        Pathfinder pf = new Pathfinder(tm);
+        List<Tile> path = pf.findPath(null, goal);
+
+        assertNotNull(path, "Path should not be null");
+        assertTrue(path.isEmpty(), "Path should be empty when start is null");
+    }
+
+    @Test
+    public void findPath_nullGoal_returnsEmptyList() {
+        URL mapUrl = getClass().getClassLoader().getResource("maps/map2.txt");
+        assertNotNull(mapUrl, "Test resource missing from classpath: maps/map2.txt");
+
+        phase2.UI.GamePanel gp = new phase2.UI.GamePanel();
+        TileManager tm = gp.tileManager;
+
+        Tile start = new Tile();
+        start.col = 0;
+        start.row = 0;
+        start.collision = false;
+        tm.mapTiles[0][0] = start;
+
+        Pathfinder pf = new Pathfinder(tm);
+        List<Tile> path = pf.findPath(start, null);
+
+        assertNotNull(path, "Path should not be null");
+        assertTrue(path.isEmpty(), "Path should be empty when goal is null");
+    }
+
+    @Test
+    public void findPath_unwalkableGoal_returnsEmptyList() {
+        URL mapUrl = getClass().getClassLoader().getResource("maps/map2.txt");
+        assertNotNull(mapUrl, "Test resource missing from classpath: maps/map2.txt");
+
+        phase2.UI.GamePanel gp = new phase2.UI.GamePanel();
+        TileManager tm = gp.tileManager;
+
+        // Create walkable start and unwalkable goal
+        Tile start = new Tile();
+        start.col = 0;
+        start.row = 0;
+        start.collision = false;
+        tm.mapTiles[0][0] = start;
+
+        Tile goal = new Tile();
+        goal.col = 2;
+        goal.row = 0;
+        goal.collision = true; // Unwalkable
+        tm.mapTiles[2][0] = goal;
+
+        Pathfinder pf = new Pathfinder(tm);
+        List<Tile> path = pf.findPath(start, goal);
+
+        assertNotNull(path, "Path should not be null");
+        assertTrue(path.isEmpty(), "Path should be empty when goal is unwalkable");
+    }
+
+    @Test
+    public void findPath_lShapedPath_findsCorrectPath() {
+        URL mapUrl = getClass().getClassLoader().getResource("maps/map2.txt");
+        assertNotNull(mapUrl, "Test resource missing from classpath: maps/map2.txt");
+
+        phase2.UI.GamePanel gp = new phase2.UI.GamePanel();
+        TileManager tm = gp.tileManager;
+
+        // Create L-shaped walkable path
+        for (int c = 0; c <= 2; c++) {
+            Tile t = new Tile();
+            t.col = c;
+            t.row = 0;
+            t.collision = false;
+            tm.mapTiles[c][0] = t;
+        }
+        for (int r = 1; r <= 2; r++) {
+            Tile t = new Tile();
+            t.col = 2;
+            t.row = r;
+            t.collision = false;
+            tm.mapTiles[2][r] = t;
+        }
+
+        Tile start = tm.getTile(0, 0);
+        Tile goal = tm.getTile(2, 2);
+
+        Pathfinder pf = new Pathfinder(tm);
+        List<Tile> path = pf.findPath(start, goal);
+
+        assertNotNull(path, "Path should not be null");
+        assertFalse(path.isEmpty(), "Path should not be empty");
+        assertEquals(start, path.get(0), "First tile should be start");
+        assertEquals(goal, path.get(path.size() - 1), "Last tile should be goal");
+        assertEquals(5, path.size(), "L-shaped path should have 5 tiles");
+
+        // Verify all tiles are walkable and adjacent
+        for (int i = 0; i < path.size() - 1; i++) {
+            Tile a = path.get(i);
+            Tile b = path.get(i + 1);
+            assertTrue(a.isWalkable(), "All path tiles must be walkable");
+            int distance = Math.abs(a.col - b.col) + Math.abs(a.row - b.row);
+            assertEquals(1, distance, "Consecutive tiles must be adjacent");
+        }
+    }
 }
