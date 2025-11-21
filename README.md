@@ -53,23 +53,6 @@ Execute the complete test suite (281 tests):
 mvn test
 ```
 
-### Running Specific Test Classes
-
-Run tests for specific components:
-
-```bash
-# Entity tests
-mvn test -Dtest="EntityTest"
-
-# Combat system tests
-mvn test -Dtest="CombatManagerTest"
-
-# Stats system tests
-mvn test -Dtest="HealthComponentTest"
-
-# Tile and pathfinding tests
-mvn test -Dtest="PathfinderTest"
-```
 
 ### Test Coverage Report
 
@@ -78,4 +61,3 @@ After running tests with `mvn test`, a code coverage report is generated at:
 phase2/target/site/jacoco/index.html
 ```
 
-Open this file in a web browser to view detailed line and branch coverage metrics.
