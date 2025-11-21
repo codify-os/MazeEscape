@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DrawTests {
+public class DrawTest {
 
     GamePanel gp;
     TileManager tm;
