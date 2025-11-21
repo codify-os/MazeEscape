@@ -7,8 +7,12 @@ import phase2.UI.GamePanel;
 import java.util.*;
 
 public class Pathfinder {
-    private TileManager tileManager;
+    private final TileManager tileManager;
 
+    /**
+     * Create a pathfinder with the given tile manager
+     * @param tileManager The tile manager to use for pathfinding (can be null, will be validated on use)
+     */
     public Pathfinder(TileManager tileManager) {
         this.tileManager = tileManager;
     }
@@ -19,10 +23,19 @@ public class Pathfinder {
      * @param start Starting tile
      * @param goal  Goal/target tile
      * @return List of tiles representing the path, or empty list if no path found
+     * @throws IllegalStateException if tileManager is null
      */
     public List<Tile> findPath(Tile start, Tile goal) {
-        if (start == null || goal == null || !goal.isWalkable()) {
+        if (tileManager == null) {
+            throw new IllegalStateException("TileManager not initialized");
+        }
+        if (start == null || goal == null || !goal.isWalkable() || !start.isWalkable()) {
             return new ArrayList<>();
+        }
+        
+        // Early exit if start equals goal
+        if (start.equals(goal)) {
+            return new ArrayList<>(List.of(start));
         }
 
         // Reset pathfinding data
