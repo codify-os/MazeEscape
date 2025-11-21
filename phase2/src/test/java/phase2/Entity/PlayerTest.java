@@ -1,4 +1,4 @@
-package test.java.phase2.Entity;
+package phase2.Entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

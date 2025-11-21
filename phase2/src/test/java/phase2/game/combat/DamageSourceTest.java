@@ -1,4 +1,4 @@
-package test.java.phase2.game.combat;
+package phase2.game.combat;
 
 import org.junit.jupiter.api.Test;
 import phase2.game.combat.AttackData;

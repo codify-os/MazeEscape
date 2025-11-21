@@ -1,4 +1,4 @@
-package test.java.phase2.game.stats;
+package phase2.game.stats;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
