@@ -7,6 +7,10 @@ import phase2.game.combat.*;
 import phase2.game.stats.*;
 
 public abstract class Entity implements Damageable, Attacker {
+    // Constants for display timers
+    protected static final int DAMAGE_FLASH_DURATION = 10;
+    protected static final int DAMAGE_TEXT_DURATION = 30;
+    
     // shared stats
     public int worldX, worldY;
     public int speed;
@@ -43,10 +47,29 @@ public abstract class Entity implements Damageable, Attacker {
     protected int previousDamageAmount = 0;
     protected boolean lastCrit = false;
 
+    /**
+     * Default constructor with standard stats
+     */
     public Entity() {
-        stats = new Stats();
-        health = new HealthComponent(100, stats.getDefense(), this);
-        currentAttack = stats.createBasicAttack();
+        this(100, new Stats());
+    }
+    
+    /**
+     * Constructor with custom max health and stats
+     * @param maxHealth Maximum health for this entity
+     * @param stats Stats component for this entity
+     * @throws IllegalArgumentException if stats is null or maxHealth <= 0
+     */
+    protected Entity(int maxHealth, Stats stats) {
+        if (stats == null) {
+            throw new IllegalArgumentException("Stats cannot be null");
+        }
+        if (maxHealth <= 0) {
+            throw new IllegalArgumentException("Max health must be positive");
+        }
+        this.stats = stats;
+        this.health = new HealthComponent(maxHealth, stats.getDefense(), this);
+        this.currentAttack = stats.createBasicAttack();
     }
 
     protected void drawHealthBar(Graphics2D g2d, int screenX, int screeny, int width, int height) {
@@ -64,10 +87,10 @@ public abstract class Entity implements Damageable, Attacker {
     @Override
     public void takeDamage(int amount, DamageSource source) {
         health.takeDamage(amount, source);
-        damageFlashTimer = 10;
+        damageFlashTimer = DAMAGE_FLASH_DURATION;
 
         previousDamageAmount = amount;
-        damageTextTimer = 30;
+        damageTextTimer = DAMAGE_TEXT_DURATION;
         if(!health.isAlive()) {
             onDeath();
         }
