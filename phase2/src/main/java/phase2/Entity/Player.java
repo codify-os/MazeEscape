@@ -21,6 +21,12 @@ public class Player extends Entity{
     private static final int PLAYER_SPEED = 4;
     private static final int ATK_DURATION = 20;
     private static final int TRAP_DAMAGE_FLASH = 15;
+    private static final int CRIT_BUFF_DURATION = 180;
+    private static final double CRIT_BUFF_CHANCE = 0.1;
+    private static final int WIN_POSITION_COL = 48;
+    private static final int WIN_POSITION_ROW = 47;
+    private static final int ATK_COUNTER = 0;
+    private static final int CRIT_BUFF_TIMER = 0;
     
     private final KeyHandler keyH;
     public final int screenX;
@@ -28,9 +34,9 @@ public class Player extends Entity{
 
     private Image atkUp, atkDown, atkLeft, atkRight;
     private boolean isAttacking = false;
-    private int atkCounter = 0;
+    private int atkCounter = ATK_COUNTER;
     private boolean critBuffActive = false;
-    private int critBuffTimer = 0;
+    private int critBuffTimer = CRIT_BUFF_TIMER;
     private double prevCritChance;
 
     private final Map<String, Integer> inventory = new HashMap<>();
@@ -71,49 +77,33 @@ public class Player extends Entity{
 
     public void getPlayerImage() {
         try{
-            //If you find a better way to do this, then you can mess around with it, but this is the best I could research into this
             Toolkit toolkit = Toolkit.getDefaultToolkit();
-            up = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_up_anim.gif"));
-            down = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_down_anim.gif"));
-            right = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_right_anim.gif"));
-            left = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_run_left_anim.gif"));
-
-            atkUp = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_up_anim.gif"));
-            atkDown = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_down_anim.gif"));
-            atkLeft = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_left_anim.gif"));
-            atkRight = toolkit.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Char_Sprites/char_attack_right_anim.gif"));
-
             MediaTracker tracker = new MediaTracker(new java.awt.Canvas());
-            tracker.addImage(up, 0);
-            tracker.addImage(down, 1);
-            tracker.addImage(right, 2);
-            tracker.addImage(left, 3);
-
-            tracker.addImage(atkUp, 4);
-            tracker.addImage(atkDown, 5);
-            tracker.addImage(atkLeft, 6);
-            tracker.addImage(atkRight, 7);
+            
+            int id = 0;
+            up = addImage(toolkit, tracker, "Char_Sprites/char_run_up_anim.gif", id++);
+            down = addImage(toolkit, tracker, "Char_Sprites/char_run_down_anim.gif", id++);
+            left = addImage(toolkit, tracker, "Char_Sprites/char_run_left_anim.gif", id++);
+            right = addImage(toolkit, tracker, "Char_Sprites/char_run_right_anim.gif", id++);
+            atkUp = addImage(toolkit, tracker, "Char_Sprites/char_attack_up_anim.gif", id++);
+            atkDown = addImage(toolkit, tracker, "Char_Sprites/char_attack_down_anim.gif", id++);
+            atkLeft = addImage(toolkit, tracker, "Char_Sprites/char_attack_left_anim.gif", id++);
+            atkRight = addImage(toolkit, tracker, "Char_Sprites/char_attack_right_anim.gif", id++);
+            
             tracker.waitForAll();
-        }catch(Exception e) {
+        }catch(InterruptedException e) {
             e.printStackTrace();
         }
     }
     
+    private Image addImage(Toolkit toolkit, MediaTracker tracker, String path, int id){
+        Image image = toolkit.getImage(gp.getResourceAsImage(path));
+        tracker.addImage(image, id);
+        return image;
+    }
     @Override
     public void update() {
-
-        if(keyH.wPressed) {
-            direction = "up";
-
-        } else if (keyH.sPressed) {
-            direction = "down";
-
-        } else if (keyH.aPressed) {
-            direction = "left";
-
-        } else if (keyH.dPressed){
-            direction = "right";
-        }
+        updateDirection();
         int playerCol = (worldX + collisionArea.x) /gp.tileSize;
         int playerRow = (worldY + collisionArea.y)/gp.tileSize;
         Tile curTile = gp.tileManager.getTile(playerCol, playerRow);
@@ -122,6 +112,27 @@ public class Player extends Entity{
         }
         collisionOn = false;
         gp.checkCollision.checkTile(this);
+        handleMovement();
+
+        handleAttack();
+        updateAttackAnimation();
+        updateCritBuff();
+        checkWinCondition(playerCol, playerRow);
+    }
+
+    private void updateDirection() {
+        if(keyH.wPressed) {
+            direction = "up";
+        } else if (keyH.sPressed) {
+            direction = "down";
+        } else if (keyH.aPressed) {
+            direction = "left";
+        } else if (keyH.dPressed){
+            direction = "right";
+        }
+    }
+
+    private void handleMovement() {
         if (keyH.wPressed || keyH.sPressed || keyH.aPressed || keyH.dPressed) {
             if (!collisionOn) {
                 switch (direction) {
@@ -133,7 +144,9 @@ public class Player extends Entity{
             }
             collectKey();
         }
+    }
 
+    private void handleAttack() {
         if (keyH.spacePressed && !isAttacking) {
             isAttacking = true;
             atkCounter = 0;
@@ -145,6 +158,9 @@ public class Player extends Entity{
                 }
             }
         }
+    }
+
+    private void updateAttackAnimation() {
         if (isAttacking) {
             atkCounter++;
             if (atkCounter > ATK_DURATION) {
@@ -152,21 +168,24 @@ public class Player extends Entity{
                 atkCounter = 0;
             }
         }
+    }
+
+    private void updateCritBuff() {
         if (critBuffActive) {
-            critBuffTimer--;
             if (critBuffTimer <= 0) {
                 critBuffActive = false;
                 stats.setCritChance(prevCritChance);
             }
         }
-        if (playerCol == 48 && playerRow == 47) {
+    }
+
+    private void checkWinCondition(int playerCol, int playerRow) {
+        if (playerCol == WIN_POSITION_COL && playerRow == WIN_POSITION_ROW) {
             if (hasItem("key")) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
                 gp.gameState = GamePanel.GameState.GAME_WON;
             }
         }
-
-
     }
 
     private void collectKey() {
@@ -196,84 +215,59 @@ public class Player extends Entity{
 
     @Override
     public void draw(Graphics2D g2d){
-        Image image;
-        int drawWidth = gp.tileSize;
-        int drawHeight = gp.tileSize;
-        int drawX = screenX;
-        int drawY = screenY;
-
-        // Use attack animation if attacking, otherwise use movement animation
-        if(isAttacking) {
-            image = switch (direction) {
-                case "up" -> atkUp;
-                case "down" -> atkDown;
-                case "left" -> atkLeft;
-                case "right" -> atkRight;
-                default -> down;
-            };
-
-            // Position sprite so sword swings in front of character based on direction
-            switch (direction) {
-                case "up":
-                    // Up/down: 3 tiles wide, 2 tiles tall
-                    drawWidth = gp.tileSize * 3;
-                    drawHeight = gp.tileSize * 2;
-                    drawX = screenX - gp.tileSize;
-                    drawY = screenY - gp.tileSize;
-                    break;
-                case "down":
-                    // Up/down: 3 tiles wide, 2 tiles tall
-                    drawWidth = gp.tileSize * 3;
-                    drawHeight = gp.tileSize * 2;
-                    drawX = screenX - gp.tileSize;
-                    drawY = screenY;
-                    break;
-                case "left":
-                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
-                    drawWidth = gp.tileSize * 2;
-                    drawHeight = gp.tileSize * 3;
-                    drawX = screenX - gp.tileSize;
-                    drawY = screenY - gp.tileSize;
-                    break;
-                case "right":
-                    // Left/right: 2 tiles wide, 3 tiles tall (rotated aspect ratio)
-                    drawWidth = gp.tileSize * 2;
-                    drawHeight = gp.tileSize * 3;
-                    drawX = screenX;
-                    drawY = screenY - gp.tileSize;
-                    break;
-                default:
-                    drawWidth = gp.tileSize * 3;
-                    drawHeight = gp.tileSize * 2;
-                    drawX = screenX - gp.tileSize;
-                    drawY = screenY;
-            }
-        } else {
-            image = switch (direction) {
-                case "up" -> up;
-                case "down" -> down;
-                case "left" -> left;
-                case "right" -> right;
-                default -> down;
-            };
-        }
+        Image image = isAttacking ? getAttackSprite() : getMovementSprite();
+        Rectangle spriteBounds = isAttacking ? getAttackSpriteDimensions() : getDefaultSpriteDimensions();
 
         takeDamageFlash(g2d);
 
         if (image != null) {
-            g2d.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
-       }
+            g2d.drawImage(image, spriteBounds.x, spriteBounds.y, spriteBounds.width, spriteBounds.height, null);
+        }
 
-       int barWidth = gp.tileSize;
-       int barHeight = 4;
-       int barX = screenX;
-       int barY = screenY - barHeight -4;
-       drawHealthBar(g2d, barX, barY, barWidth, barHeight);
+        int barWidth = gp.tileSize;
+        int barHeight = 4;
+        int barX = screenX;
+        int barY = screenY - barHeight - 4;
+        drawHealthBar(g2d, barX, barY, barWidth, barHeight);
 
-       if(damageTextTimer > 0) {
-           showDamage(g2d);
-           damageTextTimer--;
-       }
+        if(damageTextTimer > 0) {
+            showDamage(g2d);
+            damageTextTimer--;
+        }
+    }
+
+    private Image getMovementSprite() {
+        return switch (direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "left" -> left;
+            case "right" -> right;
+            default -> down;
+        };
+    }
+
+    private Image getAttackSprite() {
+        return switch (direction) {
+            case "up" -> atkUp;
+            case "down" -> atkDown;
+            case "left" -> atkLeft;
+            case "right" -> atkRight;
+            default -> down;
+        };
+    }
+
+    private Rectangle getDefaultSpriteDimensions() {
+        return new Rectangle(screenX, screenY, gp.tileSize, gp.tileSize);
+    }
+
+    private Rectangle getAttackSpriteDimensions() {
+        return switch (direction) {
+            case "up" -> new Rectangle(screenX - gp.tileSize, screenY - gp.tileSize, gp.tileSize * 3, gp.tileSize * 2);
+            case "down" -> new Rectangle(screenX - gp.tileSize, screenY, gp.tileSize * 3, gp.tileSize * 2);
+            case "left" -> new Rectangle(screenX - gp.tileSize, screenY - gp.tileSize, gp.tileSize * 2, gp.tileSize * 3);
+            case "right" -> new Rectangle(screenX, screenY - gp.tileSize, gp.tileSize * 2, gp.tileSize * 3);
+            default -> new Rectangle(screenX - gp.tileSize, screenY, gp.tileSize * 3, gp.tileSize * 2);
+        };
     }
 
     private void showDamage(Graphics2D g2d) {
@@ -332,20 +326,21 @@ public class Player extends Entity{
 
     public void grantRandomBuff() {
         double roll = random.nextDouble();
-        if (roll < 0.1) {
-            prevCritChance = stats.getCritChance();
-            stats.setCritChance(1.0);
-            critBuffActive = true;
-            critBuffTimer = 180;
-
+        if (roll < CRIT_BUFF_CHANCE) {
+            activateCritBuff();
             System.out.println("Crit Buff gained");
         }
     }
 
     public void forceCritBuff() {
-        critBuffActive = true;
-        critBuffTimer = 180;
+        activateCritBuff();
+    }
+
+    private void activateCritBuff() {
+        prevCritChance = stats.getCritChance();
         stats.setCritChance(1.0);
+        critBuffActive = true;
+        critBuffTimer = CRIT_BUFF_DURATION;
     }
 
     public boolean isCritBuffActive() {

@@ -268,7 +268,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void spawnEnemies() {
 
-        int enemyCount = 1;
+        int enemyCount = 20;
 
         enemies.clear();
         int keyHolderIndex = (int) (Math.random()*enemyCount);

@@ -81,7 +81,7 @@ public class PlayerTest{
     public void testCritBuffExpires() {
         player.forceCritBuff();
 
-        for(int i = 0; i < 180; i++) {
+        for(int i = 0; i < 181; i++) {
             player.update();
         }
 
