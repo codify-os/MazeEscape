@@ -17,6 +17,8 @@ public class Spider extends Enemy {
     private Image idleImage;
     private Image hitImage;
 
+    private long explosionShownTime = 0; // <-- NEW
+
     private final Random random = new Random();
 
     public Spider(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
@@ -28,60 +30,72 @@ public class Spider extends Enemy {
     private void getSpiderImages() {
         try {
             Toolkit toolkit = Toolkit.getDefaultToolkit();
+
             idleImage = toolkit.getImage(gp.getResourceAsImage(
                 "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Spider_Sprites/spider_idle_anim_all_dir.gif"));
+
             hitImage = toolkit.getImage(gp.getResourceAsImage(
                 "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Spider_Sprites/spider_hit_anim_all_dir.gif"));
+
+            // Default animation
             up = down = left = right = idleImage;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-public void update() {
-    if (!isOnScreen() || hasExploded) return;
+    public void update() {
 
-    // Detect player
-    if (!playerSpotted && canSeePlayer()) {
-        playerSpotted = true;
-        explodeStartTime = System.currentTimeMillis();
-        speed = MAX_SPEED; // chase faster
-    }
+        // After explosion — keep hitImage visible for 400 ms
+        if (hasExploded) {
+            if (System.currentTimeMillis() - explosionShownTime > 400) {
+                gp.enemies.remove(this);
+            }
+            return;
+        }
 
-    collisionOn = false;
-    gp.checkCollision.checkTile(this);
+        if (!isOnScreen()) return;
 
-    if (!collisionOn) followPathSmooth();
+        // Detect player
+        if (!playerSpotted && canSeePlayer()) {
+            playerSpotted = true;
+            explodeStartTime = System.currentTimeMillis();
+            speed = MAX_SPEED;
+        }
 
-    // Explosion after delay only if player still in range
-    if (playerSpotted) {
-        long elapsed = System.currentTimeMillis() - explodeStartTime;
-        if (elapsed >= EXPLOSION_DELAY_MS) {
-            if (canSeePlayer()) { // <--- only explode if player is close
-                explode();
-            } else {
-                // reset spotted if player ran away
-                playerSpotted = false;
-                speed = MIN_SPEED;
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+
+        if (!collisionOn) followPathSmooth();
+
+        // Explosion delayed AND only if player is still close
+        if (playerSpotted) {
+            long elapsed = System.currentTimeMillis() - explodeStartTime;
+            if (elapsed >= EXPLOSION_DELAY_MS) {
+                if (canSeePlayer()) {
+                    explode();
+                } else {
+                    playerSpotted = false;
+                    speed = MIN_SPEED;
+                }
             }
         }
     }
-}
 
-private boolean canSeePlayer() {
-    int dx = player.worldX - worldX;
-    int dy = player.worldY - worldY;
-    double distance = Math.sqrt(dx * dx + dy * dy);
-    int detectionRange = 5 * gp.tileSize; // 5 tiles
-    return distance <= detectionRange;
-}
-
+    private boolean canSeePlayer() {
+        int dx = player.worldX - worldX;
+        int dy = player.worldY - worldY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        int detectionRange = 2 * gp.tileSize;
+        return distance <= detectionRange;
+    }
 
     private void followPathSmooth() {
         int dx = player.worldX - worldX;
         int dy = player.worldY - worldY;
-        double distance = Math.sqrt(dx*dx + dy*dy);
+        double distance = Math.sqrt(dx * dx + dy * dy);
         if (distance == 0) return;
 
         int moveX = (int) Math.round(speed * dx / distance);
@@ -100,25 +114,31 @@ private boolean canSeePlayer() {
     private void explode() {
         hasExploded = true;
 
+        // Switch to explosion animation
+        up = down = left = right = hitImage;
+
+        // Start explosion display timer
+        explosionShownTime = System.currentTimeMillis();
+
+        // Damage player
         Rectangle explosionArea = new Rectangle(worldX, worldY, gp.tileSize, gp.tileSize);
-        Rectangle playerBox = new Rectangle(player.worldX + player.collisionArea.x,
-                                            player.worldY + player.collisionArea.y,
-                                            player.collisionArea.width,
-                                            player.collisionArea.height);
+        Rectangle playerBox = new Rectangle(
+                player.worldX + player.collisionArea.x,
+                player.worldY + player.collisionArea.y,
+                player.collisionArea.width,
+                player.collisionArea.height
+        );
 
         if (explosionArea.intersects(playerBox)) {
             player.takeDamage(30, new DamageSource("Spider Explosion"));
         }
-
-        up = down = left = right = hitImage;
-
-        // Remove safely after next update cycle
-        gp.enemies.remove(this);
     }
 
     @Override
     public void draw(Graphics2D g2d) {
-        if (hasExploded) return;
+        if (hasExploded) {
+            // still draw hitImage
+        }
 
         int screenX = worldX - player.worldX + player.screenX;
         int screenY = worldY - player.worldY + player.screenY;
