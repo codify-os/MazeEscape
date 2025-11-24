@@ -17,7 +17,7 @@ public class Spider extends Enemy {
     private Image idleImage;
     private Image hitImage;
 
-    private long explosionShownTime = 0; // <-- NEW
+    private long explosionShownTime = 0; 
 
     private final Random random = new Random();
 

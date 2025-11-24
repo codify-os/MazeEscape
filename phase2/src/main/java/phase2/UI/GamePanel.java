@@ -98,8 +98,6 @@ public class GamePanel extends JPanel implements Runnable {
         dialogueBox.skipClick(click, screenWidth, screenHeight);
     }
 });
-
-
         // Initialize game components
         tileManager = new TileManager(this);
         checkCollision = new CheckCollision(this);
@@ -289,13 +287,16 @@ public class GamePanel extends JPanel implements Runnable {
     // ----------------------------
     // 1. Spawn BIG BOSS 
     // ----------------------------
-    int bossCol = maxWorldCol / 2; // center horizontally (≈ 25)
-    int bossRow = 2;               
+    
+    int bossCol = maxWorldCol - 10;   // 10 tiles from right edge
+    int bossRow = maxWorldRow - 6;    // bottom row (0-based index)
+
     int bossX = bossCol * tileSize;
     int bossY = bossRow * tileSize;
 
     BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
     enemies.add(bigBoss);
+
 
     // ----------------------------
     // 2. Spawn normal enemies + spiders

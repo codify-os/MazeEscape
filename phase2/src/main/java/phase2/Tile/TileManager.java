@@ -55,16 +55,6 @@ public class TileManager {
 
             // Use the path as-is from TileDef, but make sure it matches the classpath
             InputStream is = getClass().getClassLoader().getResourceAsStream(def.path);
-            // if (is == null) {
-            //     // Attempt to auto-fix double folder
-            //     String nameOnly = def.path.substring(def.path.lastIndexOf('/') + 1);
-            //     String possiblePath = "0x72_16x16DungeonTileset.v5/0x72_16x16DungeonTileset.v5/items/" + nameOnly;
-            //     is = getClass().getClassLoader().getResourceAsStream(possiblePath);
-            //     if (is == null) {
-            //         throw new RuntimeException("Missing resource: " + def.path + " (also tried: " + possiblePath + ")");
-            //     }
-            // }
-
             tile.image = ImageIO.read(is);
 
             // Copy properties
