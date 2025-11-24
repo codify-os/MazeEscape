@@ -8,7 +8,7 @@ import phase2.game.stats.Stats;
 
 public class Enemy extends Entity {
     // Constants
-    private static final int ENEMY_SPEED = 2;
+    private static final int ENEMY_SPEED = 3;
     private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 10 frames
     private static final int ENEMY_MAX_HEALTH = 50;
     private static final int ENEMY_ATTACK = 10;
@@ -16,7 +16,7 @@ public class Enemy extends Entity {
     
     // Dependencies - gp inherited from Entity
     private final Pathfinder pathfinder;
-    private final Player player;
+    protected final Player player;
 
     // Pathfinding state
     private List<Tile> currentPath;
@@ -122,7 +122,7 @@ public class Enemy extends Entity {
         }
     }
 
-    private void followPath() {
+    protected void followPath() {
         if (currentPath == null || currentPath.isEmpty() || pathIndex >= currentPath.size()) {
             return;
         }
@@ -232,9 +232,7 @@ public class Enemy extends Entity {
         }
     }
 
-
-
-    private boolean isOnScreen() {
+    protected boolean isOnScreen() {
         int screenLeft = player.worldX - (gp.screenWidth/2);
         int screenRight = player.worldX + (gp.screenWidth/2);
         int screenTop = player.worldY - (gp.screenHeight/2);
@@ -246,14 +244,29 @@ public class Enemy extends Entity {
 
     @Override
     public void onDeath() {
-        System.out.println("Enemy died!");
-        gp.enemies.remove(this);
-        if (gp.droppedKey == null && hasKey) {
-            gp.droppedKey = new KeyItem(worldX, worldY);
-            System.out.println("This enemy had the key");
-        }
-        gp.player.grantRandomBuff();
-        gp.player.heal(5);
+    System.out.println("Enemy died!");
+    
+    // Remove enemy safely
+    gp.enemies.remove(this);
 
+    // Drop key if this enemy had one
+    if (gp.droppedKey == null && hasKey) {
+        gp.droppedKey = new KeyItem(worldX, worldY);
+        System.out.println("This enemy had the key");
     }
+
+    // Grant random buff to player
+    gp.player.grantRandomBuff();
+
+    // Random health gain (10% chance to gain 1-5 HP)
+    if (Math.random() < 0.1) { // 10% chance
+        int healAmount = 1 + (int)(Math.random() * 5); // 1 to 5 HP
+        gp.player.heal(healAmount);
+        System.out.println("Player absorbs " + healAmount + " health from enemy!");
+    } else {
+        // Default small heal for consistency
+        gp.player.heal(2);
+    }
+}
+
 }

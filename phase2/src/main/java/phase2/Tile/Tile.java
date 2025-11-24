@@ -1,6 +1,7 @@
 package phase2.Tile;
 
 import java.awt.image.BufferedImage;
+// import java.awt.Image;
 
 public class Tile {
     public BufferedImage image;
@@ -10,6 +11,7 @@ public class Tile {
     public int trapCooldown = 60;
     public int trapTimer = 0;
     public boolean spawnable = true;
+    //public Image image;
 
     // A* pathfinding properties
     public int gCost; // Distance from start node
@@ -23,6 +25,16 @@ public class Tile {
         reset();
     }
     
+    public Tile(Tile other) {
+        this.image = other.image;
+        this.collision = other.collision;
+        this.spawnable = other.spawnable;
+        this.isTrap = other.isTrap;
+        this.trapDamage = other.trapDamage;
+        this.trapCooldown = other.trapCooldown;
+        this.trapTimer = other.trapTimer;
+}
+
 
     /**
      * helper function to calculate F cost

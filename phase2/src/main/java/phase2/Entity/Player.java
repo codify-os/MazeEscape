@@ -330,6 +330,13 @@ public class Player extends Entity{
             activateCritBuff();
             System.out.println("Crit Buff gained");
         }
+
+        double healRoll = random.nextDouble();
+        if (healRoll < 0.1) { // 10% chance
+            int healAmount = 1 + random.nextInt(5); // Heal 1-5 HP
+            this.heal(healAmount);
+            System.out.println("Player absorbs " + healAmount + " health from buff!");
+        }
     }
 
     public void forceCritBuff() {
