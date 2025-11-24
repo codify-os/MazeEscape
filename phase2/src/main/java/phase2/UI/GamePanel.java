@@ -9,6 +9,7 @@
 package phase2.UI;
 import phase2.Entity.KeyItem;
 import phase2.Entity.Player;
+import phase2.Entity.BigBoss;
 import phase2.Entity.Enemy;
 import phase2.Entity.Spider;
 
@@ -39,6 +40,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
 
+    public MusicManager musicManager;
+
     // FPS
     final double FPS = 60.0;
 
@@ -59,10 +62,11 @@ public class GamePanel extends JPanel implements Runnable {
     public enum GameState {
         PLAY,
         GAME_WON,
-        GAME_OVER
+        GAME_OVER,
+        START_SCREEN
     }
 
-    public GameState gameState = GameState.PLAY;
+    public GameState gameState = GameState.START_SCREEN;
     public int finalScore = 0;
 
     public GamePanel() {
@@ -73,28 +77,28 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
 
         this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent click) {
-                if (gameState == GameState.PLAY) {
-                    topPanel.ActionBar pressButton = topPanel.clickButton(click);
-                    switch (pressButton) {
-                        case Button_EXIT -> System.exit(0);
-                        case Button_Help -> {
-                            dialogueBox.loadLine(
-                                    "Need Help?",
-                                    "Use WASD to move and SPACE to attack"
-                            );
-                            dialogueBox.show_Dialogue();
-                        }
-                        case Button_Back -> {
-                        }
-                        default -> {
-                        }
-                    }
-                    dialogueBox.skipClick(click, screenWidth, screenHeight);
-                }
+    @Override
+    public void mousePressed(MouseEvent click) {
+        // always check buttons, even if GAME_OVER or GAME_WON
+        topPanel.ActionBar pressButton = topPanel.clickButton(click);
+        switch (pressButton) {
+            case Button_EXIT -> System.exit(0);
+            case Button_Help -> {
+                dialogueBox.loadLine(
+                        "Need Help?",
+                        "Use WASD to move and SPACE to attack"
+                );
+                dialogueBox.show_Dialogue();
             }
-        });
+            case Button_Back -> { /* maybe restart? */ }
+            default -> { }
+        }
+
+        // only check dialogue skipping if dialogue is visible
+        dialogueBox.skipClick(click, screenWidth, screenHeight);
+    }
+});
+
 
         // Initialize game components
         tileManager = new TileManager(this);
@@ -116,6 +120,20 @@ public class GamePanel extends JPanel implements Runnable {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         keyIcon = toolkit.getImage(getResourceAsImage(
                 "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
+
+         // --- MUSIC INITIALIZATION ---
+    String[] tracks = {
+        "/musics/epic-battle-sound-9414.mp3",
+    "/musics/horde-war-drums-loop-130bpm-342956.mp3"
+    };
+
+    musicManager = new MusicManager(tracks);  // initialize with tracks
+    musicManager.play();                      // start looping music
+
+    // --- LINK MUSIC MANAGER TO TOP PANEL ---
+    topPanel.setMusicManager(musicManager);   // allows sound button to mute/unmute
+    topPanel.setGamePanel(this);
+
     }
 
     public void startGameThread() {
@@ -167,6 +185,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
    public void update() {
+    // NEW: do nothing until user presses PLAY
+    if (gameState == GameState.START_SCREEN) {
+        return;
+    }
+    
     if(gameState == GameState.GAME_WON){
         if  (keyHandler.enterPressed){
             System.exit(0);
@@ -235,7 +258,7 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState == GameState.GAME_OVER) gameOverScreen(g2d);
         if (gameState == GameState.GAME_WON) drawVictoryScreen(g2d);
 
-        topPanel.draw(g2d, screenWidth);
+        topPanel.draw(g2d, screenWidth, gameState == GameState.GAME_OVER);
         drawInventory(g2d);
         dialogueBox.draw(g2d, screenWidth, screenHeight);
 
@@ -261,11 +284,25 @@ public class GamePanel extends JPanel implements Runnable {
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
     public void spawnEnemies() {
-    int enemyCount = 25; // total enemies
-    int minSpiders = 5;  // at least 5 spiders
-    int keyHolderIndex = (int) (Math.random() * enemyCount);
-
     enemies.clear();
+
+    // ----------------------------
+    // 1. Spawn BIG BOSS 
+    // ----------------------------
+    int bossCol = maxWorldCol / 2; // center horizontally (≈ 25)
+    int bossRow = 2;               
+    int bossX = bossCol * tileSize;
+    int bossY = bossRow * tileSize;
+
+    BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
+    enemies.add(bigBoss);
+
+    // ----------------------------
+    // 2. Spawn normal enemies + spiders
+    // ----------------------------
+    int enemyCount = 30;
+    int minSpiders = 5;
+    int keyHolderIndex = (int) (Math.random() * enemyCount);
 
     for (int i = 0; i < enemyCount; i++) {
         int[] spawnPoints = tileManager.getValidTile();
@@ -276,8 +313,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         Enemy enemy;
 
-        // Randomly assign some as Spider, ensuring at least `minSpiders`
-        if (i < minSpiders || Math.random() < 0.3) { // first `minSpiders` guaranteed
+        if (i < minSpiders || Math.random() < 0.3) {
             enemy = new Spider(this, pathfinder, player, worldX, worldY);
         } else {
             enemy = new Enemy(this, pathfinder, player, worldX, worldY);
@@ -290,6 +326,7 @@ public class GamePanel extends JPanel implements Runnable {
         enemies.add(enemy);
     }
 }
+
 
     public void dropKey(int worldX, int worldY) {
         droppedKey = new KeyItem(worldX, worldY);

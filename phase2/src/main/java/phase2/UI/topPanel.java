@@ -25,6 +25,14 @@ import java.util.Map;
     private boolean mute  = false;
     private double  zoom   = 1.0;
 
+
+    private GamePanel gp;
+
+
+
+    // Music manager reference
+    private MusicManager musicManager;
+
 // hashmap set up for the top panel 
     public enum ActionBar {
         Zoom_In , Zoom_Out, Button_Pause, Button_Sound, Button_Back, Button_Help, Button_EXIT, none}
@@ -51,59 +59,77 @@ import java.util.Map;
             // empty boxes are created 
             }
 
+    // setter for MusicManager
+    public void setMusicManager(MusicManager manager) {
+        this.musicManager = manager;
+        if (mute) {
+            musicManager.setMuted(true);
+        }
+    }
+
+    public void setGamePanel(GamePanel gp) {
+    this.gp = gp;
+}
+
     /**
      * Drawing the bar, and using the buttons and actions created 
      * * graphcis2D makes edges of java pixels look a but nicer 
      */
-    public void draw(Graphics2D bar_graphics, int panelWidth){
-        // The back ground colour 
-        bar_graphics.setColor(bar_backgroud_color);
-        bar_graphics.fillRect(0, 0, panelWidth, Bar_Height);
+    public void draw(Graphics2D bar_graphics, int panelWidth, boolean gameOver) {
+    // Background
+    bar_graphics.setColor(bar_backgroud_color);
+    bar_graphics.fillRect(0, 0, panelWidth, Bar_Height);
 
-        // for nicer icons and icon edges 
-        bar_graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        // Title and buttons seperation -- title first , Buttons second 
-        // adjusing the texts within the boxes/ buttons 
-        bar_graphics.setColor(text_color);  // creamy white color
-        Font oldFont = bar_graphics.getFont();
-        bar_graphics.setFont(oldFont.deriveFont(Font.BOLD, 18f));
+    // Anti-aliasing for nicer edges
+    bar_graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        final String gameTitle = "Dungeon Escape";
-        int textWidth = bar_graphics.getFontMetrics().stringWidth(gameTitle);
-        int top_baseLine = 20; 
-        bar_graphics.drawString(gameTitle, (panelWidth - textWidth) / 2, top_baseLine);
-        bar_graphics.setFont(oldFont);
+    // Title
+    bar_graphics.setColor(text_color);
+    Font oldFont = bar_graphics.getFont();
+    bar_graphics.setFont(oldFont.deriveFont(Font.BOLD, 18f));
+    final String gameTitle = "Dungeon Escape";
+    int textWidth = bar_graphics.getFontMetrics().stringWidth(gameTitle);
+    int top_baseLine = 20; 
+    bar_graphics.drawString(gameTitle, (panelWidth - textWidth) / 2, top_baseLine);
+    bar_graphics.setFont(oldFont);
 
-       // Buttons on bottom of the top panel 
-       int x = Bar_Gap_Space;
-       int y = Bar_Height - Bttn_Height - 10; // centering the box 
+    // Bottom border line
+    bar_graphics.setColor(bar_border_color);
+    bar_graphics.drawLine(0, Bar_Height - 1, panelWidth, Bar_Height - 1);
 
-       // when boxes are empty, clear no action is being taken 
-       box.clear();
-       x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_In,  "+");
-       x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_Out, "-");
-      
-       String soundButton = mute? "MUTE" : "SOUND" ; 
-       x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
+    // Buttons
+    int y = Bar_Height - Bttn_Height - 10;
+    int x = Bar_Gap_Space;
 
-       String pauseButton = pause? "PLAY" : "PAUSE" ; 
-       x = drawsButton(bar_graphics, x, y, ActionBar.Button_Pause, pauseButton); 
+    box.clear(); // clear old buttons
 
-       x = drawsButton(bar_graphics, x, y, ActionBar.Button_Back,  "BACK"); 
+    if (!gameOver) {
+        // Normal buttons when game is not over
+        x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_In, "+");
+        x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_Out, "-");
 
-       x = drawsButton(bar_graphics, x, y, ActionBar.Button_Help,  "?");
+        String soundButton = mute ? "MUTE" : "SOUND"; 
+        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
 
+        String pauseButton;
+        if (gp != null && gp.gameState == GamePanel.GameState.START_SCREEN) {
+            pauseButton = "PLAY";   // initial label
+            }
+        else {
+                pauseButton = pause ? "PLAY" : "PAUSE";
+        }
+        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Pause, pauseButton); 
 
-        // Bottom border line bounds 
-        bar_graphics.setColor(bar_border_color);
-        bar_graphics.drawLine(0, Bar_Height - 1, panelWidth, Bar_Height - 1);
-
-        // Right aligned exit button
-        int rightX = panelWidth - Bar_Gap_Space - Bttn_Width;
-        draw_ButtonAt(bar_graphics, rightX, y, ActionBar.Button_EXIT, "EXIT");
-        
+        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Back, "BACK"); 
+        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Help, "?");
     }
+
+    // EXIT button is always visible
+    int rightX = panelWidth - Bar_Gap_Space - Bttn_Width;
+    draw_ButtonAt(bar_graphics, rightX, y, ActionBar.Button_EXIT, "EXIT");
+}
+
+
     
     /**
      * Creating button clicking function 
@@ -132,8 +158,23 @@ import java.util.Map;
         switch(click){ 
             case Zoom_In -> zoom = Math.min(2.0, zoom + 0.1);
             case Zoom_Out -> zoom = Math.max(0.5, zoom - 0.1); 
-            case Button_Pause -> pause = !pause; 
-            case Button_Sound -> mute = !mute; 
+            case Button_Pause -> {
+                if (gp != null) {
+                    // If game is on START SCREEN, pressing Play begins the game
+                    if (gp.gameState == GamePanel.GameState.START_SCREEN) {
+                        gp.gameState = GamePanel.GameState.PLAY;
+                        pause = false;       // ensure game runs
+                        } 
+                        else {
+                            // toggle pause normally
+                        pause = !pause;
+                    }}}
+             case Button_Sound -> {
+                mute = !mute;
+                if (musicManager != null) {
+                    musicManager.setMuted(mute); // toggle music
+                }
+            }
             default -> { /* cannot think of anything else for now, might be other future cases */}
         }
     }

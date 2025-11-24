@@ -258,15 +258,14 @@ public class Enemy extends Entity {
     // Grant random buff to player
     gp.player.grantRandomBuff();
 
-    // Random health gain (10% chance to gain 1-5 HP)
-    if (Math.random() < 0.1) { // 10% chance
-        int healAmount = 1 + (int)(Math.random() * 5); // 1 to 5 HP
-        gp.player.heal(healAmount);
-        System.out.println("Player absorbs " + healAmount + " health from enemy!");
+    // Random health gain (15% chance to heal HP)
+    if (Math.random() < 0.15) { // 15% chance
+        gp.player.health.heal(
+            Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
+            System.out.println("Player absorbs some health from enemy!");
     } else {
-        // Default small heal for consistency
-        gp.player.heal(2);
+        gp.player.health.heal(2); // default small heal
+        }
     }
-}
 
 }

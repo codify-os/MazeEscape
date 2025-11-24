@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class Player extends Entity{
     // Constants
-    private static final int PLAYER_MAX_HEALTH = 100;
+    private static final int PLAYER_MAX_HEALTH = 150;
     private static final int PLAYER_ATTACK = 20;
     private static final int PLAYER_DEFENSE = 5;
     private static final int PLAYER_SPEED = 4;
@@ -332,10 +332,19 @@ public class Player extends Entity{
         }
 
         double healRoll = random.nextDouble();
-        if (healRoll < 0.1) { // 10% chance
-            int healAmount = 1 + random.nextInt(5); // Heal 1-5 HP
+        if (healRoll < 0.15) { // 15% chance
+            int healAmount = 1 + random.nextInt(10); // Heal 1-10 HP
             this.heal(healAmount);
             System.out.println("Player absorbs " + healAmount + " health from buff!");
+        }
+
+        // 10% chance to gain small speed buff (+1 or +2)
+        double speedRoll = random.nextDouble();
+        if (speedRoll < 0.10) {
+            int speedBuff = 1 + random.nextInt(2); // 1 or 2
+            speed += speedBuff;
+            System.out.println("Player gains +" + speedBuff + " speed from buff!");
+        // Optionally, you can make it temporary by storing it and reverting after some ticks 
         }
     }
 
