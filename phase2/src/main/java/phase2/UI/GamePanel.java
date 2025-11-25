@@ -57,7 +57,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     private final dialogueBox dialogueBox = new dialogueBox();
     private final topPanel topPanel = new topPanel();
-    private final Image keyIcon;
+    
+    private final Image keyIcon = ImageLoader.image(
+        "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"); 
 
     public enum GameState {
         PLAY,
@@ -70,34 +72,48 @@ public class GamePanel extends JPanel implements Runnable {
     public int finalScore = 0;
 
     public GamePanel() {
+        Screen();
+        playerInput();
+        gameScreen();
+        dialogueScreen();
+        musicIntialization();
+        musicScreen();
+    }
+
+    private void Screen() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
+    }
+
+    private void playerInput(){
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
-
         this.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent click) {
-        // always check buttons, even if GAME_OVER or GAME_WON
-        topPanel.ActionBar pressButton = topPanel.clickButton(click);
-        switch (pressButton) {
-            case Button_EXIT -> System.exit(0);
-            case Button_Help -> {
-                dialogueBox.loadLine(
-                        "Need Help?",
-                        "Use WASD to move and SPACE to attack"
-                );
-                dialogueBox.show_Dialogue();
+            @Override
+            public void mousePressed(MouseEvent click) {
+                // always check buttons, even if GAME_OVER or GAME_WON
+                topPanel.ActionBar pressButton = topPanel.clickButton(click);
+                switch (pressButton) {
+                    case Button_EXIT -> System.exit(0);
+                    case Button_Help -> {
+                        dialogueBox.loadLine(
+                                "Need Help?",
+                                "Use WASD to move and SPACE to attack"
+                        );
+                        dialogueBox.show_Dialogue();
+                    }
+                    case Button_Back -> { /* maybe restart? */ }
+                    default -> { }
+                }
+        
+                // only check dialogue skipping if dialogue is visible
+                dialogueBox.skipClick(click, screenWidth, screenHeight);
             }
-            case Button_Back -> { /* maybe restart? */ }
-            default -> { }
-        }
-
-        // only check dialogue skipping if dialogue is visible
-        dialogueBox.skipClick(click, screenWidth, screenHeight);
+        });
     }
-});
+
+    private void gameScreen(){
         // Initialize game components
         tileManager = new TileManager(this);
         checkCollision = new CheckCollision(this);
@@ -106,32 +122,31 @@ public class GamePanel extends JPanel implements Runnable {
 
         spawnEnemies();
         CombatManager.addListener(new CombatLogger(true));
+    }
 
+    private void dialogueScreen(){
         dialogueBox.loadLine(
-                "Welcome to the dungeon!",
-                "Find keys to escape the dungeon but beware of the enemies and traps",
-                "Fight the enemies to get keys",
-                "GOOD LUCK PLAYER !!"
+            "Welcome to the dungeon!",
+            "Find keys to escape the dungeon but beware of the enemies and traps",
+            "Fight the enemies to get keys",
+            "GOOD LUCK PLAYER !!"
         );
         dialogueBox.show_Dialogue();
+    }
 
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        keyIcon = toolkit.getImage(getResourceAsImage(
-                "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
+    private void musicIntialization(){
+        String[] tracks = {
+            "/musics/epic-battle-sound-9414.mp3",
+            "/musics/horde-war-drums-loop-130bpm-342956.mp3"
+        };
+    
+        musicManager = new MusicManager(tracks);  // initialize with tracks
+        musicManager.play(); 
+    }
 
-         // --- MUSIC INITIALIZATION ---
-    String[] tracks = {
-        "/musics/epic-battle-sound-9414.mp3",
-    "/musics/horde-war-drums-loop-130bpm-342956.mp3"
-    };
-
-    musicManager = new MusicManager(tracks);  // initialize with tracks
-    musicManager.play();                      // start looping music
-
-    // --- LINK MUSIC MANAGER TO TOP PANEL ---
-    topPanel.setMusicManager(musicManager);   // allows sound button to mute/unmute
-    topPanel.setGamePanel(this);
-
+    private void musicScreen(){
+        topPanel.setMusicManager(musicManager);   // allows sound button to mute/unmute
+        topPanel.setGamePanel(this);
     }
 
     public void startGameThread() {
