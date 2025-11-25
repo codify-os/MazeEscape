@@ -14,6 +14,7 @@ import phase2.Entity.Enemy;
 import phase2.Entity.Spider;
 
 import phase2.Entity.Pathfinder;
+import phase2.Entity.PhantomMinion;
 import phase2.Tile.TileManager;
 import phase2.game.combat.*;
 import javax.swing.JPanel;
@@ -21,6 +22,7 @@ import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -54,6 +56,10 @@ public class GamePanel extends JPanel implements Runnable {
 
     public List<Enemy> enemies = new ArrayList<>();
     public KeyItem droppedKey = null;
+
+    public List<Enemy> enemiesToAdd = new ArrayList<>();
+    public List<Enemy> enemiesToRemove = new ArrayList<>();
+
 
     private final dialogueBox dialogueBox = new dialogueBox();
     private final topPanel topPanel = new topPanel();
@@ -184,10 +190,8 @@ public class GamePanel extends JPanel implements Runnable {
 
    public void update() {
     // NEW: do nothing until user presses PLAY
-    if (gameState == GameState.START_SCREEN) {
-        return;
-    }
-    
+    if (gameState == GameState.START_SCREEN) return;
+
     if(gameState == GameState.GAME_WON){
         if  (keyHandler.enterPressed){
             System.exit(0);
@@ -200,9 +204,7 @@ public class GamePanel extends JPanel implements Runnable {
         keyHandler.spacePressed = true;
     }
 
-    if (topPanel.isPaused()) {
-        return;
-    }
+    if (topPanel.isPaused()) return;
 
     // Update player
     player.update();
@@ -213,7 +215,16 @@ public class GamePanel extends JPanel implements Runnable {
     for (Enemy e : enemiesCopy) {
         e.update();
         e.updateCooldown();
-        
+    }
+
+    // Apply pending enemy additions/removals
+    if (!enemiesToAdd.isEmpty()) {
+        enemies.addAll(enemiesToAdd);
+        enemiesToAdd.clear();
+    }
+    if (!enemiesToRemove.isEmpty()) {
+        enemies.removeAll(enemiesToRemove);
+        enemiesToRemove.clear();
     }
 
     checkMapSwitch();
@@ -228,6 +239,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     tileManager.updateTraps();
 }
+
 
 
     private void restartGame() {
@@ -249,7 +261,9 @@ public class GamePanel extends JPanel implements Runnable {
         tileManager.draw(g2d);
         player.draw(g2d);
 
-        for (Enemy e : enemies) {
+        // After
+        List<Enemy> enemiesCopy = new ArrayList<>(enemies);
+        for (Enemy e : enemiesCopy) {
             e.draw(g2d);
         }
 
@@ -287,8 +301,9 @@ public class GamePanel extends JPanel implements Runnable {
     // ----------------------------
     // 1. Spawn BIG BOSS 
     // ----------------------------
-    
-    int bossCol = maxWorldCol - 10;   // 10 tiles from right edge
+
+    // near portal to prevent player coming through the door
+    int bossCol = maxWorldCol - 10;   
     int bossRow = maxWorldRow - 6;    // bottom row (0-based index)
 
     int bossX = bossCol * tileSize;
@@ -297,41 +312,65 @@ public class GamePanel extends JPanel implements Runnable {
     BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
     enemies.add(bigBoss);
 
-
     // ----------------------------
-    // 2. Spawn normal enemies + spiders
-    // ----------------------------
-    int enemyCount = 30;
-    int minSpiders = 5;
-    int keyHolderIndex = (int) (Math.random() * enemyCount);
+// 2. Spawn normal enemies + spiders + phantoms near portal
+// ----------------------------
+int enemyCount = 30;
+int minSpiders = 5;
+int keyHolderIndex = (int) (Math.random() * enemyCount);
 
-    for (int i = 0; i < enemyCount; i++) {
-        int[] spawnPoints = tileManager.getValidTile();
-        int col = spawnPoints[0];
-        int row = spawnPoints[1];
-        int worldX = col * tileSize;
-        int worldY = row * tileSize;
+// Use BigBoss spawn coordinates as portal center
+int portalCol = bossCol;
+int portalRow = bossRow;
 
-        Enemy enemy;
+Random random = new Random();
 
-        if (i < minSpiders || Math.random() < 0.3) {
-            enemy = new Spider(this, pathfinder, player, worldX, worldY);
-        } else {
-            enemy = new Enemy(this, pathfinder, player, worldX, worldY);
-        }
 
-        if (i == keyHolderIndex) {
-            enemy.hasKey = true;
-        }
+for (int i = 0; i < enemyCount; i++) {
+    int col, row;
+    int worldX, worldY;
 
-        enemies.add(enemy);
+    // Decide if we spawn a phantom here (e.g., first 3 enemies)
+    boolean spawnPhantom = (i < 3); // adjust number as needed
+    if (spawnPhantom) {
+        // small random offset around portal
+        int offsetX = random.nextInt(3) - 1; // -1,0,1
+        int offsetY = random.nextInt(3) - 1;
+        col = portalCol + offsetX;
+        row = portalRow + offsetY;
+        worldX = col * tileSize;
+        worldY = row * tileSize;
+
+        PhantomMinion phantom = new PhantomMinion(this, pathfinder, player, worldX, worldY);
+        enemies.add(phantom);
+        continue; // skip normal enemy/spider logic
     }
+
+    // Normal enemy/spider spawn
+    int[] spawnPoints = tileManager.getValidTile();
+    col = spawnPoints[0];
+    row = spawnPoints[1];
+    worldX = col * tileSize;
+    worldY = row * tileSize;
+
+    Enemy enemy;
+    if (i < minSpiders || Math.random() < 0.3) {
+        enemy = new Spider(this, pathfinder, player, worldX, worldY);
+    } else {
+        enemy = new Enemy(this, pathfinder, player, worldX, worldY);
+    }
+
+    if (i == keyHolderIndex) {
+        enemy.hasKey = true;
+    }
+
+    enemies.add(enemy);
+}
 }
 
-
-    public void dropKey(int worldX, int worldY) {
-        droppedKey = new KeyItem(worldX, worldY);
-    }
+    // public void dropKey(int worldX, int worldY) {
+    //     droppedKey = new KeyItem(worldX, worldY);
+    // }
 
     public void drawInventory(Graphics2D g2d) {
         g2d.setColor(new Color(0, 0, 0, 120));
@@ -375,4 +414,5 @@ public class GamePanel extends JPanel implements Runnable {
     public URL getResourceAsImage(String path) {
         return getClass().getClassLoader().getResource(path);
     }
+
 }
