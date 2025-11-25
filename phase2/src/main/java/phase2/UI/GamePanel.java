@@ -198,51 +198,66 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
    public void update() {
-    // NEW: do nothing until user presses PLAY
-    if (gameState == GameState.START_SCREEN) {
-        return;
-    }
-    
-    if(gameState == GameState.GAME_WON){
-        if  (keyHandler.enterPressed){
-            System.exit(0);
-        }
+    if (notPlayingStates()){
         return;
     }
 
-    if (keyHandler.spacePressed) {
-        dialogueBox.jumptoNext();
-        keyHandler.spacePressed = true;
-    }
+    playerInputForDialogue();
 
     if (topPanel.isPaused()) {
         return;
     }
 
-    // Update player
-    player.update();
-    player.updateCooldown();
-
-    // Update enemies safely
-    List<Enemy> enemiesCopy = new ArrayList<>(enemies); // iterate over a copy
-    for (Enemy e : enemiesCopy) {
-        e.update();
-        e.updateCooldown();
-        
-    }
-
+    updateEntities(); 
     checkMapSwitch();
-
-    if (!player.isAlive()) {
-        gameState = GameState.GAME_OVER;
-    }
-
-    if (gameState == GameState.GAME_OVER && keyHandler.rPressed) {
-        restartGame();
-    }
-
+    decideToRestart();
     tileManager.updateTraps();
 }
+
+    private boolean notPlayingStates(){
+        // NEW: do nothing until user presses PLAY
+        if (gameState == GameState.START_SCREEN) {
+            return true;
+        }
+        if(gameState == GameState.GAME_WON){
+        if  (keyHandler.enterPressed){
+            System.exit(0);
+        }
+            return true;
+        }
+            return false; 
+    }
+
+    private void playerInputForDialogue(){
+        if (keyHandler.spacePressed){
+            dialogueBox.jumptoNext();
+            keyHandler.spacePressed = true; 
+        }
+    }
+
+    private void updateEntities(){
+        // Update player
+        player.update();
+        player.updateCooldown();
+
+        // Update enemies safely
+        List<Enemy> enemiesCopy = new ArrayList<>(enemies); // iterate over a copy
+        for (Enemy e : enemiesCopy) {
+            e.update();
+            e.updateCooldown();
+        }
+    }
+
+    private void decideToRestart(){
+        if (!player.isAlive()) {
+            gameState = GameState.GAME_OVER;
+        }
+        if (gameState == GameState.GAME_OVER && keyHandler.rPressed) {
+            restartGame();
+        }
+    }
+
+
 
 
     private void restartGame() {
@@ -386,7 +401,6 @@ public class GamePanel extends JPanel implements Runnable {
         int endingWidth = g2d.getFontMetrics().stringWidth(endingMessage);
         g2d.drawString(endingMessage, (screenWidth - endingWidth) / 2, screenHeight / 2 + 40);
     }
-
     public URL getResourceAsImage(String path) {
         return getClass().getClassLoader().getResource(path);
     }
