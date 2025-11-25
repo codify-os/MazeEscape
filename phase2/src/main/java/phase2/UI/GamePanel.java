@@ -257,9 +257,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-
-
-
     private void restartGame() {
         player.setDefaultValues();
         player.health.fullHeal();
@@ -310,53 +307,55 @@ public class GamePanel extends JPanel implements Runnable {
         g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 60);
     }
 
-    // ------------------- UPDATED SPAWN ENEMIES -------------------
+    private static final int enemyCount = 30; 
+    private static final int minSpiders = 5; 
+    private static final double probabilityOfSpider = 0.3; 
+    private static final int bossOffsetColumn = 10; 
+    private static final int bossOffsetRow = 6;
+
     public void spawnEnemies() {
-    enemies.clear();
-
-    // ----------------------------
-    // 1. Spawn BIG BOSS 
-    // ----------------------------
-    
-    int bossCol = maxWorldCol - 10;   // 10 tiles from right edge
-    int bossRow = maxWorldRow - 6;    // bottom row (0-based index)
-
-    int bossX = bossCol * tileSize;
-    int bossY = bossRow * tileSize;
-
-    BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
-    enemies.add(bigBoss);
-
-
-    // ----------------------------
-    // 2. Spawn normal enemies + spiders
-    // ----------------------------
-    int enemyCount = 30;
-    int minSpiders = 5;
-    int keyHolderIndex = (int) (Math.random() * enemyCount);
-
-    for (int i = 0; i < enemyCount; i++) {
-        int[] spawnPoints = tileManager.getValidTile();
-        int col = spawnPoints[0];
-        int row = spawnPoints[1];
-        int worldX = col * tileSize;
-        int worldY = row * tileSize;
-
-        Enemy enemy;
-
-        if (i < minSpiders || Math.random() < 0.3) {
-            enemy = new Spider(this, pathfinder, player, worldX, worldY);
-        } else {
-            enemy = new Enemy(this, pathfinder, player, worldX, worldY);
-        }
-
-        if (i == keyHolderIndex) {
-            enemy.hasKey = true;
-        }
-
-        enemies.add(enemy);
+        enemies.clear();
+        spawnBigBoss(); 
+        spawnNormalandSpiderEnemies(); 
     }
-}
+
+    public void spawnBigBoss(){
+        // 1. Spawn BIG BOSS 
+        int bossCol = maxWorldCol - bossOffsetColumn;   // 10 tiles from right edge
+        int bossRow = maxWorldRow - bossOffsetRow;    // bottom row (0-based index)
+
+        int bossX = bossCol * tileSize;
+        int bossY = bossRow * tileSize;
+
+        BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
+        enemies.add(bigBoss);
+    }
+
+    public void spawnNormalandSpiderEnemies(){
+        // 2. Spawn normal enemies + spiders
+        int keyHolderIndex = (int) (Math.random() * enemyCount);
+
+        for (int i = 0; i < enemyCount; i++) {
+            int[] spawnPoints = tileManager.getValidTile();
+            int col = spawnPoints[0];
+            int row = spawnPoints[1];
+            int worldX = col * tileSize;
+            int worldY = row * tileSize;
+
+            Enemy enemy;
+
+            if (i < minSpiders || Math.random() < 0.3) {
+                enemy = new Spider(this, pathfinder, player, worldX, worldY);
+            } else {
+                enemy = new Enemy(this, pathfinder, player, worldX, worldY);
+            }
+
+            if (i == keyHolderIndex) {
+                enemy.hasKey = true;
+            }
+                enemies.add(enemy);
+        }
+    }
 
 
     public void dropKey(int worldX, int worldY) {
