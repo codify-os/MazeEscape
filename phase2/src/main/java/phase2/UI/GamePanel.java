@@ -344,7 +344,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             Enemy enemy;
 
-            if (i < minSpiders || Math.random() < 0.3) {
+            if (i < minSpiders || Math.random() < probabilityOfSpider) {
                 enemy = new Spider(this, pathfinder, player, worldX, worldY);
             } else {
                 enemy = new Enemy(this, pathfinder, player, worldX, worldY);
