@@ -127,7 +127,14 @@ public abstract class Entity implements Damageable, Attacker {
     }
     @Override
     public void onDeath() {
-        System.out.println(getClass().getSimpleName() + " was killed");
+        System.out.println("[DEBUG] Enemy.onDeath() (entity class) executed");
+
+        if (this instanceof Enemy enemy) {
+            enemy.handleDeath();
+        } else if (this instanceof Player player) {
+            player.handleDeath();
+        }
+//        System.out.println(getClass().getSimpleName() + " was killed");
     }
 
     //Attacker interface

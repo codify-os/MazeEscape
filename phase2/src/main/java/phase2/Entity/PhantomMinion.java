@@ -56,12 +56,17 @@ public class PhantomMinion extends Enemy {
         health.takeDamage(amount, src);
         if (!health.isAlive()) dying = true;
     }
-
     @Override
-    public void draw(Graphics2D g2) {
-        int sx = worldX - player.worldX + player.screenX;
-        int sy = worldY - player.worldY + player.screenY;
-
-        g2.drawImage(dying ? deathImg : runImg, sx, sy, gp.tileSize, gp.tileSize, gp);
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = dying ? deathImg : runImg;
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
+
+//    @Override
+//    public void draw(Graphics2D g2) {
+//        int sx = worldX - player.worldX + player.screenX;
+//        int sy = worldY - player.worldY + player.screenY;
+//
+//        g2.drawImage(dying ? deathImg : runImg, sx, sy, gp.tileSize, gp.tileSize, gp);
+//    }
 }

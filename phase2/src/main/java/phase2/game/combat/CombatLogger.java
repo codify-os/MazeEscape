@@ -27,6 +27,7 @@ public class CombatLogger implements CombatListener {
     @Override
     public void onDeath(Damageable target, DamageSource source) {
         if (target != null) {
+            System.out.println("[DEBUG] Enemy.onDeath() (Combat Logger) executed");
             System.out.printf("[DEATH] %s was killed by %s!%n",
                 getEntityName(target), source.getSourceName());
         }

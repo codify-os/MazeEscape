@@ -135,17 +135,23 @@ public class Spider extends Enemy {
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
-        if (hasExploded) {
-            // still draw hitImage
-        }
-
-        int screenX = worldX - player.worldX + player.screenX;
-        int screenY = worldY - player.worldY + player.screenY;
-
-        if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth ||
-            screenY + gp.tileSize < 0 || screenY > gp.screenHeight) return;
-
-        g2d.drawImage(up, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = hasExploded ? hitImage : idleImage;
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
+
+//    @Override
+//    public void draw(Graphics2D g2d) {
+//        if (hasExploded) {
+//            // still draw hitImage
+//        }
+//
+//        int screenX = worldX - player.worldX + player.screenX;
+//        int screenY = worldY - player.worldY + player.screenY;
+//
+//        if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth ||
+//            screenY + gp.tileSize < 0 || screenY > gp.screenHeight) return;
+//
+//        g2d.drawImage(up, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+//    }
 }

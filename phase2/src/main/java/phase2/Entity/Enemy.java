@@ -187,15 +187,8 @@ public class Enemy extends Entity {
         if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth || screenY + gp.tileSize < 0 || screenY > gp.screenHeight) {
             return;
         }
-        Image image = switch (direction) {
-            case "up" -> up;
-            case "down" -> down;
-            case "left" -> left;
-            case "right" -> right;
-            default -> down;
-        };
+        drawEnemySprite(g2d, screenX, screenY);
         takeDamageFlash(g2d, screenX, screenY);
-        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
 
         int barWidth = gp.tileSize;
         int barHeight = 4;
@@ -242,30 +235,57 @@ public class Enemy extends Entity {
                 && worldY + gp.tileSize > screenTop && worldY < screenBottom;
     }
 
-    @Override
-    public void onDeath() {
-    System.out.println("Enemy died!");
-    
-    // Remove enemy safely
-    gp.enemies.remove(this);
+//    @Override
+//    public void onDeath() {
+//        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
+//        System.out.println("Enemy died!");
+//
+//        // Remove enemy safely
+//        gp.enemies.remove(this);
+//        gp.player.grantRandomBuff();
+//        gp.player.healFromKill();
+//
+//        // Drop key if this enemy had one
+//        if (gp.droppedKey == null && hasKey) {
+//            gp.droppedKey = new KeyItem(worldX, worldY);
+//            System.out.println("This enemy had the key");
+//        }
+//
+//        // Grant random buff to player
+//
+//
+//        // Random health gain (15% chance to heal HP)
+//        if (Math.random() < 0.15) { // 15% chance
+//            gp.player.health.heal(
+//                Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
+//                System.out.println("Player absorbs some health from enemy!");
+//        } else {
+//            gp.player.health.heal(2); // default small heal
+//        }
+//    }
+    public void handleDeath(){
+        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
+        System.out.println("Enemy died!");
 
-    // Drop key if this enemy had one
-    if (gp.droppedKey == null && hasKey) {
-        gp.droppedKey = new KeyItem(worldX, worldY);
-        System.out.println("This enemy had the key");
+        gp.enemies.remove(this);
+        gp.player.grantRandomBuff();
+        gp.player.healFromKill();
+
+        if (gp.droppedKey == null && hasKey) {
+            gp.droppedKey = new KeyItem(worldX, worldY);
+            System.out.println("This enemy had the key");
+        }
     }
 
-    // Grant random buff to player
-    gp.player.grantRandomBuff();
-
-    // Random health gain (15% chance to heal HP)
-    if (Math.random() < 0.15) { // 15% chance
-        gp.player.health.heal(
-            Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
-            System.out.println("Player absorbs some health from enemy!");
-    } else {
-        gp.player.health.heal(2); // default small heal
-        }
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = switch(direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "right" -> right;
+            case "left" -> left;
+            default -> down;
+        };
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
 
 }
