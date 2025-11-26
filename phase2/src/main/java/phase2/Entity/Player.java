@@ -119,12 +119,7 @@ public class Player extends Entity{
     @Override
     public void update() {
         updateDirection();
-        int playerCol = (worldX + collisionArea.x) /gp.tileSize;
-        int playerRow = (worldY + collisionArea.y)/gp.tileSize;
-        Tile curTile = gp.tileManager.getTile(playerCol, playerRow);
-        if (curTile != null && curTile.isTrap) {
-            trapDamageHandler(curTile);
-        }
+        handleTraps();
         collisionOn = false;
         gp.checkCollision.checkTile(this);
         handleMovement();
@@ -132,7 +127,7 @@ public class Player extends Entity{
         handleAttack();
         updateAttackAnimation();
         updateCritBuff();
-        checkWinCondition(playerCol, playerRow);
+        handleWinCondition();
 
         if (buffTextTimer > 0) {
             buffTextTimer--;
@@ -162,6 +157,14 @@ public class Player extends Entity{
                 }
             }
             collectKey();
+        }
+    }
+    private void handleTraps() {
+        int playerCol = (worldX + collisionArea.x) / gp.tileSize;
+        int playerRow = (worldY + collisionArea.y) / gp.tileSize;
+        Tile curTile = gp.tileManager.getTile(playerCol, playerRow);
+        if (curTile != null && curTile.isTrap) {
+            trapDamageHandler(curTile);
         }
     }
 
@@ -197,6 +200,12 @@ public class Player extends Entity{
             }
         }
     }
+
+    private void handleWinCondition() {
+        int playerCol = (worldX + collisionArea.x) / gp.tileSize;
+        int playerRow = (worldY + collisionArea.y) / gp.tileSize;
+        checkWinCondition(playerCol, playerRow);
+}
 
     private void checkWinCondition(int playerCol, int playerRow) {
         if (playerCol == WIN_POSITION_COL && playerRow == WIN_POSITION_ROW) {

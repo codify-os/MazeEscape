@@ -93,7 +93,6 @@ public class TileManager {
                     Tile baseTile = tileType[tileNum];
                     Tile newTile = new Tile(baseTile);
                     
-
                     newTile.col = col;
                     newTile.row = row;
 
