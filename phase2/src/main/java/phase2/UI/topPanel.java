@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import phase2.UI.ActionBar;
+
 
 
 /**
@@ -28,14 +30,12 @@ import java.util.Map;
 
     private GamePanel gp;
 
-
-
     // Music manager reference
     private MusicManager musicManager;
 
-// hashmap set up for the top panel 
-    public enum ActionBar {
-        Zoom_In , Zoom_Out, Button_Pause, Button_Sound, Button_Back, Button_Help, Button_EXIT, none}
+    // hashmap set up for the top panel 
+    // public enum ActionBar {
+    //     Zoom_In , Zoom_Out, Button_Pause, Button_Sound, Button_Back, Button_Help, Button_EXIT, none}
     
     private final Map<ActionBar, Rectangle> box = new LinkedHashMap<>();
 
@@ -70,6 +70,50 @@ import java.util.Map;
     public void setGamePanel(GamePanel gp) {
     this.gp = gp;
 }
+    public void setPause(boolean value) {
+        pause = value;
+    }
+
+    public void adjustZoom(double delta) {
+        zoom = Math.max(0.5, Math.min(2.0, zoom + delta));
+    }
+
+    public void togglePause(GamePanel gp) {
+        if (gp == null) return;
+
+        if (gp.gameState == GamePanel.GameState.START_SCREEN) {
+            gp.gameState = GamePanel.GameState.PLAY;
+            pause = false;
+        } else {
+            pause = !pause;
+        }
+    }
+
+    public void toggleSound(MusicManager musicManager) {
+        mute = !mute;
+        if (musicManager != null) {
+            musicManager.setMuted(mute);
+        }
+    }
+    public void resetGame() {
+        pause = false;
+        zoom = 1.0;
+        mute = false;
+        if (musicManager != null) musicManager.setMuted(false);
+    }
+
+    private void drawTitle(Graphics2D g, int width) {
+        g.setColor(text_color);
+        Font oldFont = g.getFont();
+        g.setFont(oldFont.deriveFont(Font.BOLD, 18f));
+
+        String title = "Dungeon Escape";
+        int textWidth = g.getFontMetrics().stringWidth(title);
+        int baseY = 20;
+
+        g.drawString(title, (width - textWidth) / 2, baseY);
+        g.setFont(oldFont);
+    }
 
     /**
      * Drawing the bar, and using the buttons and actions created 
@@ -84,14 +128,7 @@ import java.util.Map;
     bar_graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     // Title
-    bar_graphics.setColor(text_color);
-    Font oldFont = bar_graphics.getFont();
-    bar_graphics.setFont(oldFont.deriveFont(Font.BOLD, 18f));
-    final String gameTitle = "Dungeon Escape";
-    int textWidth = bar_graphics.getFontMetrics().stringWidth(gameTitle);
-    int top_baseLine = 20; 
-    bar_graphics.drawString(gameTitle, (panelWidth - textWidth) / 2, top_baseLine);
-    bar_graphics.setFont(oldFont);
+    drawTitle(bar_graphics, panelWidth);
 
     // Bottom border line
     bar_graphics.setColor(bar_border_color);
@@ -120,65 +157,33 @@ import java.util.Map;
         }
         x = drawsButton(bar_graphics, x, y, ActionBar.Button_Pause, pauseButton); 
 
-        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Back, "BACK"); 
+        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Reset, "RESET"); 
         x = drawsButton(bar_graphics, x, y, ActionBar.Button_Help, "?");
     }
 
-    // EXIT button is always visible
+    // EXIT button is always visible on the right
     int rightX = panelWidth - Bar_Gap_Space - Bttn_Width;
     draw_ButtonAt(bar_graphics, rightX, y, ActionBar.Button_EXIT, "EXIT");
 }
-
-
-    
+   
     /**
      * Creating button clicking function 
      * determines which button is pressed 
      */
     public ActionBar clickButton(MouseEvent e) {
-        int mouse_x = e.getX(); // mouse coordinates variables 
+        int mouse_x = e.getX();
         int mouse_y = e.getY();
-        if (mouse_y < 0 || mouse_y > Bar_Height) { return ActionBar.none;}
+        if (mouse_y < 0 || mouse_y > Bar_Height) return ActionBar.none;
 
-        // case where mouse is being used + clicks on a button 
         for (Map.Entry<ActionBar, Rectangle> button : box.entrySet()) {
             if (button.getValue().contains(mouse_x, mouse_y)) {
                 ActionBar click = button.getKey();
-                pressButton(click);
+                click.execute(this, gp, musicManager);
                 return click;
             }
         }
         return ActionBar.none;
     }
-
-    // using apply action function created to have button pressing affect - might not be needed 
-    private void pressButton (ActionBar click){
-        // creating switch cases to create an action for each button when pressed 
-        // ex) sound volume from mute -> unmute, same goes for other buttosn too 
-        switch(click){ 
-            case Zoom_In -> zoom = Math.min(2.0, zoom + 0.1);
-            case Zoom_Out -> zoom = Math.max(0.5, zoom - 0.1); 
-            case Button_Pause -> {
-                if (gp != null) {
-                    // If game is on START SCREEN, pressing Play begins the game
-                    if (gp.gameState == GamePanel.GameState.START_SCREEN) {
-                        gp.gameState = GamePanel.GameState.PLAY;
-                        pause = false;       // ensure game runs
-                        } 
-                        else {
-                            // toggle pause normally
-                        pause = !pause;
-                    }}}
-             case Button_Sound -> {
-                mute = !mute;
-                if (musicManager != null) {
-                    musicManager.setMuted(mute); // toggle music
-                }
-            }
-            default -> { /* cannot think of anything else for now, might be other future cases */}
-        }
-    }
-
 
     // Helper function to help draw a button and space it correctly 
     private int drawsButton(Graphics2D bar_graphics, int x, int y, ActionBar action, String label) {

@@ -97,27 +97,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
 
         this.addMouseListener(new MouseAdapter() {
-    @Override
-    public void mousePressed(MouseEvent click) {
-        // always check buttons, even if GAME_OVER or GAME_WON
-        topPanel.ActionBar pressButton = topPanel.clickButton(click);
-        switch (pressButton) {
-            case Button_EXIT -> System.exit(0);
-            case Button_Help -> {
-                dialogueBox.loadLine(
-                        "Need Help?",
-                        "Use WASD to move and SPACE to attack"
-                );
-                dialogueBox.show_Dialogue();
+            public void mousePressed(MouseEvent click) {
+                topPanel.clickButton(click);  // simplified, no switch needed
+                dialogueBox.skipClick(click, screenWidth, screenHeight);
             }
-            case Button_Back -> { /* maybe restart? */ }
-            default -> { }
-        }
+        });
 
-        // only check dialogue skipping if dialogue is visible
-        dialogueBox.skipClick(click, screenWidth, screenHeight);
-    }
-});
         // Initialize game components
         tileManager = new TileManager(this);
         checkCollision = new CheckCollision(this);
@@ -140,10 +125,7 @@ public class GamePanel extends JPanel implements Runnable {
                 "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
 
          // --- MUSIC INITIALIZATION ---
-    String[] tracks = {
-        "/musics/epic-battle-sound-9414.mp3",
-    "/musics/horde-war-drums-loop-130bpm-342956.mp3"
-    };
+    String[] tracks = {"/musics/epic-battle-sound-9414.mp3", "/musics/horde-war-drums-loop-130bpm-342956.mp3"};
 
     musicManager = new MusicManager(tracks);  // initialize with tracks
     musicManager.play();                      // start looping music
@@ -254,9 +236,11 @@ public class GamePanel extends JPanel implements Runnable {
     tileManager.updateTraps();
 }
 
+    public dialogueBox getDialogueBox() {
+    return dialogueBox;
+}
 
-
-    private void restartGame() {
+    public void restartGame() {
         player.setDefaultValues();
         player.health.fullHeal();
         player.clearInventory();
