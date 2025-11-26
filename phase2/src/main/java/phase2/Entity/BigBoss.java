@@ -17,13 +17,13 @@ public class BigBoss extends Enemy {
 
     private static final int CHARGE_COOLDOWN = 100; // <1 second between red marks
 
-    private static final int MINION_DELAY = 4000;
+    //private static final int MINION_DELAY = 4000;
     private static final int BOMB_DELAY = 3500;
 
     private Image idleImg;
     private Image deathImg;
 
-    private long lastMinionTime = 0;
+    //private long lastMinionTime = 0;
     private long lastBombTime = 0;
 
     private boolean dying = false;
@@ -158,13 +158,13 @@ public class BigBoss extends Enemy {
         if (player.worldY < worldY) worldY -= speed;
     }
 
-    private void spawnMinion() {
-    long now = System.currentTimeMillis();
-    if (now - lastMinionTime < MINION_DELAY) return;
-    lastMinionTime = now;
+//     private void spawnMinion() {
+//     long now = System.currentTimeMillis();
+//     if (now - lastMinionTime < MINION_DELAY) return;
+//     lastMinionTime = now;
 
-    gp.enemiesToAdd.add(new PhantomMinion(gp, gp.pathfinder, player, worldX, worldY));
-}
+//     gp.enemiesToAdd.add(new PhantomMinion(gp, gp.pathfinder, player, worldX, worldY));
+// }
 
 private void spawnBomb() {
     long now = System.currentTimeMillis();
