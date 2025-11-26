@@ -1,4 +1,4 @@
-package phase2.Entity;
+package main.java.phase2.Entity;
 
 import phase2.UI.GamePanel;
 import phase2.game.combat.DamageSource;
@@ -26,9 +26,9 @@ public class PhantomMinion extends Enemy {
     private void loadImages() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         runImg = tk.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Phantom_Sprites/phantom_run_anim_left.gif"));
-        
+
         deathImg = tk.getImage(gp.getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Phantom_Sprites/phantom_death_anim_left.gif"));
-  
+
     }
 
     @Override
@@ -56,12 +56,17 @@ public class PhantomMinion extends Enemy {
         health.takeDamage(amount, src);
         if (!health.isAlive()) dying = true;
     }
-
     @Override
-    public void draw(Graphics2D g2) {
-        int sx = worldX - player.worldX + player.screenX;
-        int sy = worldY - player.worldY + player.screenY;
-
-        g2.drawImage(dying ? deathImg : runImg, sx, sy, gp.tileSize, gp.tileSize, gp);
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = dying ? deathImg : runImg;
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
+
+//    @Override
+//    public void draw(Graphics2D g2) {
+//        int sx = worldX - player.worldX + player.screenX;
+//        int sy = worldY - player.worldY + player.screenY;
+//
+//        g2.drawImage(dying ? deathImg : runImg, sx, sy, gp.tileSize, gp.tileSize, gp);
+//    }
 }

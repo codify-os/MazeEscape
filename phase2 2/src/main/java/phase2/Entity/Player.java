@@ -1,4 +1,4 @@
-package phase2.Entity;
+package main.java.phase2.Entity;
 
 import phase2.Tile.Tile;
 import phase2.UI.GamePanel;
@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class Player extends Entity{
     // Constants
-    private static final int PLAYER_MAX_HEALTH = 200;
+    private static final int PLAYER_MAX_HEALTH = 150;
     private static final int PLAYER_ATTACK = 20;
     private static final int PLAYER_DEFENSE = 5;
     private static final int PLAYER_SPEED = 4;
@@ -27,7 +27,7 @@ public class Player extends Entity{
     private static final int WIN_POSITION_ROW = 47;
     private static final int ATK_COUNTER = 0;
     private static final int CRIT_BUFF_TIMER = 0;
-    
+
     private final KeyHandler keyH;
     public final int screenX;
     public final int screenY;
@@ -42,6 +42,21 @@ public class Player extends Entity{
     private final Map<String, Integer> inventory = new HashMap<>();
     private final Random random = new Random();
 
+    private int buffTextTimer = 0;
+    private String buffText = "";
+
+    public enum BuffTier{
+        AMAZING,
+        NORMAL
+    }
+
+    public enum BuffType{
+        CRIT_CHANCE,
+        CRIT_MULTIPLIER,
+        SPEED,
+        HEAL,
+        ATTACK
+    }
     /**
      * Create a player instance
      * @param gp GamePanel instance
@@ -50,11 +65,11 @@ public class Player extends Entity{
      */
     public Player(GamePanel gp, KeyHandler keyH) {
         super(PLAYER_MAX_HEALTH, new Stats(PLAYER_ATTACK, PLAYER_DEFENSE));
-        
+
         if (gp == null || keyH == null) {
             throw new IllegalArgumentException("GamePanel and KeyHandler cannot be null");
         }
-        
+
         this.gp = gp;
         this.keyH = keyH;
 
@@ -79,7 +94,7 @@ public class Player extends Entity{
         try{
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             MediaTracker tracker = new MediaTracker(new java.awt.Canvas());
-            
+
             int id = 0;
             up = addImage(toolkit, tracker, "Char_Sprites/char_run_up_anim.gif", id++);
             down = addImage(toolkit, tracker, "Char_Sprites/char_run_down_anim.gif", id++);
@@ -89,13 +104,13 @@ public class Player extends Entity{
             atkDown = addImage(toolkit, tracker, "Char_Sprites/char_attack_down_anim.gif", id++);
             atkLeft = addImage(toolkit, tracker, "Char_Sprites/char_attack_left_anim.gif", id++);
             atkRight = addImage(toolkit, tracker, "Char_Sprites/char_attack_right_anim.gif", id++);
-            
+
             tracker.waitForAll();
         }catch(InterruptedException e) {
             e.printStackTrace();
         }
     }
-    
+
     private Image addImage(Toolkit toolkit, MediaTracker tracker, String path, int id){
         Image image = toolkit.getImage(gp.getResourceAsImage(path));
         tracker.addImage(image, id);
@@ -118,6 +133,10 @@ public class Player extends Entity{
         updateAttackAnimation();
         updateCritBuff();
         checkWinCondition(playerCol, playerRow);
+
+        if (buffTextTimer > 0) {
+            buffTextTimer--;
+        }
     }
 
     private void updateDirection() {
@@ -181,7 +200,7 @@ public class Player extends Entity{
 
     private void checkWinCondition(int playerCol, int playerRow) {
         if (playerCol == WIN_POSITION_COL && playerRow == WIN_POSITION_ROW) {
-            if (getInventory().getOrDefault("key", 0) > 1) {
+            if (hasItem("key")) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
                 gp.gameState = GamePanel.GameState.GAME_WON;
             }
@@ -233,6 +252,9 @@ public class Player extends Entity{
         if(damageTextTimer > 0) {
             showDamage(g2d);
             damageTextTimer--;
+        }
+        if (buffTextTimer > 0) {
+            showBuffText(g2d);
         }
     }
 
@@ -298,8 +320,11 @@ public class Player extends Entity{
         }
     }
 
-    @Override
-    public void onDeath() {
+    //    @Override
+//    public void onDeath() {
+//        System.out.println("Game Over!");
+//    }
+    public void handleDeath() {
         System.out.println("Game Over!");
     }
 
@@ -310,7 +335,6 @@ public class Player extends Entity{
     public boolean hasItem(String itemName) {
         return inventory.getOrDefault(itemName, 0) > 0;
     }
-
 
     public void removeItem(String itemName) {
         if (hasItem(itemName)) {
@@ -326,28 +350,45 @@ public class Player extends Entity{
     }
 
     public void grantRandomBuff() {
-        double roll = random.nextDouble();
-        if (roll < CRIT_BUFF_CHANCE) {
-            activateCritBuff();
-            System.out.println("Crit Buff gained");
-        }
+        System.out.println("[BUFF] granRandomBuff() Called");
+        BuffTier tier = rollBuffTier();
+        BuffType type = rollBuffType();
 
-        double healRoll = random.nextDouble();
-        if (healRoll < 0.15) { // 15% chance
-            int healAmount = 1 + random.nextInt(10); // Heal 1-10 HP
-            this.heal(healAmount);
-            System.out.println("Player absorbs " + healAmount + " health from buff!");
-        }
+        System.out.println("[Buff] Rolled: " + type + " (" + tier + ")");
 
-        // 10% chance to gain small speed buff (+1 or +2)
-        double speedRoll = random.nextDouble();
-        if (speedRoll < 0.10) {
-            int speedBuff = 1 + random.nextInt(2); // 1 or 2
-            speed += speedBuff;
-            System.out.println("Player gains +" + speedBuff + " speed from buff!");
-        // Optionally, you can make it temporary by storing it and reverting after some ticks 
-        }
+        applyBuff(type, tier);
+//        grantCritChanceBuff();
+//        grantHPBuff();
+//        // 10% chance to gain small speed buff (+1 or +2)
+//        grantSpeedBuff();
     }
+
+//    private void grantCritChanceBuff() {
+//        double roll = random.nextDouble();
+//        if (roll < CRIT_BUFF_CHANCE) {
+//            activateCritBuff();
+//            System.out.println("Crit Buff gained");
+//        }
+//    }
+//
+//    private void grantHPBuff() {
+//        double healRoll = random.nextDouble();
+//        if (healRoll < 0.15) { // 15% chance
+//            int healAmount = 1 + random.nextInt(10); // Heal 1-10 HP
+//            this.heal(healAmount);
+//            System.out.println("Player absorbs " + healAmount + " health from buff!");
+//        }
+//    }
+//
+//    private void grantSpeedBuff() {
+//        double speedRoll = random.nextDouble();
+//        if (speedRoll < 0.10) {
+//            int speedBuff = 1 + random.nextInt(2); // 1 or 2
+//            speed += speedBuff;
+//            System.out.println("Player gains +" + speedBuff + " speed from buff!");
+//        // Optionally, you can make it temporary by storing it and reverting after some ticks
+//        }
+//    }
 
     public void forceCritBuff() {
         activateCritBuff();
@@ -365,5 +406,86 @@ public class Player extends Entity{
     }
     public int getCritBuffTimer() {
         return critBuffTimer;
+    }
+
+    private BuffTier rollBuffTier() {
+        double roll = random.nextDouble();
+        return roll < 0.20 ? BuffTier.AMAZING : BuffTier.NORMAL;
+    }
+    private BuffType rollBuffType() {
+        BuffType[] values = BuffType.values();
+        return values[random.nextInt(values.length)];
+    }
+
+    private void applyBuff(BuffType type, BuffTier tier) {
+        boolean amazing = (tier == BuffTier.AMAZING);
+        System.out.println("[Buff] Applying " + type + " (" + type +")");
+
+        switch (type) {
+            case HEAL -> {
+                int amount = amazing ? 30 : 10;
+                health.heal(amount);
+                triggerBuffPopup("+" + amount + " HP (" + tier + ")");
+                System.out.println("Heal from kill: +" + amount);
+            }
+            case SPEED -> {
+                int amount = amazing ? 3 : 1;
+                speed += amount;
+                triggerBuffPopup("+" + amount + " speed (" + tier + ")");
+                System.out.println("speed +: +" + amount);
+            }
+            case CRIT_CHANCE -> {
+                double amount = amazing ? 1.00 : 0.30;
+                stats.setCritChance(Math.min(1.0, stats.getCritChance() + amount));
+                triggerBuffPopup("+" + amount + " Crit Chance (" + tier + ")");
+                System.out.println("crit chance +: +" + amount);
+            }
+            case ATTACK -> {
+                int amount = amazing ? 10 : 2;
+                stats.setAttackPower(stats.getAttackPower() + amount);
+                triggerBuffPopup("+" + amount + " Damage (" + tier + ")");
+                System.out.println("atk +: +" + amount);
+            }
+            case CRIT_MULTIPLIER -> {
+                double amount = amazing ? 2 : 0.5;
+                stats.setCritMultiplier(stats.getCritMultiplier() + amount);
+                triggerBuffPopup("+" + amount + " Crit Mul (" + tier + ")");
+                System.out.println("cd +: +" + amount);
+            }
+        }
+    }
+
+    private void showBuffText(Graphics2D g2d) {
+        if (buffTextTimer > 0) {
+            if (buffText.contains("AMAZING")) {
+                g2d.setColor(new Color(255, 215, 0));
+            }
+            g2d.setFont(new Font("Comic Sans", Font.BOLD, 18));
+            g2d.setColor(Color.green);
+
+            int x = screenX + gp.tileSize/2;
+            int y = screenY - 40 - (30 - buffTextTimer);
+
+            g2d.drawString(buffText, x ,y);
+            buffTextTimer--;
+        }
+    }
+
+    private void triggerBuffPopup(String msg) {
+        buffText = msg;
+        buffTextTimer = 30;
+    }
+
+    public void healFromKill() {
+        int healAmount = 2;
+
+        if (Math.random() < 0.15) {
+            healAmount = Math.max(1, (int) ((0.15 + Math.random()*0.05) * health.getCurrentHealth()));
+        }
+
+        health.heal(healAmount);
+
+        triggerBuffPopup("+" + healAmount + "HP");
+        System.out.println("Heal from kill: +" + healAmount);
     }
 }

@@ -1,4 +1,4 @@
-package phase2.Entity;
+package main.java.phase2.Entity;
 
 import phase2.UI.GamePanel;
 import phase2.game.combat.DamageSource;

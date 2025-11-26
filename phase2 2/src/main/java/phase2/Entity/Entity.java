@@ -1,4 +1,4 @@
-package phase2.Entity;
+package main.java.phase2.Entity;
 import java.awt.*;
 
 import jdk.jfr.DataAmount;
@@ -10,7 +10,7 @@ public abstract class Entity implements Damageable, Attacker {
     // Constants for display timers
     protected static final int DAMAGE_FLASH_DURATION = 10;
     protected static final int DAMAGE_TEXT_DURATION = 30;
-    
+
     // shared stats
     public int worldX, worldY;
     public int speed;
@@ -53,7 +53,7 @@ public abstract class Entity implements Damageable, Attacker {
     public Entity() {
         this(100, new Stats());
     }
-    
+
     /**
      * Constructor with custom max health and stats
      * @param maxHealth Maximum health for this entity
@@ -127,7 +127,14 @@ public abstract class Entity implements Damageable, Attacker {
     }
     @Override
     public void onDeath() {
-        System.out.println(getClass().getSimpleName() + " was killed");
+        System.out.println("[DEBUG] Enemy.onDeath() (entity class) executed");
+
+        if (this instanceof Enemy enemy) {
+            enemy.handleDeath();
+        } else if (this instanceof Player player) {
+            player.handleDeath();
+        }
+//        System.out.println(getClass().getSimpleName() + " was killed");
     }
 
     //Attacker interface

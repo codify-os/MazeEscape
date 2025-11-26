@@ -1,4 +1,4 @@
-package phase2.Entity;
+package main.java.phase2.Entity;
 
 import phase2.UI.GamePanel;
 import phase2.Tile.Tile;
@@ -13,7 +13,7 @@ public class Enemy extends Entity {
     private static final int ENEMY_MAX_HEALTH = 50;
     private static final int ENEMY_ATTACK = 10;
     private static final int ENEMY_DEFENSE = 2;
-    
+
     // Dependencies - gp inherited from Entity
     private final Pathfinder pathfinder;
     protected final Player player;
@@ -22,7 +22,7 @@ public class Enemy extends Entity {
     private List<Tile> currentPath;
     private int pathIndex = 0;
     private int pathUpdateCounter = 0;
-    
+
     // Game state
     public boolean hasKey = false;
 
@@ -37,11 +37,11 @@ public class Enemy extends Entity {
      */
     public Enemy(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
         super(ENEMY_MAX_HEALTH, new Stats(ENEMY_ATTACK, ENEMY_DEFENSE));
-        
+
         if (gp == null || pathfinder == null || player == null) {
             throw new IllegalArgumentException("Enemy dependencies cannot be null");
         }
-        
+
         this.gp = gp;
         this.pathfinder = pathfinder;
         this.player = player;
@@ -60,7 +60,7 @@ public class Enemy extends Entity {
             // Using enemy sprites - the pink slime has one animated gif for all directions
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Image slimeImage = toolkit.getImage(gp.getResourceAsImage(
-                            "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkslime_Sprites/pinkslime_run_anim_anim_all_dir.gif"));
+                    "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkslime_Sprites/pinkslime_run_anim_anim_all_dir.gif"));
 
             // Use the same image for all directions since it's an omnidirectional sprite
             up = slimeImage;
@@ -187,15 +187,8 @@ public class Enemy extends Entity {
         if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth || screenY + gp.tileSize < 0 || screenY > gp.screenHeight) {
             return;
         }
-        Image image = switch (direction) {
-            case "up" -> up;
-            case "down" -> down;
-            case "left" -> left;
-            case "right" -> right;
-            default -> down;
-        };
+        drawEnemySprite(g2d, screenX, screenY);
         takeDamageFlash(g2d, screenX, screenY);
-        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
 
         int barWidth = gp.tileSize;
         int barHeight = 4;
@@ -242,30 +235,57 @@ public class Enemy extends Entity {
                 && worldY + gp.tileSize > screenTop && worldY < screenBottom;
     }
 
-    @Override
-    public void onDeath() {
-    System.out.println("Enemy died!");
-    
-    // Remove enemy safely
-    gp.enemies.remove(this);
+    //    @Override
+//    public void onDeath() {
+//        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
+//        System.out.println("Enemy died!");
+//
+//        // Remove enemy safely
+//        gp.enemies.remove(this);
+//        gp.player.grantRandomBuff();
+//        gp.player.healFromKill();
+//
+//        // Drop key if this enemy had one
+//        if (gp.droppedKey == null && hasKey) {
+//            gp.droppedKey = new KeyItem(worldX, worldY);
+//            System.out.println("This enemy had the key");
+//        }
+//
+//        // Grant random buff to player
+//
+//
+//        // Random health gain (15% chance to heal HP)
+//        if (Math.random() < 0.15) { // 15% chance
+//            gp.player.health.heal(
+//                Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
+//                System.out.println("Player absorbs some health from enemy!");
+//        } else {
+//            gp.player.health.heal(2); // default small heal
+//        }
+//    }
+    public void handleDeath(){
+        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
+        System.out.println("Enemy died!");
 
-    // Drop key if this enemy had one
-    if (gp.droppedKey == null && hasKey) {
-        gp.droppedKey = new KeyItem(worldX, worldY);
-        System.out.println("This enemy had the key");
+        gp.enemies.remove(this);
+        gp.player.grantRandomBuff();
+        gp.player.healFromKill();
+
+        if (gp.droppedKey == null && hasKey) {
+            gp.droppedKey = new KeyItem(worldX, worldY);
+            System.out.println("This enemy had the key");
+        }
     }
 
-    // Grant random buff to player
-    gp.player.grantRandomBuff();
-
-    // Random health gain (15% chance to heal HP)
-    if (Math.random() < 0.15) { // 15% chance
-        gp.player.health.heal(
-            Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
-            System.out.println("Player absorbs some health from enemy!");
-    } else {
-        gp.player.health.heal(2); // default small heal
-        }
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = switch(direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "right" -> right;
+            case "left" -> left;
+            default -> down;
+        };
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
     }
 
 }
