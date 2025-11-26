@@ -26,6 +26,9 @@ import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import java.awt.geom.AffineTransform;
+
+
 
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
@@ -273,7 +276,6 @@ public class GamePanel extends JPanel implements Runnable {
         java .awt.geom.AffineTransform oldTransform = g2d.getTransform(); 
         double zoom = topPanel.getZoom();
         g2d.scale(zoom, zoom);
-
         tileManager.draw(g2d);
         player.draw(g2d);
 
@@ -282,6 +284,9 @@ public class GamePanel extends JPanel implements Runnable {
         for (Enemy e : enemiesCopy) {
             e.draw(g2d);
         }
+
+        // Restore transform so UI stays unscaled
+        g2d.setTransform(oldTransform);
 
         // ---- BIG BOSS SCREEN FLASH ----
         if (bossFlashActive) {
@@ -306,24 +311,24 @@ public class GamePanel extends JPanel implements Runnable {
         dialogueBox.draw(g2d, screenWidth, screenHeight);
 
          // ---- BIG BOSS WARNING TEXT ----
-    if (bossWarningActive) {
-        long elapsed = System.currentTimeMillis() - bossWarningStart;
+        if (bossWarningActive) {
+            long elapsed = System.currentTimeMillis() - bossWarningStart;
 
-        if (elapsed < BOSS_WARNING_DURATION) {
-            g2d.setFont(new Font("Comic Sans", Font.BOLD, 28));
-            g2d.setColor(Color.red);
+            if (elapsed < BOSS_WARNING_DURATION) {
+                g2d.setFont(new Font("Comic Sans", Font.BOLD, 28));
+                g2d.setColor(Color.red);
 
-            String msg = "WARNING! BIG BOSS IS COMING!";
-            int msgWidth = g2d.getFontMetrics().stringWidth(msg);
-            int x = (screenWidth - msgWidth) / 2;
-            int y = screenHeight / 2;
+                String msg = "WARNING! BIG BOSS IS COMING!";
+                int msgWidth = g2d.getFontMetrics().stringWidth(msg);
+                int x = (screenWidth - msgWidth) / 2;
+                int y = screenHeight / 2;
 
-            g2d.drawString(msg, x, y);
-        } else {
-            bossWarningActive = false;
+                g2d.drawString(msg, x, y);
+            } else {
+                bossWarningActive = false;
+            }
         }
-    }
-
+    
         g2d.dispose();
     }
 
