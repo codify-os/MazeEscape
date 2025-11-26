@@ -269,6 +269,11 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
+        topPanel.draw(g2d, screenWidth, gameState == GameState.GAME_OVER); 
+        java .awt.geom.AffineTransform oldTransform = g2d.getTransform(); 
+        double zoom = topPanel.getZoom();
+        g2d.scale(zoom, zoom);
+
         tileManager.draw(g2d);
         player.draw(g2d);
 
