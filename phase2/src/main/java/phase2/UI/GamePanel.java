@@ -411,6 +411,29 @@ for (int i = 0; i < enemyCount; i++) {
         droppedKey = new KeyItem(worldX, worldY);
     }
 
+
+/**
+ * Checks if the player has collected the key.
+ * Handles hitbox calculation and marks the key as collected.
+ */
+    public boolean checkKeyCollection(Rectangle playerHitBox) {
+        if (droppedKey == null || droppedKey.collected) return false;
+
+        Rectangle keyHitBox = new Rectangle(
+            droppedKey.worldX,
+            droppedKey.worldY,
+            tileSize,
+            tileSize
+        );
+        if (playerHitBox.intersects(keyHitBox)) {
+            droppedKey.collected = true;
+            return true; // Player collected the key
+        }
+
+        return false;
+    }
+
+    
     public void drawInventory(Graphics2D g2d) {
         g2d.setColor(new Color(0, 0, 0, 120));
         g2d.fillRoundRect(10, 80, 200, 60, 15, 15);

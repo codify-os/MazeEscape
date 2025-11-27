@@ -216,19 +216,19 @@ public class Player extends Entity{
         }
     }
 
+    // Player.java
     private void collectKey() {
-        if (gp.droppedKey != null && !gp.droppedKey.collected) {
-            Rectangle playerHitBox = new Rectangle(worldX + collisionArea.x,
-                    worldY + collisionArea.y, collisionArea.width, collisionArea.height);
-            Rectangle keyHitBox = new Rectangle(gp.droppedKey.worldX,
-                    gp.droppedKey.worldY, gp.tileSize, gp.tileSize);
-
-            if (playerHitBox.intersects(keyHitBox)) {
-                gp.droppedKey.collected = true;
-                addItem("key");
-            }
+        Rectangle playerHitBox = new Rectangle(
+            worldX + collisionArea.x,
+            worldY + collisionArea.y,
+            collisionArea.width,
+            collisionArea.height
+        );
+        if (gp.checkKeyCollection(playerHitBox)) {
+            addItem("key"); // Update player inventory
         }
     }
+
 
     private void trapDamageHandler(Tile curTile) {
         if (curTile.trapTimer > 0) {
