@@ -83,6 +83,7 @@ public abstract class Entity implements Damageable, Attacker {
     }
 
 
+
     //Damageable interface
 
     @Override
@@ -141,10 +142,27 @@ public abstract class Entity implements Damageable, Attacker {
 
     @Override
     public AttackData getAttackData() {
+        currentAttack = new AttackData("Basic Attack",stats.getAttackPower(),
+                1,
+                AttackData.DamageType.PHYSICAL,
+                stats.getCritChance(),
+                stats.getCritMultiplier(),
+                0);
         return currentAttack;
     }
     @Override
     public AttackResult attack(Damageable target) {
+        refreshAttackFromStats();
+
+        System.out.println("---- ATTACK DEBUG ----");
+        System.out.println("Stats.attackPower = " + stats.getAttackPower());
+        System.out.println("Stats.critChance = " + stats.getCritChance());
+        System.out.println("Stats.critMultiplier = " + stats.getCritMultiplier());
+        System.out.println("AttackData.power = " + currentAttack.getPower());
+        System.out.println("AttackData.critChance = " + currentAttack.getCritChance());
+        System.out.println("AttackData.critMultiplier = " + currentAttack.getCritMultiplier());
+        System.out.println("-----------------------");
+
         if(!canAttack()) {
             return null;
         }
@@ -174,6 +192,15 @@ public abstract class Entity implements Damageable, Attacker {
         if (coolDown > 0) {
             coolDown--;
         }
+    }
+
+    protected void refreshAttackFromStats() {
+        currentAttack = new AttackData("Basic Attack",stats.getAttackPower(),
+                1,
+                AttackData.DamageType.PHYSICAL,
+                stats.getCritChance(),
+                stats.getCritMultiplier(),
+                0);
     }
 
 }
