@@ -355,20 +355,20 @@ public class GamePanel extends JPanel implements Runnable {
     // ----------------------------
 // 2. Spawn normal enemies + spiders + phantoms near portal
 // ----------------------------
-int enemyCount = 30;
-int minSpiders = 5;
-int keyHolderIndex = (int) (Math.random() * enemyCount);
+    int enemyCount = 30;
+    int minSpiders = 5;
+    int keyHolderIndex = (int) (Math.random() * enemyCount);
 
-// Use BigBoss spawn coordinates as portal center
-int portalCol = bossCol;
-int portalRow = bossRow;
+    // Use BigBoss spawn coordinates as portal center
+    int portalCol = bossCol;
+    int portalRow = bossRow;
 
-Random random = new Random();
+    Random random = new Random();
 
 
-for (int i = 0; i < enemyCount; i++) {
-    int col, row;
-    int worldX, worldY;
+    for (int i = 0; i < enemyCount; i++) {
+        int col, row;
+         int worldX, worldY;
 
     // Decide if we spawn a phantom here (e.g., first 3 enemies)
     boolean spawnPhantom = (i < 3); // adjust number as needed
