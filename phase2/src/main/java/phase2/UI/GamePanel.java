@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     final double FPS = 60.0;
 
     public TileManager tileManager;
-    KeyHandler keyHandler = new KeyHandler();
+    public KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
     public CheckCollision checkCollision;
     public Player player;
@@ -165,7 +165,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             if (timer >= 1000000000) {
-                System.out.println("FPS: " + drawCount);
+//                System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
@@ -336,95 +336,104 @@ public class GamePanel extends JPanel implements Runnable {
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
     public void spawnEnemies() {
-    enemies.clear();
+        enemies.clear();
 
-    // ----------------------------
-    // 1. Spawn BIG BOSS 
-    // ----------------------------
+        // ----------------------------
+        // 1. Spawn BIG BOSS
+        // ----------------------------
 
-    // near portal to prevent player coming through the door
-    int bossCol = maxWorldCol - 10;   
-    int bossRow = maxWorldRow - 6;    // bottom row (0-based index)
+        // near portal to prevent player coming through the door
+        spawnBoss getSpawnCord = getSpawnBoss();
 
-    int bossX = bossCol * tileSize;
-    int bossY = bossRow * tileSize;
+        // ----------------------------
+        // 2. Spawn normal enemies + spiders + phantoms near portal
+        // ----------------------------
+        int enemyCount = 30;
+        int minSpiders = 5;
+        int keyHolderIndex = (int) (Math.random() * enemyCount);
 
-    BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
-    enemies.add(bigBoss);
+        // Use BigBoss spawn coordinates as portal center
+        int portalCol = getSpawnCord.bossCol();
+        int portalRow = getSpawnCord.bossRow();
 
-    // ----------------------------
-// 2. Spawn normal enemies + spiders + phantoms near portal
-// ----------------------------
-int enemyCount = 30;
-int minSpiders = 5;
-int keyHolderIndex = (int) (Math.random() * enemyCount);
-
-// Use BigBoss spawn coordinates as portal center
-int portalCol = bossCol;
-int portalRow = bossRow;
-
-Random random = new Random();
+        Random random = new Random();
 
 
-for (int i = 0; i < enemyCount; i++) {
-    int col, row;
-    int worldX, worldY;
+        for (int i = 0; i < enemyCount; i++) {
+            int col, row;
+            int worldX, worldY;
 
-    // Decide if we spawn a phantom here (e.g., first 3 enemies)
-    boolean spawnPhantom = (i < 3); // adjust number as needed
-    if (spawnPhantom) {
-        // small random offset around portal
-        int offsetX = random.nextInt(3) - 1; // -1,0,1
-        int offsetY = random.nextInt(3) - 1;
-        col = portalCol + offsetX;
-        row = portalRow + offsetY;
-        worldX = col * tileSize;
-        worldY = row * tileSize;
+            // Decide if we spawn a phantom here (e.g., first 3 enemies)
+            boolean spawnPhantom = (i < 3); // adjust number as needed
+            if (spawnPhantom) {
+                // small random offset around portal
+                int offsetX = random.nextInt(3) - 1; // -1,0,1
+                int offsetY = random.nextInt(3) - 1;
+                col = portalCol + offsetX;
+                row = portalRow + offsetY;
+                worldX = col * tileSize;
+                worldY = row * tileSize;
 
-        PhantomMinion phantom = new PhantomMinion(this, pathfinder, player, worldX, worldY);
-        enemies.add(phantom);
-        continue; // skip normal enemy/spider logic
-    }
+                PhantomMinion phantom = new PhantomMinion(this, pathfinder, player, worldX, worldY);
+                enemies.add(phantom);
+                continue; // skip normal enemy/spider logic
+            }
 
-    // Normal enemy/spider spawn
-    int[] spawnPoints = tileManager.getValidTile();
-    col = spawnPoints[0];
-    row = spawnPoints[1];
-    worldX = col * tileSize;
-    worldY = row * tileSize;
+            // Normal enemy/spider spawn
+            int[] spawnPoints = tileManager.getValidTile();
+            col = spawnPoints[0];
+            row = spawnPoints[1];
+            worldX = col * tileSize;
+            worldY = row * tileSize;
 
-    Enemy enemy;
-    if (i < minSpiders || Math.random() < 0.3) {
-        enemy = new Spider(this, pathfinder, player, worldX, worldY);
-    } else {
-        enemy = new Enemy(this, pathfinder, player, worldX, worldY);
-    }
+            Enemy enemy;
+            if (i < minSpiders || Math.random() < 0.3) {
+                enemy = new Spider(this, pathfinder, player, worldX, worldY);
+            } else {
+                enemy = new Enemy(this, pathfinder, player, worldX, worldY);
+            }
 
-    if (i == keyHolderIndex) {
-        enemy.hasKey = true;
-    }
+            if (i == keyHolderIndex) {
+                enemy.hasKey = true;
+            }
 
-    enemies.add(enemy);
+            enemies.add(enemy);
+        }
 }
-}
+
+    private spawnBoss getSpawnBoss() {
+        int bossCol = maxWorldCol - 10;
+        int bossRow = maxWorldRow - 6;    // bottom row (0-based index)
+
+        int bossX = bossCol * tileSize;
+        int bossY = bossRow * tileSize;
+
+        BigBoss bigBoss = new BigBoss(this, pathfinder, player, bossX, bossY);
+        enemies.add(bigBoss);
+        spawnBoss getSpawnCoord = new spawnBoss(bossCol, bossRow);
+        return getSpawnCoord;
+    }
+
+    private record spawnBoss(int bossCol, int bossRow) {
+    }
 
     public void dropKey(int worldX, int worldY) {
         droppedKey = new KeyItem(worldX, worldY);
     }
 
 
-/**
- * Checks if the player has collected the key.
- * Handles hitbox calculation and marks the key as collected.
- */
+    /**
+     * Checks if the player has collected the key.
+     * Handles hitbox calculation and marks the key as collected.
+     */
     public boolean checkKeyCollection(Rectangle playerHitBox) {
         if (droppedKey == null || droppedKey.collected) return false;
 
         Rectangle keyHitBox = new Rectangle(
-            droppedKey.worldX,
-            droppedKey.worldY,
-            tileSize,
-            tileSize
+                droppedKey.worldX,
+                droppedKey.worldY,
+                tileSize,
+                tileSize
         );
         if (playerHitBox.intersects(keyHitBox)) {
             droppedKey.collected = true;

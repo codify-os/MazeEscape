@@ -13,6 +13,7 @@ public class Enemy extends Entity {
     private static final int ENEMY_MAX_HEALTH = 50;
     private static final int ENEMY_ATTACK = 10;
     private static final int ENEMY_DEFENSE = 2;
+    private static final int ATTACK_COOLDOWN_FRAMES = 45;
 
     // Dependencies - gp inherited from Entity
     private final Pathfinder pathfinder;
@@ -25,6 +26,7 @@ public class Enemy extends Entity {
 
     // Game state
     public boolean hasKey = false;
+    private int attackCoolDown = 0;
 
     /**
      * Create an enemy at the specified position
@@ -100,9 +102,10 @@ public class Enemy extends Entity {
         Rectangle playerHitBox = new Rectangle(player.worldX + player.collisionArea.x,
                 player.worldY + player.collisionArea.y, player.collisionArea.width, player.collisionArea.height);
 
-        if (enemyHitBox.intersects(playerHitBox) && canAttack()) {
+        if (enemyHitBox.intersects(playerHitBox) && attackCoolDown<= 0) {
             System.out.println("Enemy attacks player for" + currentAttack.getPower());
             attack(player);
+            attackCoolDown = ATTACK_COOLDOWN_FRAMES;
         }
     }
 
@@ -235,34 +238,6 @@ public class Enemy extends Entity {
                 && worldY + gp.tileSize > screenTop && worldY < screenBottom;
     }
 
-    //    @Override
-//    public void onDeath() {
-//        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
-//        System.out.println("Enemy died!");
-//
-//        // Remove enemy safely
-//        gp.enemies.remove(this);
-//        gp.player.grantRandomBuff();
-//        gp.player.healFromKill();
-//
-//        // Drop key if this enemy had one
-//        if (gp.droppedKey == null && hasKey) {
-//            gp.droppedKey = new KeyItem(worldX, worldY);
-//            System.out.println("This enemy had the key");
-//        }
-//
-//        // Grant random buff to player
-//
-//
-//        // Random health gain (15% chance to heal HP)
-//        if (Math.random() < 0.15) { // 15% chance
-//            gp.player.health.heal(
-//                Math.max(1, (int)((0.15 + Math.random() * 0.05) * gp.player.health.getCurrentHealth())));
-//                System.out.println("Player absorbs some health from enemy!");
-//        } else {
-//            gp.player.health.heal(2); // default small heal
-//        }
-//    }
     public void handleDeath(){
         System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
         System.out.println("Enemy died!");
@@ -286,6 +261,10 @@ public class Enemy extends Entity {
             default -> down;
         };
         g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+    }
+
+    private boolean canAttackNow() {
+        return attackCoolDown <= 0;
     }
 
 }

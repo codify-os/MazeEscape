@@ -3,6 +3,7 @@ package phase2.Entity;
 import phase2.Tile.Tile;
 import phase2.UI.GamePanel;
 import phase2.UI.KeyHandler;
+import phase2.game.combat.AttackData;
 import phase2.game.combat.DamageSource;
 import phase2.game.stats.Stats;
 
@@ -43,7 +44,7 @@ public class Player extends Entity{
     private final Random random = new Random();
 
     private int buffTextTimer = 0;
-    private String buffText = "";
+    private String buffText;
 
     public enum BuffTier{
         AMAZING,
@@ -64,7 +65,14 @@ public class Player extends Entity{
      * @throws IllegalArgumentException if gp or keyH is null
      */
     public Player(GamePanel gp, KeyHandler keyH) {
-        super(PLAYER_MAX_HEALTH, new Stats(PLAYER_ATTACK, PLAYER_DEFENSE));
+        super(PLAYER_MAX_HEALTH,
+                new Stats(
+                        PLAYER_ATTACK,
+                        PLAYER_DEFENSE,
+                        PLAYER_SPEED,
+                        0.05,
+                        1.5
+                ));
 
         if (gp == null || keyH == null) {
             throw new IllegalArgumentException("GamePanel and KeyHandler cannot be null");
@@ -81,6 +89,7 @@ public class Player extends Entity{
         collisionArea = new Rectangle(8, 16, gp.tileSize - 16, gp.tileSize - 16);
         setDefaultValues();
         getPlayerImage();
+        System.out.println("Player Created: " + this);
     }
 
     public void setDefaultValues() {
@@ -124,11 +133,11 @@ public class Player extends Entity{
         gp.checkCollision.checkTile(this);
         handleMovement();
 
+        updateCooldown();
         handleAttack();
         updateAttackAnimation();
         updateCritBuff();
         handleWinCondition();
-
         if (buffTextTimer > 0) {
             buffTextTimer--;
         }
@@ -428,61 +437,82 @@ public class Player extends Entity{
     private void applyBuff(BuffType type, BuffTier tier) {
         boolean amazing = (tier == BuffTier.AMAZING);
         System.out.println("[Buff] Applying " + type + " (" + type +")");
+        System.out.println("[TEST] Entered applyBuff() with type=" + type + " tier=" + tier);
 
         switch (type) {
             case HEAL -> {
                 int amount = amazing ? 30 : 10;
                 health.heal(amount);
-                triggerBuffPopup("+" + amount + " HP (" + tier + ")");
+                buffText = "+" + amount + " HP (" + tier + ")";
+                buffTextTimer = 200;
                 System.out.println("Heal from kill: +" + amount);
+                System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case SPEED -> {
                 int amount = amazing ? 3 : 1;
                 speed += amount;
-                triggerBuffPopup("+" + amount + " speed (" + tier + ")");
+                buffText = "+" + amount + " speed (" + tier + ")";
+                buffTextTimer = 200;
                 System.out.println("speed +: +" + amount);
+                System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case CRIT_CHANCE -> {
                 double amount = amazing ? 1.00 : 0.30;
                 stats.setCritChance(Math.min(1.0, stats.getCritChance() + amount));
-                triggerBuffPopup("+" + amount + " Crit Chance (" + tier + ")");
+                refreshAttackFromStats();
+                buffText =  "+"  + amount + " Crit Chance (" + tier + ")";
+                buffTextTimer = 200;
                 System.out.println("crit chance +: +" + amount);
+                System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case ATTACK -> {
                 int amount = amazing ? 10 : 2;
                 stats.setAttackPower(stats.getAttackPower() + amount);
-                triggerBuffPopup("+" + amount + " Damage (" + tier + ")");
+                refreshAttackFromStats();
+                buffText = "+" + amount + " Damage (" + tier + ")";
+                buffTextTimer = 200;
                 System.out.println("atk +: +" + amount);
+                System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case CRIT_MULTIPLIER -> {
                 double amount = amazing ? 2 : 0.5;
                 stats.setCritMultiplier(stats.getCritMultiplier() + amount);
-                triggerBuffPopup("+" + amount + " Crit Mul (" + tier + ")");
+                refreshAttackFromStats();
+                buffText = "+" + amount + " Crit Mul (" + tier + ")";
+                buffTextTimer = 200;
                 System.out.println("cd +: +" + amount);
+                System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
         }
+        System.out.printf(
+                "[BUFF RESULT] Stats now: atk=%d, def=%d, critChance=%.2f, critMult=%.2f%n",
+                stats.getAttackPower(),
+                stats.getDefense(),
+                stats.getCritChance(),
+                stats.getCritMultiplier()
+        );
     }
 
-    private void showBuffText(Graphics2D g2d) {
-        if (buffTextTimer > 0) {
-            if (buffText.contains("AMAZING")) {
-                g2d.setColor(new Color(255, 215, 0));
-            }
-            g2d.setFont(new Font("Comic Sans", Font.BOLD, 18));
-            g2d.setColor(Color.green);
+    public void showBuffText(Graphics2D g2d) {
+        Color buffColor = buffText.contains("AMAZING") ? new Color(255, 215, 0) : Color.green;
+        g2d.setFont(new Font("Comic Sans", Font.BOLD, 18));
 
-            int x = screenX + gp.tileSize/2;
-            int y = screenY - 40 - (30 - buffTextTimer);
+        int x = screenX;
+        int y = screenY - 40 - (30 - buffTextTimer);
 
-            g2d.drawString(buffText, x ,y);
-            buffTextTimer--;
-        }
+        g2d.setColor(Color.black);
+        g2d.drawString(buffText, x + 2, y + 2);
+
+        g2d.setColor(buffColor);
+        g2d.drawString(buffText, x, y);
     }
 
-    private void triggerBuffPopup(String msg) {
-        buffText = msg;
-        buffTextTimer = 30;
-    }
+//    private void triggerBuffPopup(String msg) {
+//        System.out.println("POPUP TRIGGERED: >>> " + msg);
+//        buffText = msg;
+//        buffTextTimer = 30;
+//        System.out.println("DRAWING BUFF POPUP: " + buffText + " timer=" + buffTextTimer);
+//    }
 
     public void healFromKill() {
         int healAmount = 2;
@@ -493,7 +523,17 @@ public class Player extends Entity{
 
         health.heal(healAmount);
 
-        triggerBuffPopup("+" + healAmount + "HP");
+        //triggerBuffPopup("+" + healAmount + "HP");
         System.out.println("Heal from kill: +" + healAmount);
     }
+
+    protected void refreshAttackFromStats() {
+        currentAttack = new AttackData("Basic Attack",stats.getAttackPower(),
+                1,
+                AttackData.DamageType.PHYSICAL,
+                stats.getCritChance(),
+                stats.getCritMultiplier(),
+                0);
+    }
+
 }
