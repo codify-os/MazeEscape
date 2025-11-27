@@ -9,6 +9,7 @@
 package phase2.UI;
 import phase2.Entity.KeyItem;
 import phase2.Entity.Player;
+import phase2.Bonus.CrystalItem;
 import phase2.Entity.BigBoss;
 import phase2.Entity.Enemy;
 import phase2.Entity.Spider;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+
 
 import java.awt.geom.AffineTransform;
 
@@ -46,6 +49,15 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldHeight = tileSize * maxWorldRow;
 
     public MusicManager musicManager;
+
+    public List<CrystalItem> crystals = new ArrayList<>();
+    public Image crystalIcon;
+
+    public int totalCrystals = 20 + new Random().nextInt(10); // at 20 crystals on the map
+    public int crystalsCollected = 0;
+    public boolean crystalBonusApplied = false;
+
+
 
     // FPS
     final double FPS = 60.0;
@@ -114,6 +126,8 @@ public class GamePanel extends JPanel implements Runnable {
         pathfinder = new Pathfinder(tileManager);
 
         spawnEnemies();
+        spawnCrystals();
+
         CombatManager.addListener(new CombatLogger(true));
 
         dialogueBox.loadLine(
@@ -128,6 +142,9 @@ public class GamePanel extends JPanel implements Runnable {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         keyIcon = toolkit.getImage(getResourceAsImage(
                 "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
+        crystalIcon = Toolkit.getDefaultToolkit().getImage(
+    getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/crystal_item_anim.gif"));
+
 
          // --- MUSIC INITIALIZATION ---
     String[] tracks = {"/musics/epic-battle-sound-9414.mp3", "/musics/horde-war-drums-loop-130bpm-342956.mp3"};
@@ -176,6 +193,34 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    public void checkCrystalCollection() {
+
+    Rectangle playerHitBox = new Rectangle(
+            player.worldX + player.collisionArea.x,
+            player.worldY + player.collisionArea.y,
+            player.collisionArea.width,
+            player.collisionArea.height
+    );
+
+    for (CrystalItem c : crystals) {
+        if (!c.collected) {
+            Rectangle crystalHitBox = new Rectangle(
+                    c.worldX,
+                    c.worldY,
+                    tileSize,
+                    tileSize
+            );
+
+            if (playerHitBox.intersects(crystalHitBox)) {
+                c.collected = true;
+                crystalsCollected++;
+                player.addItem("crystal");
+            }
+        }
+    }
+}
+
+
     public void checkMapSwitch() {
         int playerCol = player.worldX / tileSize;
         int playerRow = player.worldY / tileSize;
@@ -215,6 +260,9 @@ public class GamePanel extends JPanel implements Runnable {
     // Update player
     player.update();
     player.updateCooldown();
+
+    checkCrystalCollection();
+
 
     // Update enemies safely
     List<Enemy> enemiesCopy = new ArrayList<>(enemies); // iterate over a copy
@@ -279,7 +327,29 @@ public class GamePanel extends JPanel implements Runnable {
         double zoom = topPanel.getZoom();
         g2d.scale(zoom, zoom);
         tileManager.draw(g2d);
+        
+        // --- DRAW CRYSTALS (corrected with camera + zoom support) ---
+        for (CrystalItem c : crystals) {
+            if (!c.collected) {
+                int screenX = c.worldX - player.worldX + player.screenX;
+                int screenY = c.worldY - player.worldY + player.screenY;
+
+            // Only draw if visible on screen
+            if (screenX + tileSize > 0 && screenX < screenWidth && screenY + tileSize > 0 && screenY < screenHeight) {
+                g2d.drawImage(
+                    c.sprite,
+                    screenX,
+                    screenY,
+                    tileSize,
+                    tileSize,
+                    this
+                );
+            }}}
+
         player.draw(g2d);
+
+        
+
 
         // After
         List<Enemy> enemiesCopy = new ArrayList<>(enemies);
@@ -355,6 +425,25 @@ public class GamePanel extends JPanel implements Runnable {
         int subWidth = g2d.getFontMetrics().stringWidth(subMessage);
         g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 60);
     }
+
+    public void spawnCrystals() {
+
+    crystals.clear();
+
+    for (int i = 0; i < totalCrystals; i++) {
+        int[] pos = tileManager.getValidTile(); // you have this method
+
+        int x = pos[0] * tileSize;
+        int y = pos[1] * tileSize;
+
+        crystals.add(new CrystalItem(x, y,
+                Toolkit.getDefaultToolkit().getImage(
+                        getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/crystal_item_anim.gif")
+                )
+        ));
+    }
+}
+
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
     public void spawnEnemies() {
@@ -458,26 +547,68 @@ for (int i = 0; i < enemyCount; i++) {
 
     
     public void drawInventory(Graphics2D g2d) {
-        g2d.setColor(new Color(0, 0, 0, 120));
-        g2d.fillRoundRect(10, 80, 200, 60, 15, 15);
 
-        g2d.setFont(new Font("Comic Sans", Font.BOLD, 10));
-        g2d.setColor(Color.white);
-        g2d.drawString("Inventory", 20, 80);
+    // Background box
+    g2d.setColor(new Color(0, 0, 0, 120));
+    g2d.fillRoundRect(10, 70, 200, 90, 15, 15);
 
-        if (keyIcon != null) g2d.drawImage(keyIcon, 25, 100, tileSize / 2, tileSize / 2, this);
+    // Title
+    g2d.setFont(new Font("Comic Sans", Font.BOLD, 14));
+    g2d.setColor(Color.white);
+    g2d.drawString("Inventory", 20, 90);
 
-        Integer keyCount = player.getInventory().get("key");
-        if (keyCount != null && keyCount > 0) {
-            g2d.setFont(new Font("Comic Sans", Font.PLAIN, 10));
-            g2d.drawString("x" + keyCount, 25 + tileSize + 5, 120);
-        }
+    // -------------------- KEY DISPLAY --------------------
+    if (keyIcon != null) {
+        g2d.drawImage(keyIcon,
+                20, 100,
+                tileSize / 2, tileSize / 2,
+                this);
     }
+
+    int keyCount = player.getInventory().getOrDefault("key", 0);
+    if (keyCount > 0) {
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 14));
+        g2d.drawString("x" + keyCount, 20 + (tileSize / 2) + 10, 118);
+    }
+
+    // -------------------- CRYSTAL DISPLAY --------------------
+    if (crystalIcon != null) {
+        g2d.drawImage(crystalIcon,
+                20, 140,
+                tileSize / 2, tileSize / 2,
+                this);
+    }
+
+    int crystalCount = player.getInventory().getOrDefault("crystal", 0);
+    if (crystalCount > 0) {
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 14));
+        g2d.drawString("x" + crystalCount, 20 + (tileSize / 2) + 10, 158);
+    }
+}
+
 
     public void drawVictoryScreen(Graphics2D g2d) {
         // Calculate total play time when won
         if (totalPlayTime == 0 && gameStartTime > 0) {
             totalPlayTime = System.currentTimeMillis() - gameStartTime;
+        }
+
+        // -------------------------
+        // 2. Calculate crystal bonus
+        // -------------------------
+        int crystalCount = player.getInventory().getOrDefault("crystal", 0);
+
+        // +2 points per crystal
+        int baseCrystalScore = crystalCount * 2;
+
+        // If ALL collected → multiply by 4
+        boolean allCollected = (crystalCount == totalCrystals);
+        int crystalBonus = allCollected ? baseCrystalScore * 4 : baseCrystalScore;
+
+        // Add to final score once
+        if (!crystalBonusApplied) {
+            finalScore += crystalBonus;
+            crystalBonusApplied = true;
         }
 
         g2d.setColor(new Color(0, 0, 0, 100));
