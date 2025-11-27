@@ -114,9 +114,10 @@ public class GamePanel extends JPanel implements Runnable {
 
         dialogueBox.loadLine(
                 "Welcome to the dungeon!",
-                "Find keys to escape the dungeon but beware of the enemies and traps",
-                "Fight the enemies to get keys",
-                "GOOD LUCK PLAYER !!"
+                "Find a key to escape the dungeon but beware of the enemies and traps",
+                "Fight the enemies to get the key",
+                "Press PLAY to Start",
+                "HAVE FUN PLAYER !!"
         );
         dialogueBox.show_Dialogue();
 
@@ -299,7 +300,7 @@ public class GamePanel extends JPanel implements Runnable {
             long elapsed = System.currentTimeMillis() - bossWarningStart;
 
             if (elapsed < BOSS_WARNING_DURATION) {
-                g2d.setFont(new Font("Comic Sans", Font.BOLD, 28));
+                g2d.setFont(new Font("Comic Sans", Font.BOLD, 30));
                 g2d.setColor(Color.red);
 
                 String msg = "WARNING! BIG BOSS IS COMING!";
