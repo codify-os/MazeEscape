@@ -216,7 +216,6 @@ public class Player extends Entity{
         }
     }
 
-    // Player.java
     private void collectKey() {
         Rectangle playerHitBox = new Rectangle(
             worldX + collisionArea.x,
