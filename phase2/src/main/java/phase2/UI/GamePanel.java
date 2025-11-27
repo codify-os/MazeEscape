@@ -169,7 +169,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             if (timer >= 1000000000) {
-//                System.out.println("FPS: " + drawCount);
+                System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
@@ -353,7 +353,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2d.setFont(new Font("Comic Sans", Font.PLAIN, 32));
         String subMessage = "Press R to restart";
         int subWidth = g2d.getFontMetrics().stringWidth(subMessage);
-        g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 70);
+        g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 60);
     }
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
@@ -377,20 +377,20 @@ public class GamePanel extends JPanel implements Runnable {
     // ----------------------------
 // 2. Spawn normal enemies + spiders + phantoms near portal
 // ----------------------------
-    int enemyCount = 30;
-    int minSpiders = 5;
-    int keyHolderIndex = (int) (Math.random() * enemyCount);
+int enemyCount = 30;
+int minSpiders = 5;
+int keyHolderIndex = (int) (Math.random() * enemyCount);
 
-    // Use BigBoss spawn coordinates as portal center
-    int portalCol = bossCol;
-    int portalRow = bossRow;
+// Use BigBoss spawn coordinates as portal center
+int portalCol = bossCol;
+int portalRow = bossRow;
 
-    Random random = new Random();
+Random random = new Random();
 
 
-    for (int i = 0; i < enemyCount; i++) {
-        int col, row;
-         int worldX, worldY;
+for (int i = 0; i < enemyCount; i++) {
+    int col, row;
+    int worldX, worldY;
 
             // Decide if we spawn a phantom here (e.g., first 3 enemies)
             boolean spawnPhantom = (i < 3); // adjust number as needed
