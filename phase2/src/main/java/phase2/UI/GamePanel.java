@@ -88,6 +88,10 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GameState gameState = GameState.START_SCREEN;
     public int finalScore = 0;
+    
+    // Timer variables
+    private long gameStartTime = 0;
+    private long totalPlayTime = 0; // in milliseconds
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -189,6 +193,11 @@ public class GamePanel extends JPanel implements Runnable {
     // NEW: do nothing until user presses PLAY
     if (gameState == GameState.START_SCREEN) return;
 
+    // Start timer when game begins
+    if (gameStartTime == 0 && gameState == GameState.PLAY) {
+        gameStartTime = System.currentTimeMillis();
+    }
+
     if(gameState == GameState.GAME_WON){
         if  (keyHandler.enterPressed){
             System.exit(0);
@@ -227,6 +236,10 @@ public class GamePanel extends JPanel implements Runnable {
     checkMapSwitch();
 
     if (!player.isAlive()) {
+        if (gameState != GameState.GAME_OVER) {
+            // Calculate total play time when game ends
+            totalPlayTime = System.currentTimeMillis() - gameStartTime;
+        }
         gameState = GameState.GAME_OVER;
     }
 
@@ -248,6 +261,10 @@ public class GamePanel extends JPanel implements Runnable {
 
         enemies.clear();
         spawnEnemies();
+        
+        // Reset timer
+        gameStartTime = System.currentTimeMillis();
+        totalPlayTime = 0;
 
         gameState = GameState.PLAY;
     }
@@ -325,13 +342,18 @@ public class GamePanel extends JPanel implements Runnable {
         g2d.setColor(Color.red);
         String message = "YOU DIED!";
         int messageWidth = g2d.getFontMetrics().stringWidth(message);
-        g2d.drawString(message, (screenWidth - messageWidth) / 2, screenHeight / 2);
+        g2d.drawString(message, (screenWidth - messageWidth) / 2, screenHeight / 2 - 40);
+
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 28));
+        g2d.setColor(Color.white);
+        String timeMessage = "Time Survived: " + formatTime(totalPlayTime);
+        int timeWidth = g2d.getFontMetrics().stringWidth(timeMessage);
+        g2d.drawString(timeMessage, (screenWidth - timeWidth) / 2, (screenHeight / 2) + 20);
 
         g2d.setFont(new Font("Comic Sans", Font.PLAIN, 32));
-        g2d.setColor(Color.white);
         String subMessage = "Press R to restart";
         int subWidth = g2d.getFontMetrics().stringWidth(subMessage);
-        g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 60);
+        g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 70);
     }
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
@@ -453,6 +475,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void drawVictoryScreen(Graphics2D g2d) {
+        // Calculate total play time when won
+        if (totalPlayTime == 0 && gameStartTime > 0) {
+            totalPlayTime = System.currentTimeMillis() - gameStartTime;
+        }
+        
         g2d.setColor(new Color(0, 0, 0, 100));
         g2d.fillRect(0, 0, screenWidth, screenHeight);
 
@@ -466,16 +493,33 @@ public class GamePanel extends JPanel implements Runnable {
         String score = "Final Score: " + finalScore;
         int scoreWidth = g2d.getFontMetrics().stringWidth(score);
         g2d.drawString(score, (screenWidth - scoreWidth) / 2, screenHeight / 2 - 30);
+        
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 28));
+        String timeMessage = "Total Time: " + formatTime(totalPlayTime);
+        int timeWidth = g2d.getFontMetrics().stringWidth(timeMessage);
+        g2d.drawString(timeMessage, (screenWidth - timeWidth) / 2, screenHeight / 2 + 10);
 
         g2d.setFont(new Font("Comic Sans", Font.PLAIN, 24));
         g2d.setColor(Color.white);
         String endingMessage = "Press ENTER to exit";
         int endingWidth = g2d.getFontMetrics().stringWidth(endingMessage);
-        g2d.drawString(endingMessage, (screenWidth - endingWidth) / 2, screenHeight / 2 + 40);
+        g2d.drawString(endingMessage, (screenWidth - endingWidth) / 2, screenHeight / 2 + 60);
     }
 
     public URL getResourceAsImage(String path) {
         return getClass().getClassLoader().getResource(path);
+    }
+    
+    /**
+     * Formats time in milliseconds to MM:SS format
+     * @param timeMillis Time in milliseconds
+     * @return Formatted time string
+     */
+    private String formatTime(long timeMillis) {
+        long seconds = timeMillis / 1000;
+        long minutes = seconds / 60;
+        seconds = seconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
 }
