@@ -9,6 +9,7 @@
 package phase2.UI;
 import phase2.Entity.KeyItem;
 import phase2.Entity.Player;
+import phase2.Bonus.ChestItem;
 import phase2.Bonus.CrystalItem;
 import phase2.Entity.BigBoss;
 import phase2.Entity.Enemy;
@@ -57,6 +58,13 @@ public class GamePanel extends JPanel implements Runnable {
     public int crystalsCollected = 0;
     public boolean crystalBonusApplied = false;
 
+    public List<ChestItem> chests = new ArrayList<>();
+
+    Image chestClosed;
+    Image chestOpenEmpty;
+    private Image chestOpenFull;
+
+
 
 
     // FPS
@@ -89,7 +97,6 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean bossWarningActive = false;
     public long bossWarningStart = 0;
     public final int BOSS_WARNING_DURATION = 2000; // show for 2 seconds
-
 
     public enum GameState {
         PLAY,
@@ -127,6 +134,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         spawnEnemies();
         spawnCrystals();
+        spawnChests(); 
 
         CombatManager.addListener(new CombatLogger(true));
 
@@ -144,7 +152,6 @@ public class GamePanel extends JPanel implements Runnable {
                 "Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/key_item_anim.gif"));
         crystalIcon = Toolkit.getDefaultToolkit().getImage(
     getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/crystal_item_anim.gif"));
-
 
          // --- MUSIC INITIALIZATION ---
     String[] tracks = {"/musics/epic-battle-sound-9414.mp3", "/musics/horde-war-drums-loop-130bpm-342956.mp3"};
@@ -262,6 +269,7 @@ public class GamePanel extends JPanel implements Runnable {
     player.updateCooldown();
 
     checkCrystalCollection();
+    checkChestInteraction();
 
 
     // Update enemies safely
@@ -346,10 +354,20 @@ public class GamePanel extends JPanel implements Runnable {
                 );
             }}}
 
-        player.draw(g2d);
+        // DRAW CHESTS
+        for (ChestItem c : chests) {
+            int sx = c.worldX - player.worldX + player.screenX;
+            int sy = c.worldY - player.worldY + player.screenY;
+            if (sx + tileSize > 0 && sx < screenWidth &&
+                sy + tileSize > 0 && sy < screenHeight) {
+                    g2d.drawImage(
+                        c.getCurrentSprite(),
+                        sx, sy,
+                        tileSize, tileSize,
+                        this
+                    );}}
 
-        
-
+        player.draw(g2d);     
 
         // After
         List<Enemy> enemiesCopy = new ArrayList<>(enemies);
@@ -374,7 +392,6 @@ public class GamePanel extends JPanel implements Runnable {
             bossFlashActive = false;
         }
     }
-
         if (gameState == GameState.GAME_OVER) gameOverScreen(g2d);
         if (gameState == GameState.GAME_WON) drawVictoryScreen(g2d);
 
@@ -425,6 +442,39 @@ public class GamePanel extends JPanel implements Runnable {
         int subWidth = g2d.getFontMetrics().stringWidth(subMessage);
         g2d.drawString(subMessage, (screenWidth - subWidth) / 2, (screenHeight / 2) + 60);
     }
+
+    public void spawnChests() {
+
+    chests.clear();
+
+    //FIXED LOCATIONS for CHEST
+    int[][] positions = {
+            {29, 2},
+            {21, 5},
+            {40, 33},
+            {48, 43}
+    };
+
+    Random r = new Random();
+
+    for (int[] p : positions) {
+
+        boolean loot = r.nextBoolean(); // 50% chance full chest
+
+        chests.add(new ChestItem(
+                p[0] * tileSize,
+                p[1] * tileSize,
+                chestClosed = Toolkit.getDefaultToolkit().getImage(getResourceAsImage(
+                        "0x72_16x16DungeonTileset.v5/items/chest_golden_closed.png")),
+                chestOpenEmpty = Toolkit.getDefaultToolkit().getImage(getResourceAsImage(
+                        "0x72_16x16DungeonTileset.v5/items/chest_golden_open_empty.png")),
+                chestOpenFull = Toolkit.getDefaultToolkit().getImage(getResourceAsImage(
+                        "0x72_16x16DungeonTileset.v5/items/chest_golden_open_full.png")),
+                loot
+        ));
+    }
+}
+
 
     public void spawnCrystals() {
 
@@ -522,6 +572,40 @@ for (int i = 0; i < enemyCount; i++) {
     public void dropKey(int worldX, int worldY) {
         droppedKey = new KeyItem(worldX, worldY);
     }
+
+    public void checkChestInteraction() {
+    if (!keyHandler.ePressed) return;
+
+    Rectangle playerHitBox = new Rectangle(
+            player.worldX + player.collisionArea.x,
+            player.worldY + player.collisionArea.y,
+            player.collisionArea.width,
+            player.collisionArea.height
+    );
+
+    for (ChestItem c : chests) {
+
+        Rectangle chestBox = new Rectangle(
+                c.worldX,
+                c.worldY,
+                tileSize,
+                tileSize
+        );
+
+        if (playerHitBox.intersects(chestBox) && !c.opened) {
+
+            c.opened = true;
+
+            if (c.hasLoot) {
+                // Give 2 crystals
+                player.addItem("crystal");
+                player.addItem("crystal");
+            }
+
+            break;
+        }
+    }
+}
 
 
     /**
