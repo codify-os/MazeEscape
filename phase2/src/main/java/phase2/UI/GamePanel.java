@@ -55,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Image crystalIcon;
 
     public int totalCrystals = 20 + new Random().nextInt(10); // at 20 crystals on the map
+    private final int MAX_ACTIVE_CRYSTALS = 15; // maintain this many crystals on the map
     public int crystalsCollected = 0;
     public boolean crystalBonusApplied = false;
 
@@ -269,6 +270,10 @@ public class GamePanel extends JPanel implements Runnable {
     // Start timer when game begins
     if (gameStartTime == 0 && gameState == GameState.PLAY) {
         gameStartTime = System.currentTimeMillis();
+        // Start crystal despawn timers when game starts
+        for (CrystalItem c : crystals) {
+            c.startTimer();
+        }
     }
 
     if(gameState == GameState.GAME_WON){
@@ -289,6 +294,14 @@ public class GamePanel extends JPanel implements Runnable {
     player.update();
     player.updateCooldown();
 
+    // Update crystals (check for despawn)
+    for (CrystalItem c : crystals) {
+        c.update();
+    }
+    
+    // Respawn crystals to maintain count
+    maintainCrystalCount();
+    
     checkCrystalCollection();
     checkChestInteraction();
 
@@ -359,7 +372,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         // --- DRAW CRYSTALS (corrected with camera + zoom support) ---
         for (CrystalItem c : crystals) {
-            if (!c.collected) {
+            if (c.isActive()) {
                 int screenX = c.worldX - player.worldX + player.screenX;
                 int screenY = c.worldY - player.worldY + player.screenY;
 
@@ -558,6 +571,31 @@ public class GamePanel extends JPanel implements Runnable {
     }
 }
 
+    /**
+     * Maintains a constant number of active crystals by spawning new ones
+     */
+    private void maintainCrystalCount() {
+        // Count active crystals
+        long activeCrystals = crystals.stream().filter(CrystalItem::isActive).count();
+        
+        // If below threshold, spawn new crystals
+        int toSpawn = (int)(MAX_ACTIVE_CRYSTALS - activeCrystals);
+        
+        for (int i = 0; i < toSpawn; i++) {
+            int[] pos = tileManager.getValidTile();
+            int x = pos[0] * tileSize;
+            int y = pos[1] * tileSize;
+            
+            CrystalItem newCrystal = new CrystalItem(x, y,
+                    Toolkit.getDefaultToolkit().getImage(
+                            getResourceAsImage("Top_Down_Adventure_Pack_v.1.0/Props_Items_(animated)/crystal_item_anim.gif")
+                    )
+            );
+            newCrystal.startTimer(); // Start timer immediately for new crystals
+            crystals.add(newCrystal);
+        }
+    }
+
 
     // ------------------- UPDATED SPAWN ENEMIES -------------------
     public void spawnEnemies() {
@@ -747,11 +785,7 @@ for (int i = 0; i < enemyCount; i++) {
         int crystalCount = player.getInventory().getOrDefault("crystal", 0);
 
         // +2 points per crystal
-        int baseCrystalScore = crystalCount * 2;
-
-        // If ALL collected → multiply by 4
-        boolean allCollected = (crystalCount == totalCrystals);
-        int crystalBonus = allCollected ? baseCrystalScore * 4 : baseCrystalScore;
+        int crystalBonus = crystalCount * 2;
 
         // Add to final score once
         if (!crystalBonusApplied) {
