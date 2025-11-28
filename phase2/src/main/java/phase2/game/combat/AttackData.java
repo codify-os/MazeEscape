@@ -42,6 +42,9 @@ public class AttackData {
 
     /**
      * Simple constructor with defaults
+     * @param attackName Name of the attack
+     * @param power Base damage power
+     * @param range Maximum range in tiles
      */
     public AttackData(String attackName, int power, int range) {
         this(attackName, power, range, DamageType.PHYSICAL, 0.0, 1.5, 0);
@@ -49,42 +52,73 @@ public class AttackData {
 
     /**
      * Basic melee attack constructor
+     * @param power Base damage power
      */
     public AttackData(int power) {
         this("Basic Attack", power, 1, DamageType.PHYSICAL, 0.0, 1.5, 0);
     }
 
     // Getters
+    /**
+     * Get the name of this attack
+     * @return Attack name
+     */
     public String getAttackName() {
         return attackName;
     }
 
+    /**
+     * Get the base damage power
+     * @return Damage power
+     */
     public int getPower() {
         return power;
     }
 
+    /**
+     * Get the maximum range in tiles
+     * @return Attack range
+     */
     public int getRange() {
         return range;
     }
 
+    /**
+     * Get the type of damage this attack deals
+     * @return Damage type
+     */
     public DamageType getDamageType() {
         return damageType;
     }
 
+    /**
+     * Get the critical hit chance (0.0 to 1.0)
+     * @return Critical chance
+     */
     public double getCritChance() {
         return critChance;
     }
 
+    /**
+     * Get the critical hit damage multiplier
+     * @return Critical multiplier
+     */
     public double getCritMultiplier() {
         return critMultiplier;
     }
 
+    /**
+     * Get the cooldown duration in frames
+     * @return Cooldown duration
+     */
     public int getCooldown() {
         return cooldown;
     }
 
     /**
      * Check if this attack can reach the target based on distance
+     * @param distance Distance to target in tiles
+     * @return True if target is within range
      */
     public boolean isInRange(int distance) {
         return distance <= range;
@@ -92,6 +126,7 @@ public class AttackData {
 
     /**
      * Calculate if this attack critically hits based on crit chance
+     * @return True if the attack is a critical hit
      */
     public boolean rollCritical() {
         return Math.random() < critChance;
@@ -108,11 +143,17 @@ public class AttackData {
      * Keep if we're still doing different weapons
      */
     public enum DamageType {
+        /** Physical damage type */
         PHYSICAL,
+        /** Magical damage type */
         MAGICAL,
-        TRUE, // Ignores defense
+        /** True damage - ignores defense */
+        TRUE,
+        /** Fire damage type */
         FIRE,
+        /** Ice damage type */
         ICE,
+        /** Poison damage type */
         POISON
     }
 }

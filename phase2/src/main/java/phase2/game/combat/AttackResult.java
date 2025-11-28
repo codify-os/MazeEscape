@@ -32,22 +32,42 @@ public class AttackResult {
         this(damageDealt, false, targetKilled, 0);
     }
 
+    /**
+     * Get the amount of damage dealt
+     * @return Damage dealt
+     */
     public int getDamageDealt() {
         return damageDealt;
     }
 
+    /**
+     * Check if the attack was a critical hit
+     * @return True if critical hit
+     */
     public boolean wasCritical() {
         return wasCritical;
     }
 
+    /**
+     * Check if the target was killed by this attack
+     * @return True if target was killed
+     */
     public boolean targetKilled() {
         return targetKilled;
     }
 
+    /**
+     * Get the target's remaining health after the attack
+     * @return Remaining health
+     */
     public int getTargetRemainingHealth() {
         return targetRemainingHealth;
     }
 
+    /**
+     * Check if the attack successfully dealt damage
+     * @return True if damage was dealt
+     */
     public boolean wasSuccessful() {
         return damageDealt > 0;
     }

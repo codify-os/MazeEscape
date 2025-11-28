@@ -73,6 +73,14 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.4.2</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>phase2.UI.Main</mainClass>
+                            </manifest>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
@@ -104,6 +112,16 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.13</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.6.3</version>
+                    <configuration>
+                        <source>17</source>
+                        <doclint>none</doclint>
+                        <failOnError>false</failOnError>
+                        <failOnWarnings>false</failOnWarnings>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

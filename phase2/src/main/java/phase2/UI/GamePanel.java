@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-
-
 import java.awt.geom.AffineTransform;
 
 
 
+/**
+ * Main game panel that handles the game loop and rendering
+ */
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
     final int originalTileSize = 16;
@@ -74,11 +74,15 @@ public class GamePanel extends JPanel implements Runnable {
     public TileManager tileManager;
     public KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
+
+    /** Collision detection system */
     public CheckCollision checkCollision;
     public Player player;
     public Pathfinder pathfinder;
 
+    /** List of all active enemies */
     public List<Enemy> enemies = new ArrayList<>();
+    /** Dropped key item if any */
     public KeyItem droppedKey = null;
 
     public List<Enemy> enemiesToAdd = new ArrayList<>();
@@ -89,7 +93,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final topPanel topPanel = new topPanel();
     private final Image keyIcon;
 
-    // --- BIG BOSS ALERT FLASH ---
+
+// --- BIG BOSS ALERT FLASH ---
     public boolean bossFlashActive = false;
     public long bossFlashStart = 0;
     public final int BOSS_FLASH_DURATION = 2000; // 2s
@@ -98,15 +103,20 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean bossWarningActive = false;
     public long bossWarningStart = 0;
     public final int BOSS_WARNING_DURATION = 2000; // show for 2 seconds
-
+    
+    
+    //Status flags
+    /** Enum representing different game states */
     public enum GameState {
         PLAY,
         GAME_WON,
         GAME_OVER,
         START_SCREEN
     }
-
+    
+    /** Current game state */
     public GameState gameState = GameState.START_SCREEN;
+    /** Final score at end of game */
     public int finalScore = 0;
 
     // Timer variables

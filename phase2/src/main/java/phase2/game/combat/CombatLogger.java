@@ -7,10 +7,17 @@ package phase2.game.combat;
 public class CombatLogger implements CombatListener {
     private boolean verbose;
 
+    /**
+     * Create a combat logger with specified verbosity
+     * @param verbose If true, logs all combat events; if false, only logs critical events
+     */
     public CombatLogger(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * Create a combat logger with verbose mode enabled
+     */
     public CombatLogger() {
         this(true);
     }
@@ -58,6 +65,10 @@ public class CombatLogger implements CombatListener {
         return className.isEmpty() ? "Entity" : className;
     }
 
+    /**
+     * Set the verbosity of combat logging
+     * @param verbose If true, logs all events; if false, only critical events
+     */
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }

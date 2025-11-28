@@ -13,6 +13,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List; 
 
+/**
+ * UI component for displaying dialogue text with skip functionality
+ */
 public class dialogueBox {
     // some variable declarations 
     private static final int Marg = 10; 
@@ -26,7 +29,10 @@ public class dialogueBox {
     private final List<String> line = new ArrayList<>(); // to hold a list of all the dialogue lines 
     private int index = 0; // to keep track of the current line 
 
-    // Loading a dialogue box with strings + clearing when needed 
+    /**
+     * Load dialogue lines to display
+     * @param text Variable number of text strings to display
+     */
     public void loadLine(String... text) { 
         line.clear();
         if (text != null) {
@@ -39,15 +45,33 @@ public class dialogueBox {
         index = 0;
     }
 
-    // some basic visibility function 
+    /** Hide the dialogue box */
     public void hide_Dialogue(){ view = false;}
+    
+    /** Show the dialogue box */
     public void show_Dialogue(){ view = true;}
-    public boolean isDialogue_shown(){ return view;}                       
+    
+    /**
+     * Check if dialogue is currently shown
+     * @return true if dialogue is visible
+     */
+    public boolean isDialogue_shown(){ return view;}
+    
+    /** Toggle dialogue visibility */
     public void toggle(){ // between show and hide 
                             view = !view;}
+    
+    /**
+     * Check if on the last line of dialogue
+     * @return true if on last line
+     */
     public boolean tolastLine(){
-                            return index >= Math.max(1, line.size())-1;} 
+                            return index >= Math.max(1, line.size())-1;}
 
+    /**
+     * Get the height of the dialogue box
+     * @return Height in pixels
+     */
     public int getHeight() { return height; }
 
     // jumps to next line when the prompt is done 
@@ -61,7 +85,9 @@ public class dialogueBox {
             }
         }
 
-    // for skip button 
+    /**
+     * Advance to next prompt line
+     */
     public void nextPrompt(){ 
         if (!line.isEmpty() && index < line.size() -1){
             index++; 
@@ -71,7 +97,10 @@ public class dialogueBox {
     }
 
     /**
-     * Drawing the dialogue box itself using the width and height components 
+     * Drawing the dialogue box itself using the width and height components
+     * @param g Graphics2D context
+     * @param panelWidth Width of the panel
+     * @param panelHeight Height of the panel
      */
     public void draw(Graphics2D g, int panelWidth, int panelHeight){
         // checking if box is needed to be drawn, if no prompts dialogue box is not needed 
@@ -115,7 +144,10 @@ public class dialogueBox {
     }
 
     /**
-     * implementing the click to skip the prompts + using the MouseEvent function for button purposes 
+     * implementing the click to skip the prompts + using the MouseEvent function for button purposes
+     * @param e Mouse event
+     * @param panelWidth Width of the panel
+     * @param panelHeight Height of the panel
      */
     public void skipClick(MouseEvent e, int panelWidth, int panelHeight){ 
         if (!view) { return; } 

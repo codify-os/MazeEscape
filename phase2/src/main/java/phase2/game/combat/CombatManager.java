@@ -116,18 +116,34 @@ public class CombatManager {
         }
     }
 
+    /**
+     * Notify all listeners that damage was dealt
+     * @param target The target that took damage
+     * @param amount The amount of damage
+     * @param source The source of the damage
+     */
     public static void notifyDamage(Damageable target, int amount, DamageSource source) {
         for (CombatListener listener : listeners) {
             listener.onDamage(target, amount, source);
         }
     }
 
+    /**
+     * Notify all listeners that an entity died
+     * @param target The entity that died
+     * @param source The source of the killing blow
+     */
     public static void notifyDeath(Damageable target, DamageSource source) {
         for (CombatListener listener : listeners) {
             listener.onDeath(target, source);
         }
     }
 
+    /**
+     * Notify all listeners that an entity was healed
+     * @param target The entity that was healed
+     * @param amount The amount healed
+     */
     public static void notifyHeal(Damageable target, int amount) {
         for (CombatListener listener : listeners) {
             listener.onHeal(target, amount);

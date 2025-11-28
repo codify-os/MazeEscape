@@ -61,3 +61,27 @@ After running tests with `mvn test`, a code coverage report is generated at:
 phase2/target/site/jacoco/index.html
 ```
 
+
+## Building Artifacts
+
+### Create JAR File
+
+```bash
+mvn package
+```
+
+JAR file location: `phase2/target/phase2-1.0-SNAPSHOT.jar`
+
+Run the JAR:
+```bash
+cd phase2
+java -cp "target/phase2-1.0-SNAPSHOT.jar;target/classes" phase2.UI.Main
+```
+
+### Generate Javadocs
+
+```bash
+mvn javadoc:javadoc
+```
+
+View documentation: `phase2/target/site/apidocs/index.html`

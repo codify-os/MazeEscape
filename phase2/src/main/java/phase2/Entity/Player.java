@@ -206,7 +206,8 @@ public class Player extends Entity{
 
     private void updateCritBuff() {
         if (critBuffActive) {
-            if (critBuffTimer <= 0) {
+            critBuffTimer--;
+            if (critBuffTimer < 0) {
                 critBuffActive = false;
                 stats.setCritChance(prevCritChance);
             }
