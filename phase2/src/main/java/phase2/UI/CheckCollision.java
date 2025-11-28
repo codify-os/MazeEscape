@@ -2,11 +2,25 @@ package phase2.UI;
 
 import phase2.Entity.Entity;
 
+/**
+ * Handles collision detection for entities against tiles
+ */
 public class CheckCollision {
+    /** Reference to the game panel */
     public GamePanel gp;
+    
+    /**
+     * Create a collision checker
+     * @param gp The game panel
+     */
     public CheckCollision (GamePanel gp) {
         this.gp = gp;
     }
+    
+    /**
+     * Check if entity will collide with solid tiles based on its movement direction
+     * @param entity The entity to check collision for
+     */
     public void checkTile(Entity entity) {
         int leftX = entity.worldX + entity.collisionArea.x;
         int rightX = entity.worldX + entity.collisionArea.x + entity.collisionArea.width;

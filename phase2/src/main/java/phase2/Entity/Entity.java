@@ -6,45 +6,72 @@ import phase2.UI.GamePanel;
 import phase2.game.combat.*;
 import phase2.game.stats.*;
 
+/**
+ * Base class for all game entities (player, enemies, etc.)
+ */
 public abstract class Entity implements Damageable, Attacker {
-    // Constants for display timers
+    /** Duration in frames for damage flash effect */
     protected static final int DAMAGE_FLASH_DURATION = 10;
+    /** Duration in frames for damage text display */
     protected static final int DAMAGE_TEXT_DURATION = 30;
     
-    // shared stats
+    /** World X coordinate */
     public int worldX, worldY;
+    /** Movement speed */
     public int speed;
+    /** Direction sprites */
     public Image up, down, left, right;
+    /** Current direction */
     public String direction;
+    /** Reference to game panel */
     public GamePanel gp;
 
-    // shared methods
+    /** Update entity state each frame */
     public abstract void update();
 
+    /**
+     * Draw the entity
+     * @param g2d Graphics context
+     */
     public abstract void draw(Graphics2D g2d);
 
+    /**
+     * Get world X coordinate
+     * @return X position
+     */
     public int getWorldX() {
         return worldX;
     }
 
+    /**
+     * Get world Y coordinate
+     * @return Y position
+     */
     public int getWorldY() {
         return worldY;
     }
+    /** Collision hitbox */
     public Rectangle collisionArea;
+    /** Whether collision is detected */
     public boolean collisionOn = false;
 
-    //Entity Health and stats
+    /** Health component managing HP and damage */
     public HealthComponent health;
+    /** Stats component for attack and defense */
     public Stats stats;
 
-    //Attack data
+    /** Current attack being used */
     public AttackData currentAttack;
-    public int coolDown; //attacks are only at set times not every frame
+    /** Attack cooldown timer in frames */
+    public int coolDown;
 
-    //Display Text data
+    /** Timer for damage flash effect */
     public int damageFlashTimer = 0;
+    /** Timer for damage text display */
     public int damageTextTimer = 0;
+    /** Last damage amount for display */
     public int previousDamageAmount = 0;
+    /** Whether last attack was critical */
     public boolean lastCrit = false;
 
     /**
@@ -58,7 +85,7 @@ public abstract class Entity implements Damageable, Attacker {
      * Constructor with custom max health and stats
      * @param maxHealth Maximum health for this entity
      * @param stats Stats component for this entity
-     * @throws IllegalArgumentException if stats is null or maxHealth <= 0
+     * @throws IllegalArgumentException if stats is null or maxHealth is less than or equal to 0
      */
     protected Entity(int maxHealth, Stats stats) {
         if (stats == null) {
@@ -72,6 +99,14 @@ public abstract class Entity implements Damageable, Attacker {
         this.currentAttack = stats.createBasicAttack();
     }
 
+    /**
+     * Draw health bar above entity
+     * @param g2d Graphics context
+     * @param screenX Screen X position
+     * @param screeny Screen Y position
+     * @param width Bar width
+     * @param height Bar height
+     */
     public void drawHealthBar(Graphics2D g2d, int screenX, int screeny, int width, int height) {
         double hpPercent = health.getHealthPercentage();
         g2d.setColor(Color.black);

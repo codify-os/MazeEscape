@@ -29,18 +29,34 @@ public class DamageSource {
         this.sourceName = sourceName;
     }
 
+    /**
+     * Get the entity that caused the damage
+     * @return Attacker object or null
+     */
     public Object getAttacker() {
         return attacker;
     }
 
+    /**
+     * Get the attack data used for this damage
+     * @return AttackData or null
+     */
     public AttackData getAttackData() {
         return attackData;
     }
 
+    /**
+     * Get the name of the damage source
+     * @return Source name
+     */
     public String getSourceName() {
         return sourceName;
     }
 
+    /**
+     * Get the type of damage from this source
+     * @return Damage type
+     */
     public AttackData.DamageType getDamageType() {
         return attackData != null ? attackData.getDamageType() : AttackData.DamageType.PHYSICAL;
     }

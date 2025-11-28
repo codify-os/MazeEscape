@@ -6,6 +6,9 @@ import java.util.List;
 import java.awt.*;
 import phase2.game.stats.Stats;
 
+/**
+ * Enemy entity that chases and attacks the player using pathfinding
+ */
 public class Enemy extends Entity {
     // Constants
     private static final int ENEMY_SPEED = 2;
@@ -24,6 +27,7 @@ public class Enemy extends Entity {
     private int pathUpdateCounter = 0;
     
     // Game state
+    /** Whether this enemy is carrying the key */
     public boolean hasKey = false;
 
     /**
@@ -55,6 +59,9 @@ public class Enemy extends Entity {
         updatePath();
     }
 
+    /**
+     * Load enemy sprite images
+     */
     public void getImage() {
         try {
             // Using enemy sprites - the pink slime has one animated gif for all directions
@@ -208,6 +215,12 @@ public class Enemy extends Entity {
         }
     }
 
+    /**
+     * Display damage numbers above enemy
+     * @param g2d Graphics context
+     * @param screenX Screen X position
+     * @param screenY Screen Y position
+     */
     protected void showDamageNumbers(Graphics2D g2d, int screenX, int screenY) {
         if (lastCrit) {
             g2d.setColor(Color.ORANGE);
@@ -222,6 +235,12 @@ public class Enemy extends Entity {
         g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
     }
 
+    /**
+     * Display damage flash effect
+     * @param g2d Graphics context
+     * @param screenX Screen X position
+     * @param screenY Screen Y position
+     */
     protected void takeDamageFlash(Graphics2D g2d, int screenX, int screenY) {
         if (damageFlashTimer > 0) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));

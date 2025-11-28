@@ -21,7 +21,9 @@ import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-
+/**
+ * Main game panel that handles the game loop and rendering
+ */
 public class GamePanel extends JPanel implements Runnable {
     //SCREEN SETTINGS
     final int originalTileSize = 16; //16x16 tile
@@ -44,11 +46,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
+    /** Collision detection system */
     public CheckCollision checkCollision = new CheckCollision(this);
     public Player player = new Player(this, keyHandler);
     Pathfinder pathfinder = new Pathfinder(tileManager);
 
+    /** List of all active enemies */
     public List<Enemy> enemies = new ArrayList<>();
+    /** Dropped key item if any */
     public KeyItem droppedKey = null;
 
     private final dialogueBox dialogueBox = new dialogueBox();
@@ -57,12 +62,15 @@ public class GamePanel extends JPanel implements Runnable {
     private final Image keyIcon;
 
     //Status flags
+    /** Enum representing different game states */
     public enum GameState {
         PLAY,
         GAME_WON,
         GAME_OVER
     }
+    /** Current game state */
     public GameState gameState = GameState.PLAY;
+    /** Final score at end of game */
     public int finalScore = 0;
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
