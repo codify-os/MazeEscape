@@ -409,6 +409,11 @@ public class GamePanel extends JPanel implements Runnable {
             e.draw(g2d);
         }
 
+        // Draw dropped key if exists
+        if (droppedKey != null && !droppedKey.collected) {
+            droppedKey.draw(g2d, this);
+        }
+
         // Restore transform so UI stays unscaled
         g2d.setTransform(oldTransform);
 
