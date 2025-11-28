@@ -112,6 +112,10 @@ public class GamePanel extends JPanel implements Runnable {
     private long gameStartTime = 0;
     private long totalPlayTime = 0; // in milliseconds
 
+    // Big Play Button
+    private Rectangle playButtonRect;
+    private boolean playButtonHovered = false;
+
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -121,8 +125,25 @@ public class GamePanel extends JPanel implements Runnable {
 
         this.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent click) {
+                // Check if big play button is clicked
+                if (gameState == GameState.START_SCREEN && playButtonRect != null) {
+                    if (playButtonRect.contains(click.getPoint())) {
+                        gameState = GameState.PLAY;
+                        dialogueBox.hide_Dialogue();
+                        return;
+                    }
+                }
                 topPanel.clickButton(click);  // simplified, no switch needed
                 dialogueBox.skipClick(click, screenWidth, screenHeight);
+            }
+        });
+
+        this.addMouseMotionListener(new MouseAdapter() {
+            public void mouseMoved(MouseEvent e) {
+                if (gameState == GameState.START_SCREEN && playButtonRect != null) {
+                    playButtonHovered = playButtonRect.contains(e.getPoint());
+                    repaint();
+                }
             }
         });
 
@@ -392,6 +413,7 @@ public class GamePanel extends JPanel implements Runnable {
             bossFlashActive = false;
         }
     }
+        if (gameState == GameState.START_SCREEN) drawStartScreen(g2d);
         if (gameState == GameState.GAME_OVER) gameOverScreen(g2d);
         if (gameState == GameState.GAME_WON) drawVictoryScreen(g2d);
 
@@ -419,6 +441,48 @@ public class GamePanel extends JPanel implements Runnable {
         }
     
         g2d.dispose();
+    }
+
+    private void drawStartScreen(Graphics2D g2d) {
+        // Semi-transparent overlay
+        g2d.setColor(new Color(0, 0, 0, 150));
+        g2d.fillRect(0, 0, screenWidth, screenHeight);
+
+        // Big Play Button dimensions
+        int buttonWidth = 300;
+        int buttonHeight = 100;
+        int buttonX = (screenWidth - buttonWidth) / 2;
+        int buttonY = (screenHeight - buttonHeight) / 2;
+
+        // Store button rectangle for click detection
+        playButtonRect = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
+
+        // Button background (changes color on hover)
+        if (playButtonHovered) {
+            g2d.setColor(new Color(50, 150, 50, 200));
+        } else {
+            g2d.setColor(new Color(34, 139, 34, 180));
+        }
+        g2d.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 30, 30);
+
+        // Button border
+        g2d.setColor(new Color(255, 255, 255, 200));
+        g2d.setStroke(new BasicStroke(4));
+        g2d.drawRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 30, 30);
+
+        // Play text
+        g2d.setFont(new Font("Comic Sans", Font.BOLD, 60));
+        g2d.setColor(Color.WHITE);
+        String playText = "PLAY";
+        int textWidth = g2d.getFontMetrics().stringWidth(playText);
+        g2d.drawString(playText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 70);
+
+        // Subtitle text
+        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 20));
+        g2d.setColor(new Color(200, 200, 200));
+        String subtitle = "Click to start your adventure";
+        int subtitleWidth = g2d.getFontMetrics().stringWidth(subtitle);
+        g2d.drawString(subtitle, (screenWidth - subtitleWidth) / 2, buttonY + buttonHeight + 40);
     }
 
     private void gameOverScreen(Graphics2D g2d) {
