@@ -142,9 +142,6 @@ import phase2.UI.ActionBar;
 
     if (!gameOver) {
         // Normal buttons when game is not over
-        x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_In, "+");
-        x = drawsButton(bar_graphics, x, y, ActionBar.Zoom_Out, "-");
-
         String soundButton = mute ? "MUTE" : "SOUND"; 
         x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
 

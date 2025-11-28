@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 
 
 
@@ -379,12 +378,9 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2d = (Graphics2D) g;
 
         topPanel.draw(g2d, screenWidth, gameState == GameState.GAME_OVER); 
-        java .awt.geom.AffineTransform oldTransform = g2d.getTransform(); 
-        double zoom = topPanel.getZoom();
-        g2d.scale(zoom, zoom);
         tileManager.draw(g2d);
         
-        // --- DRAW CRYSTALS (corrected with camera + zoom support) ---
+        // --- DRAW CRYSTALS ---
         for (CrystalItem c : crystals) {
             if (c.isActive()) {
                 int screenX = c.worldX - player.worldX + player.screenX;
@@ -427,9 +423,6 @@ public class GamePanel extends JPanel implements Runnable {
         if (droppedKey != null && !droppedKey.collected) {
             droppedKey.draw(g2d, this);
         }
-
-        // Restore transform so UI stays unscaled
-        g2d.setTransform(oldTransform);
 
         // ---- BIG BOSS SCREEN FLASH ----
         if (bossFlashActive) {
