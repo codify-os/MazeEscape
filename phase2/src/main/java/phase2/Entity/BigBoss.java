@@ -62,12 +62,13 @@ public class BigBoss extends Enemy {
         this.stats = new Stats(20, 5);
         this.speed = 1;
         
-        // BigBoss is 3x3 tiles, so collision area should be larger
+        // BigBoss is 3x3 tiles, so collision area should cover most of the sprite
+        // Slightly smaller than full 3x3 to avoid edge collision issues
         this.collisionArea = new Rectangle(
-            gp.tileSize / 4, 
-            gp.tileSize / 2, 
-            (gp.tileSize * 3) - (gp.tileSize / 2), 
-            (gp.tileSize * 3) - (gp.tileSize)
+            gp.tileSize / 2,
+            gp.tileSize / 2,
+            gp.tileSize * 2,
+            gp.tileSize * 2
         );
 
         loadImages();
@@ -114,7 +115,23 @@ public class BigBoss extends Enemy {
             updateSpecialMode();
         }
 
-        super.update();
+        // Don't call super.update() to avoid pathfinding movement
+        // Just handle attack cooldown manually
+        if (attackCoolDown > 0) {
+            attackCoolDown--;
+        }
+        
+        // Check for player collision and attack
+        Rectangle enemyHitBox = new Rectangle(worldX + collisionArea.x, worldY + collisionArea.y,
+                collisionArea.width, collisionArea.height);
+        Rectangle playerHitBox = new Rectangle(player.worldX + player.collisionArea.x,
+                player.worldY + player.collisionArea.y, player.collisionArea.width, player.collisionArea.height);
+
+        if (enemyHitBox.intersects(playerHitBox) && attackCoolDown <= 0) {
+            System.out.println("BigBoss attacks player for " + currentAttack.getPower());
+            attack(player);
+            attackCoolDown = ATTACK_COOLDOWN_FRAMES;
+        }
     }
 
     // ======================================================================
@@ -160,10 +177,30 @@ public class BigBoss extends Enemy {
     }
 
     private void chasePlayer() {
+        int oldX = worldX;
+        int oldY = worldY;
+        
         if (player.worldX > worldX) worldX += speed;
         if (player.worldX < worldX) worldX -= speed;
+        
+        // Check horizontal collision
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        if (collisionOn) {
+            worldX = oldX; // Undo horizontal movement
+        }
+        
+        oldY = worldY; // Update oldY before vertical movement
+        
         if (player.worldY > worldY) worldY += speed;
         if (player.worldY < worldY) worldY -= speed;
+        
+        // Check vertical collision
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        if (collisionOn) {
+            worldY = oldY; // Undo vertical movement
+        }
     }
 
 //     private void spawnMinion() {
@@ -318,9 +355,24 @@ private void spawnBomb() {
         return;
     }
 
-    // Move toward target
+    // Move toward target with collision detection
+    int oldX = worldX;
+    int oldY = worldY;
+    
     worldX += (int)(dx / dist * speed);
     worldY += (int)(dy / dist * speed);
+    
+    // Check collision and revert if blocked
+    collisionOn = false;
+    gp.checkCollision.checkTile(this);
+    if (collisionOn) {
+        worldX = oldX;
+        worldY = oldY;
+        // Stop dash if blocked
+        isDashing = false;
+        speed = 1;
+        dangerZone = null;
+    }
 
     // Keep red mark following target (optional)
     if (dangerZone != null) {
@@ -333,8 +385,8 @@ private void spawnBomb() {
     // ======================================================================
     //                            DAMAGE & DEATH
     // ======================================================================
-   //  @Override
-public void takeDamage(int amount, DamageSource src) {
+    @Override
+    public void takeDamage(int amount, DamageSource src) {
     health.takeDamage(amount, src);
 
     if (!health.isAlive() && !dying) {

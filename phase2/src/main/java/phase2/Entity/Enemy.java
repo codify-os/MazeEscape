@@ -13,7 +13,7 @@ public class Enemy extends Entity {
     private static final int ENEMY_MAX_HEALTH = 50;
     private static final int ENEMY_ATTACK = 10;
     private static final int ENEMY_DEFENSE = 2;
-    private static final int ATTACK_COOLDOWN_FRAMES = 45;
+    protected static final int ATTACK_COOLDOWN_FRAMES = 45;
 
     // Dependencies - gp inherited from Entity
     private final Pathfinder pathfinder;
@@ -26,7 +26,7 @@ public class Enemy extends Entity {
 
     // Game state
     public boolean hasKey = false;
-    private int attackCoolDown = 0;
+    protected int attackCoolDown = 0;
 
     /**
      * Create an enemy at the specified position
