@@ -222,7 +222,7 @@ public class Player extends Entity{
 
     private void checkWinCondition(int playerCol, int playerRow) {
         if (playerCol == WIN_POSITION_COL && playerRow == WIN_POSITION_ROW) {
-            if (hasItem("key")) {
+            if (inventory.getOrDefault("key", 0) >= 2 ) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
                 gp.gameState = GamePanel.GameState.GAME_WON;
             }
