@@ -53,8 +53,8 @@ public class TileResources {
             new TileDef("tile/blackTile.png").collision(true).spawnable(false), //26
             new TileDef("0x72_16x16DungeonTileset.v5/items/Wall_outer_n_reversed.png")
                     .collision(true).spawnable(false), //27
-            new TileDef("0x72_16x16DungeonTileset.v5/items/chest_golden_closed.png")
-                    .collision(true).spawnable(false), //28
+            new TileDef("0x72_16x16DungeonTileset.v5/items/wall_gargoyle_green_1.png").trap(true, 15, 60)
+                    .spawnable(false), //28
             new TileDef("0x72_16x16DungeonTileset.v5/items/Wall_inner_sw_reversed.png")
                     .collision(true).spawnable(false), //29
             new TileDef("0x72_16x16DungeonTileset.v5/items/Wall_inner_se_reversed.png")
