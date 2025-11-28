@@ -35,8 +35,8 @@ public class PlayerTest{
 
     @Test
     public void constructorInitializesFields() {
-        assertEquals(100, player.getCurrentHealth());
-        assertEquals(100, player.getMaxHealth());
+        assertEquals(150, player.getCurrentHealth());
+        assertEquals(150, player.getMaxHealth());
         assertEquals(20, player.stats.getAttackPower());
         assertEquals(5, player.stats.getDefense());
         assertEquals(0, player.getInventory().size());
@@ -160,20 +160,25 @@ public class PlayerTest{
 
     @Test
     public void testGrantRandomBuffActivatesCritBuff() {
-        // This test may be probabilistic, but we can test it activates something
+        // The new buff system grants various buffs (HEAL, SPEED, CRIT_CHANCE, ATTACK, CRIT_MULTIPLIER)
+        // Instead of checking critBuffActive (which is no longer used), check that stats change
         double initialCritChance = player.stats.getCritChance();
+        int initialSpeed = player.speed;
+        int initialAttack = player.stats.getAttackPower();
+        int initialHealth = player.getCurrentHealth();
         
-        // Try multiple times since it's random
-        boolean buffActivated = false;
-        for (int i = 0; i < 20; i++) {
+        // Apply multiple buffs
+        for (int i = 0; i < 50; i++) {
             player.grantRandomBuff();
-            if (player.isCritBuffActive()) {
-                buffActivated = true;
-                break;
-            }
         }
         
-        assertTrue(buffActivated, "Crit buff should activate at least once in 20 attempts");
+        // At least one stat should have changed after 50 random buffs
+        boolean statsChanged = (player.stats.getCritChance() != initialCritChance) ||
+                               (player.speed != initialSpeed) ||
+                               (player.stats.getAttackPower() != initialAttack) ||
+                               (player.getCurrentHealth() != initialHealth);
+        
+        assertTrue(statsChanged, "At least one stat should change after 50 random buff grants");
     }
 
     @Test

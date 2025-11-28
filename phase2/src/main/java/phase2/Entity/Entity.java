@@ -235,7 +235,7 @@ public abstract class Entity implements Damageable, Attacker {
                 AttackData.DamageType.PHYSICAL,
                 stats.getCritChance(),
                 stats.getCritMultiplier(),
-                0);
+                20);
     }
 
 }

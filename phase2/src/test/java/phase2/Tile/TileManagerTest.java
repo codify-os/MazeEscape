@@ -41,7 +41,7 @@ public class TileManagerTest {
 
     @Test
     public void testAllInitializedTileSlotsNotNull() {
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < tm.tileType.length; i++) {
         if (tm.tileType[i] != null) {
             assertNotNull(
                 tm.tileType[i].image,

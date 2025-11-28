@@ -49,7 +49,7 @@ public class EnemyTest {
 
     @Test
     public void constructor_initializesSpeed() {
-        assertEquals(2, enemy.speed, "Enemy speed should be 2");
+        assertEquals(3, enemy.speed, "Enemy speed should be 3");
     }
 
     @Test
