@@ -4,9 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
-import java.lang.reflect.Field;
 import java.awt.image.BufferedImage;
-
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,6 +42,26 @@ class CrystalItemTest {
     }
 
     @Test
+    void testUpdate_collectedDoesNothing() throws Exception {
+        crystal.collected = true;
+        crystal.update();
+        assertFalse(crystal.despawned); // should not despawn if already collected
+    }
+
+    @Test
+    void testUpdate_despawnedDoesNothing() throws Exception {
+        crystal.despawned = true;
+        crystal.update();
+        assertTrue(crystal.despawned); // remains despawned
+    }
+
+    @Test
+    void testUpdate_spawnTimeZeroDoesNothing() {
+        crystal.update(); // spawnTime not started yet
+        assertFalse(crystal.despawned);
+    }
+
+    @Test
     void testUpdate_doesNotDespawnBeforeDelay() throws Exception {
         crystal.startTimer();
         crystal.update();
@@ -53,7 +72,6 @@ class CrystalItemTest {
     void testUpdate_despawnsAfterDelay() throws Exception {
         crystal.startTimer();
 
-        // Artificially set spawnTime in the past
         Field spawnTimeField = CrystalItem.class.getDeclaredField("spawnTime");
         spawnTimeField.setAccessible(true);
         long pastTime = System.currentTimeMillis() - 16_000; // 16 seconds ago
@@ -78,18 +96,28 @@ class CrystalItemTest {
     void testGetRemainingTime_beforeAndAfterDespawn() throws Exception {
         crystal.startTimer();
 
-        // Wait 1 second to check remaining time decreases
         Thread.sleep(1000);
         long remaining1 = crystal.getRemainingTime();
         assertTrue(remaining1 <= 14 && remaining1 > 0);
 
-        // Force despawn
         Field spawnTimeField = CrystalItem.class.getDeclaredField("spawnTime");
         spawnTimeField.setAccessible(true);
-        long pastTime = System.currentTimeMillis() - 16_000; // 16 seconds ago
+        long pastTime = System.currentTimeMillis() - 16_000;
         spawnTimeField.setLong(crystal, pastTime);
 
         crystal.update();
+        assertEquals(0, crystal.getRemainingTime());
+    }
+
+    @Test
+    void testGetRemainingTime_collectedReturnsZero() {
+        crystal.collected = true;
+        assertEquals(0, crystal.getRemainingTime());
+    }
+
+    @Test
+    void testGetRemainingTime_despawnedReturnsZero() {
+        crystal.despawned = true;
         assertEquals(0, crystal.getRemainingTime());
     }
 
