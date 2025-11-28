@@ -4,11 +4,11 @@ package phase2.game.combat;
  * Data object representing an attack action (damage, range, type, etc.)
  */
 public class AttackData {
-    private final int power;
+    private int power;
     private final int range;
     private final DamageType damageType;
-    private final double critChance;
-    private final double critMultiplier;
+    private double critChance;
+    private double critMultiplier;
     private final int cooldown; // in frames or milliseconds
     private final String attackName;
 

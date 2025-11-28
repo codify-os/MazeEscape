@@ -11,24 +11,26 @@ import phase2.game.stats.Stats;
  */
 public class Enemy extends Entity {
     // Constants
-    private static final int ENEMY_SPEED = 2;
+    private static final int ENEMY_SPEED = 3;
     private static final int PATH_UPDATE_INTERVAL = 10; // Update path every 10 frames
     private static final int ENEMY_MAX_HEALTH = 50;
     private static final int ENEMY_ATTACK = 10;
     private static final int ENEMY_DEFENSE = 2;
-    
+    protected static final int ATTACK_COOLDOWN_FRAMES = 45;
+
     // Dependencies - gp inherited from Entity
     private final Pathfinder pathfinder;
-    private final Player player;
+    protected final Player player;
 
     // Pathfinding state
     private List<Tile> currentPath;
     private int pathIndex = 0;
     private int pathUpdateCounter = 0;
-    
+
     // Game state
     /** Whether this enemy is carrying the key */
     public boolean hasKey = false;
+    protected int attackCoolDown = 0;
 
     /**
      * Create an enemy at the specified position
@@ -41,11 +43,11 @@ public class Enemy extends Entity {
      */
     public Enemy(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
         super(ENEMY_MAX_HEALTH, new Stats(ENEMY_ATTACK, ENEMY_DEFENSE));
-        
+
         if (gp == null || pathfinder == null || player == null) {
             throw new IllegalArgumentException("Enemy dependencies cannot be null");
         }
-        
+
         this.gp = gp;
         this.pathfinder = pathfinder;
         this.player = player;
@@ -67,7 +69,7 @@ public class Enemy extends Entity {
             // Using enemy sprites - the pink slime has one animated gif for all directions
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Image slimeImage = toolkit.getImage(gp.getResourceAsImage(
-                            "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkslime_Sprites/pinkslime_run_anim_anim_all_dir.gif"));
+                    "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkslime_Sprites/pinkslime_run_anim_anim_all_dir.gif"));
 
             // Use the same image for all directions since it's an omnidirectional sprite
             up = slimeImage;
@@ -88,16 +90,34 @@ public class Enemy extends Entity {
         if (!isOnScreen()) {
             return;
         }
-        collisionOn = false;
-        gp.checkCollision.checkTile(this);
-        if(!collisionOn) {
-            //follow current path
-            followPath();
+        
+        // Decrement attack cooldown
+        if (attackCoolDown > 0) {
+            attackCoolDown--;
         }
-
+        
         // Update path periodically
         pathUpdateCounter++;
         if (pathUpdateCounter >= PATH_UPDATE_INTERVAL) {
+            updatePath();
+            pathUpdateCounter = 0;
+        }
+        
+        // Save current position
+        int oldX = worldX;
+        int oldY = worldY;
+        
+        // Try to follow path
+        followPath();
+        
+        // Check collision in the direction we moved
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        
+        // If collision detected, undo movement and recalculate path
+        if (collisionOn) {
+            worldX = oldX;
+            worldY = oldY;
             updatePath();
             pathUpdateCounter = 0;
         }
@@ -107,9 +127,10 @@ public class Enemy extends Entity {
         Rectangle playerHitBox = new Rectangle(player.worldX + player.collisionArea.x,
                 player.worldY + player.collisionArea.y, player.collisionArea.width, player.collisionArea.height);
 
-        if (enemyHitBox.intersects(playerHitBox) && canAttack()) {
+        if (enemyHitBox.intersects(playerHitBox) && attackCoolDown<= 0) {
             System.out.println("Enemy attacks player for" + currentAttack.getPower());
             attack(player);
+            attackCoolDown = ATTACK_COOLDOWN_FRAMES;
         }
     }
 
@@ -129,7 +150,7 @@ public class Enemy extends Entity {
         }
     }
 
-    private void followPath() {
+    protected void followPath() {
         if (currentPath == null || currentPath.isEmpty() || pathIndex >= currentPath.size()) {
             return;
         }
@@ -159,29 +180,26 @@ public class Enemy extends Entity {
 
         // If very close to target, snap to it and move to next waypoint
         if (distance < speed) {
-            worldX = targetX;
-            worldY = targetY;
+            worldX = targetX - gp.tileSize/2;
+            worldY = targetY - gp.tileSize/2;
             pathIndex++;
         } else {
-            // Move towards target using normalized direction
-            // Prioritize one axis at a time to avoid diagonal movement
-            if (!collisionOn) {
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    if (dx > 0) {
-                        worldX += speed;
-                        direction = "right";
-                    } else {
-                        worldX -= speed;
-                        direction = "left";
-                    }
+            // Determine direction to move (prioritize one axis at a time)
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) {
+                    direction = "right";
+                    worldX += speed;
                 } else {
-                    if (dy > 0) {
-                        worldY += speed;
-                        direction = "down";
-                    } else {
-                        worldY -= speed;
-                        direction = "up";
-                    }
+                    direction = "left";
+                    worldX -= speed;
+                }
+            } else {
+                if (dy > 0) {
+                    direction = "down";
+                    worldY += speed;
+                } else {
+                    direction = "up";
+                    worldY -= speed;
                 }
             }
         }
@@ -194,15 +212,8 @@ public class Enemy extends Entity {
         if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth || screenY + gp.tileSize < 0 || screenY > gp.screenHeight) {
             return;
         }
-        Image image = switch (direction) {
-            case "up" -> up;
-            case "down" -> down;
-            case "left" -> left;
-            case "right" -> right;
-            default -> down;
-        };
+        drawEnemySprite(g2d, screenX, screenY);
         takeDamageFlash(g2d, screenX, screenY);
-        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
 
         int barWidth = gp.tileSize;
         int barHeight = 4;
@@ -222,6 +233,9 @@ public class Enemy extends Entity {
      * @param screenY Screen Y position
      */
     protected void showDamageNumbers(Graphics2D g2d, int screenX, int screenY) {
+        // Save original font
+        Font originalFont = g2d.getFont();
+        
         if (lastCrit) {
             g2d.setColor(Color.ORANGE);
             g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
@@ -233,6 +247,9 @@ public class Enemy extends Entity {
         int hpStatY = screenY - 10 - (30 - damageTextTimer);
 
         g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
+        
+        // Restore original font
+        g2d.setFont(originalFont);
     }
 
     /**
@@ -251,9 +268,7 @@ public class Enemy extends Entity {
         }
     }
 
-
-
-    private boolean isOnScreen() {
+    protected boolean isOnScreen() {
         int screenLeft = player.worldX - (gp.screenWidth/2);
         int screenRight = player.worldX + (gp.screenWidth/2);
         int screenTop = player.worldY - (gp.screenHeight/2);
@@ -263,16 +278,33 @@ public class Enemy extends Entity {
                 && worldY + gp.tileSize > screenTop && worldY < screenBottom;
     }
 
-    @Override
-    public void onDeath() {
+    public void handleDeath(){
+        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
         System.out.println("Enemy died!");
+
         gp.enemies.remove(this);
+        gp.player.grantRandomBuff();
+        gp.player.healFromKill();
+
         if (gp.droppedKey == null && hasKey) {
             gp.droppedKey = new KeyItem(worldX, worldY);
             System.out.println("This enemy had the key");
         }
-        gp.player.grantRandomBuff();
-        gp.player.heal(5);
-
     }
+
+    protected void drawEnemySprite(Graphics2D g2d, int screenX, int screenY) {
+        Image image = switch(direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "right" -> right;
+            case "left" -> left;
+            default -> down;
+        };
+        g2d.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, gp);
+    }
+
+    private boolean canAttackNow() {
+        return attackCoolDown <= 0;
+    }
+
 }

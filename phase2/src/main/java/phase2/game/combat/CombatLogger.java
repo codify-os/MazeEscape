@@ -26,16 +26,17 @@ public class CombatLogger implements CombatListener {
     public void onDamage(Damageable target, int amount, DamageSource source) {
         if (verbose && target != null) {
             System.out.printf("[DAMAGE] %s took %d damage from %s (HP: %d/%d)%n",
-                getEntityName(target), amount, source.getSourceName(),
-                target.getCurrentHealth(), target.getMaxHealth());
+                    getEntityName(target), amount, source.getSourceName(),
+                    target.getCurrentHealth(), target.getMaxHealth());
         }
     }
 
     @Override
     public void onDeath(Damageable target, DamageSource source) {
         if (target != null) {
+            System.out.println("[DEBUG] Enemy.onDeath() (Combat Logger) executed");
             System.out.printf("[DEATH] %s was killed by %s!%n",
-                getEntityName(target), source.getSourceName());
+                    getEntityName(target), source.getSourceName());
         }
     }
 
@@ -44,8 +45,8 @@ public class CombatLogger implements CombatListener {
         if (result != null) {
             String critText = result.wasCritical() ? " CRITICAL HIT!" : "";
             System.out.printf("[ATTACK] %s attacked %s for %d damage%s%n",
-                getEntityName(attacker), getEntityName(target),
-                result.getDamageDealt(), critText);
+                    getEntityName(attacker), getEntityName(target),
+                    result.getDamageDealt(), critText);
         }
     }
 
@@ -53,8 +54,8 @@ public class CombatLogger implements CombatListener {
     public void onHeal(Damageable target, int amount) {
         if (verbose && target != null) {
             System.out.printf("[HEAL] %s healed for %d HP (HP: %d/%d)%n",
-                getEntityName(target), amount,
-                target.getCurrentHealth(), target.getMaxHealth());
+                    getEntityName(target), amount,
+                    target.getCurrentHealth(), target.getMaxHealth());
         }
     }
 

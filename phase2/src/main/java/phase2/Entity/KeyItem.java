@@ -13,6 +13,7 @@ public class KeyItem {
     public KeyItem(int worldX, int worldY) {
         this.worldX = worldX;
         this.worldY = worldY;
+        loadKeyImage();
     }
 
     public void loadKeyImage() {
