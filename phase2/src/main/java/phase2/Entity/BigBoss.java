@@ -351,7 +351,6 @@ private void spawnBomb() {
     }
 }
 
-    // --------------------------- CHARGE ATTACK ---------------------------
     /**
      * Initiates a charge attack by locking onto the player's current position.
      * Creates a red danger zone indicator at the target location.
@@ -393,7 +392,6 @@ private void spawnBomb() {
     }
 }
 
-    // --------------------------- DASH ATTACK ----------------------------
     /**
      * Initiates the dash attack phase.
      * Boss moves rapidly toward the locked target position.
