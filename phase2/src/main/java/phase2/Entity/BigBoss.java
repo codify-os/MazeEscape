@@ -53,6 +53,10 @@ public class BigBoss extends Enemy {
 
     private boolean playerDetected = false; // tracks if boss locked onto player
     private boolean keyDropped = false; // add this as a field in BigBoss
+    
+    // Invincibility frames to prevent damage spam
+    private static final int IFRAME_DURATION = 20; // ~0.33 seconds at 60 FPS
+    private int iframeCounter = 0;
 
 
     public BigBoss(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
@@ -119,6 +123,11 @@ public class BigBoss extends Enemy {
         // Just handle attack cooldown manually
         if (attackCoolDown > 0) {
             attackCoolDown--;
+        }
+        
+        // Handle invincibility frames
+        if (iframeCounter > 0) {
+            iframeCounter--;
         }
         
         // Check for player collision and attack
@@ -387,20 +396,20 @@ private void spawnBomb() {
     // ======================================================================
     @Override
     public void takeDamage(int amount, DamageSource src) {
-    health.takeDamage(amount, src);
+        health.takeDamage(amount, src);
 
-    if (!health.isAlive() && !dying) {
-        dying = true;
-    }
+        if (!health.isAlive() && !dying) {
+            dying = true;
+        }
 
-    // Reset charge if in special mode, so red mark can appear again
-    if (mode == BossMode.SPECIAL) {
-        isCharging = false;
-        isDashing = false;
-        dangerZone = null;
-        lastChargeTime = 0; // allow immediate re-detection
+        // Reset charge if in special mode, so red mark can appear again
+        if (mode == BossMode.SPECIAL) {
+            isCharging = false;
+            isDashing = false;
+            dangerZone = null;
+            lastChargeTime = 0; // allow immediate re-detection
+        }
     }
-}
 
     private void finishDeath() {
     Rectangle dmgArea = new Rectangle(

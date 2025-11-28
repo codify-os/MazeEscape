@@ -128,14 +128,17 @@ public class Player extends Entity{
     @Override
     public void update() {
         updateDirection();
+        
+        // Check attack BEFORE movement so range check uses current position
+        updateCooldown();
+        handleAttack();
+        updateAttackAnimation();
+        
         handleTraps();
         collisionOn = false;
         gp.checkCollision.checkTile(this);
         handleMovement();
 
-        updateCooldown();
-        handleAttack();
-        updateAttackAnimation();
         updateCritBuff();
         handleWinCondition();
         if (buffTextTimer > 0) {
