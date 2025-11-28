@@ -8,57 +8,97 @@ import phase2.game.stats.Stats;
 import java.awt.*;
 import java.util.Random;
 
+/**
+ * BigBoss enemy that occupies a 3x3 tile space with two behavior modes.
+ * In NORMAL mode, the boss chases the player and spawns bombs.
+ * In SPECIAL mode, the boss charges and dashes at the player's position.
+ */
 public class BigBoss extends Enemy {
 
+    /** Boss maximum health points */
     private static final int BOSS_HP = 550;
+    /** Detection range for normal mode (in pixels) */
     private static final int NORMAL_DETECTION_RANGE = 16 * 48; // ~16 tiles
+    /** Detection range for special mode (in pixels) */
     private static final int SPECIAL_DETECTION_RANGE = 12 * 48; // ~12 tiles
+    /** Last time a charge attack was initiated */
     private long lastChargeTime = 0;
 
+    /** Cooldown between charge attacks in frames */
     private static final int CHARGE_COOLDOWN = 100; // <1 second between red marks
 
     //private static final int MINION_DELAY = 4000;
+    /** Delay between bomb spawns in milliseconds */
     private static final int BOMB_DELAY = 3500;
 
+    /** Idle animation sprite */
     private Image idleImg;
+    /** Death animation sprite */
     private Image deathImg;
 
     //private long lastMinionTime = 0;
+    /** Last time a bomb was spawned */
     private long lastBombTime = 0;
 
+    /** Whether boss is in death animation */
     private boolean dying = false;
+    /** Frames remaining in death animation */
     private int deathTimer = 60;
 
+    /** Flag indicating damage should be dealt on dash hit */
     private boolean damageReady = false;  // flag to hit player only after reaching target
 
+    /** Random number generator for boss behaviors */
     private final Random random = new Random();
 
+    /** Whether boss has detected and locked onto player */
     private boolean alertTriggered = false;
+    /** Whether warning has been shown to player */
     private boolean warningTriggered = false;
 
 
     // ------------------------- BOSS MODE SYSTEM -------------------------
+    /** Boss behavior modes */
     private enum BossMode { NORMAL, SPECIAL }
 
+    /** Current behavior mode */
     private BossMode mode = BossMode.NORMAL;   // Start in NORMAL mode
+    /** Time when current mode started */
     private long modeStartTime = System.currentTimeMillis();
 
-    // Special attack data
+    /** Visual indicator of danger zone during charge attack */
     private Rectangle dangerZone = null;
-    private int dashTargetX, dashTargetY;
+    /** Target X position for dash attack */
+    private int dashTargetX;
+    /** Target Y position for dash attack */
+    private int dashTargetY;
 
+    /** Whether boss is charging up a dash attack */
     private boolean isCharging = false;
+    /** Whether boss is currently dashing */
     private boolean isDashing = false;
+    /** Time when charge attack started */
     private long chargeStartTime = 0;
 
+    /** Whether player has been detected (unused) */
     private boolean playerDetected = false; // tracks if boss locked onto player
-    private boolean keyDropped = false; // add this as a field in BigBoss
+    /** Whether key has been dropped on death */
+    private boolean keyDropped = false;
     
-    // Invincibility frames to prevent damage spam
+    /** Duration of invincibility frames (unused) */
     private static final int IFRAME_DURATION = 20; // ~0.33 seconds at 60 FPS
+    /** Current invincibility frame counter */
     private int iframeCounter = 0;
 
 
+    /**
+     * Constructs a BigBoss enemy.
+     * @param gp The game panel
+     * @param pathfinder Pathfinding system for movement
+     * @param player Reference to the player
+     * @param x Starting X position in world coordinates
+     * @param y Starting Y position in world coordinates
+     */
     public BigBoss(GamePanel gp, Pathfinder pathfinder, Player player, int x, int y) {
         super(gp, pathfinder, player, x, y);
 
@@ -82,6 +122,9 @@ public class BigBoss extends Enemy {
 
     }
 
+    /**
+     * Loads sprite images for idle and death animations.
+     */
     private void loadImages() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         idleImg = tk.getImage(gp.getResourceAsImage(
@@ -90,9 +133,11 @@ public class BigBoss extends Enemy {
                 "Top_Down_Adventure_Pack_v.1.0/Enemies_Sprites/Pinkbat_Sprites/pinkbat_death_anim_left.gif"));
     }
 
-    // ======================================================================
-    //                                UPDATE
-    // ======================================================================
+    /**
+     * Updates the boss each frame.
+     * Handles death animation, mode switching between NORMAL and SPECIAL,
+     * attack cooldown, and collision-based attacks.
+     */
     @Override
     public void update() {
 
@@ -143,9 +188,11 @@ public class BigBoss extends Enemy {
         }
     }
 
-    // ======================================================================
-    //                           NORMAL MODE
-    // ======================================================================
+    /**
+     * Updates boss behavior in NORMAL mode.
+     * Boss chases the player and periodically spawns bombs.
+     * Triggers alert state when player enters detection range.
+     */
     private void updateNormalMode() {
     double dist = distanceToPlayer();
 
@@ -179,12 +226,20 @@ public class BigBoss extends Enemy {
 }
 
 
+    /**
+     * Calculates Euclidean distance from boss to player.
+     * @return Distance in pixels
+     */
     private double distanceToPlayer() {
         int dx = player.worldX - worldX;
         int dy = player.worldY - worldY;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    /**
+     * Moves the boss toward the player position.
+     * Checks for collision and reverts movement if collision occurs.
+     */
     private void chasePlayer() {
         int oldX = worldX;
         int oldY = worldY;
@@ -220,6 +275,10 @@ public class BigBoss extends Enemy {
 //     gp.enemiesToAdd.add(new PhantomMinion(gp, gp.pathfinder, player, worldX, worldY));
 // }
 
+/**
+ * Spawns a BombEnemy at the boss's current position.
+ * Respects a cooldown timer between spawns.
+ */
 private void spawnBomb() {
     long now = System.currentTimeMillis();
     if (now - lastBombTime < BOMB_DELAY) return;
@@ -228,10 +287,10 @@ private void spawnBomb() {
     gp.enemiesToAdd.add(new BombEnemy(gp, player, worldX, worldY));
 }
 
-
-    // ======================================================================
-    //                         SPECIAL MODE START / END
-    // ======================================================================
+    /**
+     * Enters SPECIAL mode where boss performs charge-dash attacks.
+     * Resets mode timer and initiates first charge.
+     */
     private void enterSpecialMode() {
         mode = BossMode.SPECIAL;
         modeStartTime = System.currentTimeMillis();
@@ -240,6 +299,10 @@ private void spawnBomb() {
         startCharge();
     }
 
+    /**
+     * Exits SPECIAL mode and returns to NORMAL mode.
+     * Resets attack state and returns speed to normal.
+     */
     private void exitSpecialMode() {
         mode = BossMode.NORMAL;
         modeStartTime = System.currentTimeMillis();
@@ -251,9 +314,11 @@ private void spawnBomb() {
         playerDetected = false;
     }
 
-    // ======================================================================
-    //                          SPECIAL MODE LOGIC
-    // ======================================================================
+    /**
+     * Updates boss behavior in SPECIAL mode.
+     * Initiates charge-dash attacks when player is in range,
+     * and updates ongoing charge/dash states.
+     */
     private void updateSpecialMode() {
 
     double distToPlayer = distanceToPlayer();
@@ -287,6 +352,10 @@ private void spawnBomb() {
 }
 
     // --------------------------- CHARGE ATTACK ---------------------------
+    /**
+     * Initiates a charge attack by locking onto the player's current position.
+     * Creates a red danger zone indicator at the target location.
+     */
     private void startCharge() {
     isCharging = true;
     isDashing = false;
@@ -307,6 +376,10 @@ private void spawnBomb() {
     chargeStartTime = System.currentTimeMillis();
 }
 
+    /**
+     * Updates the charge state.
+     * Danger zone follows player during charge, then initiates dash after 1 second.
+     */
     private void updateCharge() {
     // Show mark for 1 second before dash
     if (System.currentTimeMillis() - chargeStartTime >= 1000) {
@@ -321,6 +394,10 @@ private void spawnBomb() {
 }
 
     // --------------------------- DASH ATTACK ----------------------------
+    /**
+     * Initiates the dash attack phase.
+     * Boss moves rapidly toward the locked target position.
+     */
     private void startDash() {
     isCharging = false;
     isDashing = true;
@@ -328,6 +405,11 @@ private void spawnBomb() {
     speed = 15;  // fast movement
 }
 
+    /**
+     * Updates the dash state.
+     * Moves boss toward target, checks collision, deals damage on contact,
+     * and initiates next charge if player is in range.
+     */
     private void updateDash() {
     int dx = dashTargetX - worldX;
     int dy = dashTargetY - worldY;
@@ -390,10 +472,13 @@ private void spawnBomb() {
     }
 }
 
-
-    // ======================================================================
-    //                            DAMAGE & DEATH
-    // ======================================================================
+    /**
+     * Handles damage taken by the boss.
+     * Initiates death sequence if health reaches zero.
+     * Resets charge attack state in SPECIAL mode.
+     * @param amount Damage amount
+     * @param src Source of the damage
+     */
     @Override
     public void takeDamage(int amount, DamageSource src) {
         health.takeDamage(amount, src);
@@ -411,6 +496,11 @@ private void spawnBomb() {
         }
     }
 
+    /**
+     * Completes the death sequence.
+     * Deals explosion damage to player if in range, awards score,
+     * drops key item, and removes boss from game.
+     */
     private void finishDeath() {
     Rectangle dmgArea = new Rectangle(
             worldX - gp.tileSize,
@@ -441,9 +531,10 @@ private void spawnBomb() {
     gp.enemiesToRemove.add(this);
 }
 
-    // ======================================================================
-    //                                DRAW
-    // ======================================================================
+    /**
+     * Renders the boss sprite, health bar, and red danger zone indicator.
+     * @param g2 Graphics context for drawing
+     */
     @Override
     public void draw(Graphics2D g2) {
         int sx = worldX - player.worldX + player.screenX;
@@ -466,6 +557,14 @@ private void spawnBomb() {
         }
     }
 
+    /**
+     * Draws the boss health bar above the sprite.
+     * @param g2 Graphics context
+     * @param x X position on screen
+     * @param y Y position on screen
+     * @param w Width of health bar
+     * @param h Height of health bar
+     */
     @Override
     public void drawHealthBar(Graphics2D g2, int x, int y, int w, int h) {
         double hp = (double) health.getCurrentHealth() / health.getMaxHealth();
