@@ -61,6 +61,14 @@ public class BigBoss extends Enemy {
         this.health = new HealthComponent(BOSS_HP, 5, this);
         this.stats = new Stats(20, 5);
         this.speed = 1;
+        
+        // BigBoss is 3x3 tiles, so collision area should be larger
+        this.collisionArea = new Rectangle(
+            gp.tileSize / 4, 
+            gp.tileSize / 2, 
+            (gp.tileSize * 3) - (gp.tileSize / 2), 
+            (gp.tileSize * 3) - (gp.tileSize)
+        );
 
         loadImages();
         modeStartTime = System.currentTimeMillis();
