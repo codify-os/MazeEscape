@@ -314,6 +314,9 @@ public class Player extends Entity{
         int hpStatX = screenX + gp.tileSize/2;
         int hpStatY = screenY - 10 - (30 - damageTextTimer);
 
+        // Save original font
+        Font originalFont = g2d.getFont();
+
         g2d.setColor(Color.black);
         g2d.drawString(message, hpStatX + 2, hpStatY + 2);
 
@@ -325,6 +328,9 @@ public class Player extends Entity{
             g2d.setColor(Color.red);
         }
         g2d.drawString(message, hpStatX, hpStatY);
+        
+        // Restore original font
+        g2d.setFont(originalFont);
     }
 
     private void takeDamageFlash(Graphics2D g2d) {
@@ -494,6 +500,9 @@ public class Player extends Entity{
     }
 
     public void showBuffText(Graphics2D g2d) {
+        // Save original font
+        Font originalFont = g2d.getFont();
+        
         Color buffColor = buffText.contains("AMAZING") ? new Color(255, 215, 0) : Color.green;
         g2d.setFont(new Font("Comic Sans", Font.BOLD, 18));
 
@@ -505,6 +514,9 @@ public class Player extends Entity{
 
         g2d.setColor(buffColor);
         g2d.drawString(buffText, x, y);
+        
+        // Restore original font
+        g2d.setFont(originalFont);
     }
 
 //    private void triggerBuffPopup(String msg) {

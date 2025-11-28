@@ -205,6 +205,9 @@ public class Enemy extends Entity {
     }
 
     protected void showDamageNumbers(Graphics2D g2d, int screenX, int screenY) {
+        // Save original font
+        Font originalFont = g2d.getFont();
+        
         if (lastCrit) {
             g2d.setColor(Color.ORANGE);
             g2d.setFont(new Font("Comic Sans", Font.BOLD, 22));
@@ -216,6 +219,9 @@ public class Enemy extends Entity {
         int hpStatY = screenY - 10 - (30 - damageTextTimer);
 
         g2d.drawString("-" + previousDamageAmount, hpStatX, hpStatY);
+        
+        // Restore original font
+        g2d.setFont(originalFont);
     }
 
     protected void takeDamageFlash(Graphics2D g2d, int screenX, int screenY) {
