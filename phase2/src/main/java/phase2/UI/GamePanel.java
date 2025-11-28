@@ -282,6 +282,22 @@ public class GamePanel extends JPanel implements Runnable {
         }
         return;
     }
+    
+    // Check for game over and allow restart
+    if (!player.isAlive()) {
+        if (gameState != GameState.GAME_OVER) {
+            // Calculate total play time when game ends
+            totalPlayTime = System.currentTimeMillis() - gameStartTime;
+        }
+        gameState = GameState.GAME_OVER;
+    }
+
+    if (gameState == GameState.GAME_OVER) {
+        if (keyHandler.rPressed) {
+            restartGame();
+        }
+        return; // Stop updating game when dead
+    }
 
     if (keyHandler.spacePressed) {
         dialogueBox.jumptoNext();
@@ -324,18 +340,6 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     checkMapSwitch();
-
-    if (!player.isAlive()) {
-        if (gameState != GameState.GAME_OVER) {
-            // Calculate total play time when game ends
-            totalPlayTime = System.currentTimeMillis() - gameStartTime;
-        }
-        gameState = GameState.GAME_OVER;
-    }
-
-    if (gameState == GameState.GAME_OVER && keyHandler.rPressed) {
-        restartGame();
-    }
 
     tileManager.updateTraps();
 }
