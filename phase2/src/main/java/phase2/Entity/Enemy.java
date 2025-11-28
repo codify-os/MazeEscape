@@ -89,16 +89,28 @@ public class Enemy extends Entity {
             attackCoolDown--;
         }
         
-        collisionOn = false;
-        gp.checkCollision.checkTile(this);
-        if(!collisionOn) {
-            //follow current path
-            followPath();
-        }
-
         // Update path periodically
         pathUpdateCounter++;
         if (pathUpdateCounter >= PATH_UPDATE_INTERVAL) {
+            updatePath();
+            pathUpdateCounter = 0;
+        }
+        
+        // Save current position
+        int oldX = worldX;
+        int oldY = worldY;
+        
+        // Try to follow path
+        followPath();
+        
+        // Check collision in the direction we moved
+        collisionOn = false;
+        gp.checkCollision.checkTile(this);
+        
+        // If collision detected, undo movement and recalculate path
+        if (collisionOn) {
+            worldX = oldX;
+            worldY = oldY;
             updatePath();
             pathUpdateCounter = 0;
         }
@@ -161,29 +173,26 @@ public class Enemy extends Entity {
 
         // If very close to target, snap to it and move to next waypoint
         if (distance < speed) {
-            worldX = targetX;
-            worldY = targetY;
+            worldX = targetX - gp.tileSize/2;
+            worldY = targetY - gp.tileSize/2;
             pathIndex++;
         } else {
-            // Move towards target using normalized direction
-            // Prioritize one axis at a time to avoid diagonal movement
-            if (!collisionOn) {
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    if (dx > 0) {
-                        worldX += speed;
-                        direction = "right";
-                    } else {
-                        worldX -= speed;
-                        direction = "left";
-                    }
+            // Determine direction to move (prioritize one axis at a time)
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) {
+                    direction = "right";
+                    worldX += speed;
                 } else {
-                    if (dy > 0) {
-                        worldY += speed;
-                        direction = "down";
-                    } else {
-                        worldY -= speed;
-                        direction = "up";
-                    }
+                    direction = "left";
+                    worldX -= speed;
+                }
+            } else {
+                if (dy > 0) {
+                    direction = "down";
+                    worldY += speed;
+                } else {
+                    direction = "up";
+                    worldY -= speed;
                 }
             }
         }
