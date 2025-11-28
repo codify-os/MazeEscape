@@ -83,6 +83,12 @@ public class Enemy extends Entity {
         if (!isOnScreen()) {
             return;
         }
+        
+        // Decrement attack cooldown
+        if (attackCoolDown > 0) {
+            attackCoolDown--;
+        }
+        
         collisionOn = false;
         gp.checkCollision.checkTile(this);
         if(!collisionOn) {
