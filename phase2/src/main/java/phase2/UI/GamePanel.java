@@ -171,8 +171,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         dialogueBox.loadLine(
                 "Welcome to the dungeon!",
-                "Find a key to escape the dungeon but beware of the enemies and traps",
-                "Fight the enemies to get the key",
+                "Find keys to escape the dungeon but beware of the enemies and traps",
+                "Fight the enemies to get the keys",
                 "Press PLAY to Start",
                 "HAVE FUN PLAYER !!"
         );
