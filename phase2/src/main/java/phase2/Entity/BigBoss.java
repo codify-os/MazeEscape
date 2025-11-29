@@ -402,7 +402,6 @@ private void spawnBomb() {
     damageReady = true; // ready to hit player when reached
     speed = 15;  // fast movement
 }
-
     /**
      * Updates the dash state.
      * Moves boss toward target, checks collision, deals damage on contact,

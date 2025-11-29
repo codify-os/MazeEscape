@@ -551,7 +551,8 @@ public class GamePanel extends JPanel implements Runnable {
             {29, 2},
             {21, 5},
             {40, 33},
-            {48, 43}
+            {48, 44},
+            {40, 2}
     };
 
     Random r = new Random();
