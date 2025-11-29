@@ -130,7 +130,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
-        
+
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
 
@@ -565,7 +565,6 @@ public class GamePanel extends JPanel implements Runnable {
     }
 }
 
-
     public void spawnCrystals() {
 
     crystals.clear();
@@ -629,25 +628,24 @@ public class GamePanel extends JPanel implements Runnable {
     enemies.add(bigBoss);
 
     // ----------------------------
-// 2. Spawn normal enemies + spiders + phantoms near portal
-// ----------------------------
-int enemyCount = 30;
-int minSpiders = 5;
-int keyHolderIndex = (int) (Math.random() * enemyCount);
+    // 2. Spawn normal enemies + spiders + phantoms near portal
+    // ----------------------------
+    int enemyCount = 30;
+    int minSpiders = 5;
+    int keyHolderIndex = (int) (Math.random() * enemyCount);
 
-// Use BigBoss spawn coordinates as portal center
-int portalCol = bossCol;
-int portalRow = bossRow;
+    // Use BigBoss spawn coordinates as portal center
+    int portalCol = bossCol;
+    int portalRow = bossRow;
 
-Random random = new Random();
+    Random random = new Random();
 
 
-for (int i = 0; i < enemyCount; i++) {
-    int col, row;
-    int worldX, worldY;
-
-            // Decide if we spawn a phantom here (e.g., first 3 enemies)
-            boolean spawnPhantom = (i < 3); // adjust number as needed
+    for (int i = 0; i < enemyCount; i++) {
+        int col, row;
+        int worldX, worldY;
+        // Decide if we spawn a phantom here (e.g., first 3 enemies)
+        boolean spawnPhantom = (i < 3); // adjust number as needed
             if (spawnPhantom) {
                 // small random offset around portal
                 int offsetX = random.nextInt(3) - 1; // -1,0,1
@@ -660,8 +658,7 @@ for (int i = 0; i < enemyCount; i++) {
                 PhantomMinion phantom = new PhantomMinion(this, pathfinder, player, worldX, worldY);
                 enemies.add(phantom);
                 continue; // skip normal enemy/spider logic
-            }
-
+                }
             // Normal enemy/spider spawn
             int[] spawnPoints = tileManager.getValidTile();
             col = spawnPoints[0];
@@ -699,7 +696,6 @@ for (int i = 0; i < enemyCount; i++) {
     );
 
     for (ChestItem c : chests) {
-
         Rectangle chestBox = new Rectangle(
                 c.worldX,
                 c.worldY,
