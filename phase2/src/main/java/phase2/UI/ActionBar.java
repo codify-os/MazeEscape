@@ -9,22 +9,6 @@ import phase2.UI.MusicManager;
  */
 public enum ActionBar {
 
-    /** Zooms in the game view by increasing the zoom factor. */
-    Zoom_In {
-        @Override
-        public void execute(topPanel panel, GamePanel gp, MusicManager musicManager) {
-            panel.adjustZoom(0.1);
-        }
-    },
-
-    /** Zooms out the game view by decreasing the zoom factor. */
-    Zoom_Out {
-        @Override
-        public void execute(topPanel panel, GamePanel gp, MusicManager musicManager) {
-            panel.adjustZoom(-0.1);
-        }
-    },
-
     /** Toggles the game's pause state. */
     Button_Pause {
         @Override
