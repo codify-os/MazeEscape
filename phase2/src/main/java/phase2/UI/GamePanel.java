@@ -365,6 +365,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         enemies.clear();
         spawnEnemies();
+        chests.clear();
+        spawnChests();
+
+        // Reset crystals if needed
+        crystals.clear();
+        spawnCrystals();
+
+        // Reset dropped key
+        droppedKey = null;
 
         // Reset timer
         gameStartTime = System.currentTimeMillis();
