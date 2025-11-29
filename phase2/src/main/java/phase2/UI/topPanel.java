@@ -1,65 +1,93 @@
-/** topPanel.java */
-// Will contain the general buttons or haptics such as sound, zoom, pause, back, dialogue box, & exit button 
+/** 
+ * topPanel.java
+ * 
+ * Represents the top bar panel of the game UI.
+ * Contains buttons and haptics such as sound, zoom, pause, reset, help, dialogue box, and exit button.
+ * Handles drawing the top bar, button interactions, and related states.
+ */
 
 package phase2.UI;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import phase2.UI.ActionBar;
 
-
-
 /**
- * Want to draw out top bar panel of the game with the correct placement of the needed buttons  
- * These buttons will be clickable 
+ * Class responsible for drawing and managing the game's top panel.
+ * Includes the placement of buttons and handling click events.
+ * Provides functionality to toggle pause, sound, reset the game, and adjust zoom.
  */
+public class topPanel {
 
- public class topPanel{
-    private static final int Bar_Height = 68;  // height of the top bar
-    private static final int Bttn_Width = 70;  // button width
-    private static final int Bttn_Height = 28;  // button height
-    private static final int Bar_Gap_Space = 12;  // left/right padding
-    private static final int Bttn_Gap = 8;   // gap between buttons
+    /** Height of the top bar in pixels. */
+    private static final int Bar_Height = 68;
 
-// indicating state of the button for the ones that are yes or no AKA Boolean
+    /** Width of each button in pixels. */
+    private static final int Bttn_Width = 70;
+
+    /** Height of each button in pixels. */
+    private static final int Bttn_Height = 28;
+
+    /** Padding for the top bar from the left and right edges. */
+    private static final int Bar_Gap_Space = 12;
+
+    /** Gap between adjacent buttons in pixels. */
+    private static final int Bttn_Gap = 8;
+
+    /** Indicates whether the game is currently paused. */
     private boolean pause = false;
-    private boolean mute  = false;
-    private double  zoom   = 1.0;
 
+    /** Indicates whether the sound is muted. */
+    private boolean mute = false;
 
+    /** Current zoom factor of the game view. */
+    private double zoom = 1.0;
+
+    /** Reference to the game panel. */
     private GamePanel gp;
 
-    // Music manager reference
+    /** Reference to the music manager. */
     private MusicManager musicManager;
 
-    // hashmap set up for the top panel 
-    // public enum ActionBar {
-    //     Zoom_In , Zoom_Out, Button_Pause, Button_Sound, Button_Back, Button_Help, Button_EXIT, none}
-    
+    /** Stores button rectangles for click detection. */
     private final Map<ActionBar, Rectangle> box = new LinkedHashMap<>();
 
-// declaring colours of the panel here to avoid repetition of code 
-    private static final Color bar_backgroud_color = new Color(0x3B2F2F); // deep brown 
-    private static final Color bar_border_color = new Color(0xFFFDD0); // creamy white 
-    private static final Color button_background_color = new Color(0xC65D57); // muted red 
-    private static final Color button_border_color = new Color(255, 255, 255, 60); // white mistyness 
-    private static final Color text_color = new Color(0xFFFDD0); // creamy white 
+    /** Background color of the top bar. */
+    private static final Color bar_backgroud_color = new Color(0x3B2F2F);
 
-    // creating the top bar functions using the states and button functions from above -- AKA getters and setters 
+    /** Border color of the top bar. */
+    private static final Color bar_border_color = new Color(0xFFFDD0);
+
+    /** Background color of buttons. */
+    private static final Color button_background_color = new Color(0xC65D57);
+
+    /** Border color of buttons. */
+    private static final Color button_border_color = new Color(255, 255, 255, 60);
+
+    /** Text color for button labels and title. */
+    private static final Color text_color = new Color(0xFFFDD0);
+
+    /** Returns the height of the top bar. */
     public int getHeight() { return Bar_Height; }
 
+    /** Returns true if the game is currently paused. */
     public boolean isPaused() { return pause; }
 
-    public boolean isMuted()  { return mute;  }
+    /** Returns true if the game sound is muted. */
+    public boolean isMuted() { return mute; }
 
-    public double  getZoom()  { return zoom;   }
+    /** Returns the current zoom factor of the game. */
+    public double getZoom() { return zoom; }
 
-    public topPanel() {
-            // empty boxes are created 
-            }
+    /** Default constructor initializes an empty top panel. */
+    public topPanel() { }
 
-    // setter for MusicManager
+    /**
+     * Sets the music manager for controlling sound.
+     * @param manager the MusicManager instance
+     */
     public void setMusicManager(MusicManager manager) {
         this.musicManager = manager;
         if (mute) {
@@ -67,20 +95,34 @@ import phase2.UI.ActionBar;
         }
     }
 
+    /**
+     * Sets the associated game panel.
+     * @param gp the GamePanel instance
+     */
     public void setGamePanel(GamePanel gp) {
-    this.gp = gp;
-}
+        this.gp = gp;
+    }
+
+    /** Sets the paused state of the game. */
     public void setPause(boolean value) {
         pause = value;
     }
 
+    /**
+     * Adjusts the zoom factor of the game view.
+     * Clamps the value between 0.5 and 2.0.
+     * @param delta the amount to adjust zoom by
+     */
     public void adjustZoom(double delta) {
         zoom = Math.max(0.5, Math.min(2.0, zoom + delta));
     }
 
+    /**
+     * Toggles the pause state of the game.
+     * @param gp the GamePanel instance
+     */
     public void togglePause(GamePanel gp) {
         if (gp == null) {
-            // For testing purposes, just toggle pause
             pause = !pause;
             return;
         }
@@ -93,12 +135,18 @@ import phase2.UI.ActionBar;
         }
     }
 
+    /**
+     * Toggles the sound on or off using the music manager.
+     * @param musicManager the MusicManager instance
+     */
     public void toggleSound(MusicManager musicManager) {
         mute = !mute;
         if (musicManager != null) {
             musicManager.setMuted(mute);
         }
     }
+
+    /** Resets the top panel state to default values. */
     public void resetGame() {
         pause = false;
         zoom = 1.0;
@@ -106,6 +154,11 @@ import phase2.UI.ActionBar;
         if (musicManager != null) musicManager.setMuted(false);
     }
 
+    /**
+     * Draws the game title at the center of the top bar.
+     * @param g Graphics2D instance for drawing
+     * @param width width of the panel
+     */
     private void drawTitle(Graphics2D g, int width) {
         g.setColor(text_color);
         Font oldFont = g.getFont();
@@ -120,56 +173,50 @@ import phase2.UI.ActionBar;
     }
 
     /**
-     * Drawing the bar, and using the buttons and actions created 
-     * * graphcis2D makes edges of java pixels look a but nicer 
+     * Draws the top bar with buttons and title.
+     * @param bar_graphics Graphics2D instance for drawing
+     * @param panelWidth width of the panel
+     * @param gameOver true if the game is over, buttons may be disabled
      */
     public void draw(Graphics2D bar_graphics, int panelWidth, boolean gameOver) {
-    // Background
-    bar_graphics.setColor(bar_backgroud_color);
-    bar_graphics.fillRect(0, 0, panelWidth, Bar_Height);
+        bar_graphics.setColor(bar_backgroud_color);
+        bar_graphics.fillRect(0, 0, panelWidth, Bar_Height);
+        bar_graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // Anti-aliasing for nicer edges
-    bar_graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        drawTitle(bar_graphics, panelWidth);
 
-    // Title
-    drawTitle(bar_graphics, panelWidth);
+        bar_graphics.setColor(bar_border_color);
+        bar_graphics.drawLine(0, Bar_Height - 1, panelWidth, Bar_Height - 1);
 
-    // Bottom border line
-    bar_graphics.setColor(bar_border_color);
-    bar_graphics.drawLine(0, Bar_Height - 1, panelWidth, Bar_Height - 1);
+        int y = Bar_Height - Bttn_Height - 10;
+        int x = Bar_Gap_Space;
 
-    // Buttons
-    int y = Bar_Height - Bttn_Height - 10;
-    int x = Bar_Gap_Space;
+        box.clear();
 
-    box.clear(); // clear old buttons
+        if (!gameOver) {
+            String soundButton = mute ? "MUTE" : "SOUND"; 
+            x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
 
-    if (!gameOver) {
-        // Normal buttons when game is not over
-        String soundButton = mute ? "MUTE" : "SOUND"; 
-        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Sound, soundButton); 
-
-        String pauseButton;
-        if (gp != null && gp.gameState == GamePanel.GameState.START_SCREEN) {
-            pauseButton = "PLAY";   // initial label
-            }
-        else {
+            String pauseButton;
+            if (gp != null && gp.gameState == GamePanel.GameState.START_SCREEN) {
+                pauseButton = "PLAY";
+            } else {
                 pauseButton = pause ? "PLAY" : "PAUSE";
-        }
-        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Pause, pauseButton); 
+            }
+            x = drawsButton(bar_graphics, x, y, ActionBar.Button_Pause, pauseButton); 
 
-        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Reset, "RESET"); 
-        x = drawsButton(bar_graphics, x, y, ActionBar.Button_Help, "?");
+            x = drawsButton(bar_graphics, x, y, ActionBar.Button_Reset, "RESET"); 
+            x = drawsButton(bar_graphics, x, y, ActionBar.Button_Help, "?");
+        }
+
+        int rightX = panelWidth - Bar_Gap_Space - Bttn_Width;
+        draw_ButtonAt(bar_graphics, rightX, y, ActionBar.Button_EXIT, "EXIT");
     }
 
-    // EXIT button is always visible on the right
-    int rightX = panelWidth - Bar_Gap_Space - Bttn_Width;
-    draw_ButtonAt(bar_graphics, rightX, y, ActionBar.Button_EXIT, "EXIT");
-}
-   
     /**
-     * Creating button clicking function 
-     * determines which button is pressed 
+     * Handles a click event on the top panel buttons.
+     * @param e MouseEvent instance representing the click
+     * @return ActionBar enum corresponding to the clicked button, or ActionBar.none if no button was clicked
      */
     public ActionBar clickButton(MouseEvent e) {
         int mouse_x = e.getX();
@@ -186,34 +233,43 @@ import phase2.UI.ActionBar;
         return ActionBar.none;
     }
 
-    // Helper function to help draw a button and space it correctly 
+    /**
+     * Draws a button and returns the next X position for spacing.
+     * @param bar_graphics Graphics2D instance
+     * @param x X coordinate of button
+     * @param y Y coordinate of button
+     * @param action ActionBar enum for this button
+     * @param label Text label for the button
+     * @return next X coordinate after spacing
+     */
     private int drawsButton(Graphics2D bar_graphics, int x, int y, ActionBar action, String label) {
         draw_ButtonAt(bar_graphics, x, y, action, label);
         return x + Bttn_Width + Bttn_Gap;
     }
 
     /**
-     * section draws the genuine rectangle, creates one rectangle with the desired affects "Hopefully"
-     * 
+     * Draws an individual button rectangle with label.
+     * Stores the rectangle for click detection.
+     * @param bar_graphics Graphics2D instance
+     * @param x X coordinate of the button
+     * @param y Y coordinate of the button
+     * @param action ActionBar enum for this button
+     * @param label Text label for the button
      */
-    private void draw_ButtonAt(Graphics2D bar_graphics, int x, int y, ActionBar action, String label){ 
-        // rectangle shape 
+    private void draw_ButtonAt(Graphics2D bar_graphics, int x, int y, ActionBar action, String label) { 
         Rectangle rectBase = new Rectangle(x, y, Bttn_Width, Bttn_Height); 
-        box.put(action,rectBase); 
+        box.put(action, rectBase); 
 
-        // Button background base 
-        bar_graphics.setColor(button_background_color);  // muted tomato red
+        bar_graphics.setColor(button_background_color);
         bar_graphics.fillRect(rectBase.x, rectBase.y, rectBase.width, rectBase.height);
 
-        // button border 
-        bar_graphics.setColor(button_border_color); // hoping to get shadowy mist 
+        bar_graphics.setColor(button_border_color);
         bar_graphics.drawRect(rectBase.x, rectBase.y, rectBase.width, rectBase.height);
 
-        // location and of titles and texts on the box 
         bar_graphics.setColor(text_color);
         FontMetrics fontSize = bar_graphics.getFontMetrics(); 
-        int textX = rectBase.x + (rectBase.width - fontSize.stringWidth(label))/2; 
-        int textY = rectBase.y + (rectBase.height + fontSize.getAscent() - fontSize.getDescent())/2; 
+        int textX = rectBase.x + (rectBase.width - fontSize.stringWidth(label)) / 2; 
+        int textY = rectBase.y + (rectBase.height + fontSize.getAscent() - fontSize.getDescent()) / 2; 
         bar_graphics.drawString(label, textX, textY);
-  }
-} 
+    }
+}
