@@ -44,7 +44,8 @@ public enum ActionBar {
             if (gp != null) {
                gp.getDialogueBox().loadLine(
                   "Need Help?",
-                  "Use WASD to move and SPACE to attack"
+                  "Use WASD to move and SPACE to attack", 
+                  "Press E to open chests"
                );
                gp.getDialogueBox().show_Dialogue();
             }

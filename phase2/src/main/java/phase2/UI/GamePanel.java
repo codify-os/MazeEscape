@@ -130,6 +130,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
+        
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
 
@@ -171,8 +172,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         dialogueBox.loadLine(
                 "Welcome to the dungeon!",
-                "Find a key to escape the dungeon but beware of the enemies and traps",
-                "Fight the enemies to get the key",
+                "Find keys to escape the dungeon but beware of the enemies and traps",
+                "Fight the enemies to get the keys",
                 "Press PLAY to Start",
                 "HAVE FUN PLAYER !!"
         );
@@ -756,18 +757,20 @@ for (int i = 0; i < enemyCount; i++) {
     g2d.drawString("Inventory", 20, 90);
 
     // -------------------- KEY DISPLAY --------------------
+    // -------------------- KEY DISPLAY --------------------
     if (keyIcon != null) {
         g2d.drawImage(keyIcon,
-                20, 100,
-                tileSize / 2, tileSize / 2,
-                this);
-    }
+            20, 100,
+            tileSize / 2, tileSize / 2,
+            this);}
 
+    // Display in "collected/required" format
     int keyCount = player.getInventory().getOrDefault("key", 0);
-    if (keyCount > 0) {
-        g2d.setFont(new Font("Comic Sans", Font.PLAIN, 14));
-        g2d.drawString("x" + keyCount, 20 + (tileSize / 2) + 10, 118);
-    }
+    int requiredKeys = 2; // total keys needed to win, adjust as needed
+
+    g2d.setFont(new Font("Comic Sans", Font.PLAIN, 14));
+    g2d.setColor(Color.white);
+    g2d.drawString(keyCount + "/" + requiredKeys, 20 + (tileSize / 2) + 10, 118);
 
     // -------------------- CRYSTAL DISPLAY --------------------
     if (crystalIcon != null) {

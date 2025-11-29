@@ -222,7 +222,7 @@ public class Player extends Entity{
 
     private void checkWinCondition(int playerCol, int playerRow) {
         if (playerCol == WIN_POSITION_COL && playerRow == WIN_POSITION_ROW) {
-            if (hasItem("key")) {
+            if (inventory.getOrDefault("key", 0) >= 2 ) {
                 gp.finalScore = (int) (health.getHealthPercentage() * 1000);
                 gp.gameState = GamePanel.GameState.GAME_WON;
             }
@@ -459,7 +459,7 @@ public class Player extends Entity{
                 System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case SPEED -> {
-                int amount = amazing ? 3 : 1;
+                int amount = amazing ? 2 : 1;
                 speed += amount;
                 buffText = "+" + amount + " speed (" + tier + ")";
                 buffTextTimer = 200;
@@ -467,7 +467,7 @@ public class Player extends Entity{
                 System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case CRIT_CHANCE -> {
-                double amount = amazing ? 1.00 : 0.30;
+                double amount = amazing ? 0.20 : 0.1;
                 stats.setCritChance(Math.min(1.0, stats.getCritChance() + amount));
                 refreshAttackFromStats();
                 buffText =  "+"  + amount + " Crit Chance (" + tier + ")";
@@ -476,7 +476,7 @@ public class Player extends Entity{
                 System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case ATTACK -> {
-                int amount = amazing ? 10 : 2;
+                int amount = amazing ? 4 : 1;
                 stats.setAttackPower(stats.getAttackPower() + amount);
                 refreshAttackFromStats();
                 buffText = "+" + amount + " Damage (" + tier + ")";
@@ -485,7 +485,7 @@ public class Player extends Entity{
                 System.out.println("[BUFF POPUP DEBUG] buffText set to: " + buffText + " | timer = " + buffTextTimer);
             }
             case CRIT_MULTIPLIER -> {
-                double amount = amazing ? 2 : 0.5;
+                double amount = amazing ? 1 : 0.25;
                 stats.setCritMultiplier(stats.getCritMultiplier() + amount);
                 refreshAttackFromStats();
                 buffText = "+" + amount + " Crit Mul (" + tier + ")";
