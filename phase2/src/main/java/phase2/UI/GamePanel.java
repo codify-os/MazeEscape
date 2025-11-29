@@ -372,8 +372,7 @@ public class GamePanel extends JPanel implements Runnable {
         crystals.clear();
         spawnCrystals();
 
-        // Reset dropped key
-        droppedKey = null;
+      
 
         // Reset timer
         gameStartTime = System.currentTimeMillis();
@@ -683,17 +682,43 @@ public class GamePanel extends JPanel implements Runnable {
                 enemy = new Enemy(this, pathfinder, player, worldX, worldY);
             }
 
-            if (i == keyHolderIndex) {
-                enemy.hasKey = true;
-            }
+            // if (i == keyHolderIndex) {
+            //     enemy.hasKey = true;
+            // }
 
             enemies.add(enemy);
+            assignKeyToRandomEnemy();
         }
 }
 
     public void dropKey(int worldX, int worldY) {
         droppedKey = new KeyItem(worldX, worldY);
     }
+
+    private void assignKeyToRandomEnemy() { 
+        List<Enemy> eligible = new ArrayList<>();
+
+    // Collect all enemies EXCEPT PhantomMinion
+    for (Enemy e : enemies) {
+        if (!(e instanceof PhantomMinion)) { 
+            eligible.add(e);
+        }
+    }
+
+    // Should never happen, but safety check
+    if (eligible.isEmpty()) {
+        System.out.println("WARNING: No eligible enemies to assign the key!");
+        return;
+    }
+
+    // Pick random eligible enemy
+    Random random = new Random();
+    Enemy chosen = eligible.get(random.nextInt(eligible.size()));
+
+    chosen.hasKey = true;
+    
+}
+
 
     public void checkChestInteraction() {
     if (!keyHandler.ePressed) return;

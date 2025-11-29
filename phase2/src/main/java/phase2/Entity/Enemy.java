@@ -279,7 +279,6 @@ public class Enemy extends Entity {
     }
 
     public void handleDeath(){
-        System.out.println("[DEBUG] Enemy.onDeath() (base class) executed");
         System.out.println("Enemy died!");
 
         gp.enemies.remove(this);
