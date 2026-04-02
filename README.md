@@ -2,6 +2,8 @@
 
 A 2D top-down adventure game built with Java Swing.
 
+Built collaboratively as part of a 4-person team for CMPT 276
+
 ## Prerequisites
 
 Before building and running the game, ensure you have the following installed:
